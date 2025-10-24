@@ -1,0 +1,14 @@
+[project]
+name = "ascendia"
+version = "0.1.0"
+description = "Ascendia is an interactive and extensible learning system designed to help users organize, track, and evolve their knowledge journey. Built with Django and managed by uv, it serves as a foundation for exploring modern backend development, data management, and integration with AI"
+
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+  # Core framework
+    "django>=5.0",
+    "uvicorn>=0.30",
+    "gunicorn>=21.2",          # para deploys de produção
+    "python-dotenv>=1.0",      # para gerenciar variáveis de ambiente
+]
