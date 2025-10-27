@@ -16,10 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+<<<<<<< HEAD
 from core import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+=======
+
+urlpatterns = [
+>>>>>>> f98de5e (Add initial Django project structure with core and users apps)
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
 ]

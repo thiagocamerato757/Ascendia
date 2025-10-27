@@ -9,6 +9,7 @@ wheels/
 # Virtual environments
 .venv
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 # Python-generated files
 __pycache__/
@@ -20,6 +21,8 @@ wheels/
 
 # Virtual environments
 .venv
+=======
+>>>>>>> f98de5e (Add initial Django project structure with core and users apps)
 
 ### Django ###
 *.log
@@ -189,6 +192,10 @@ cython_debug/
 #  be found at https://github.com/github/gitignore/blob/main/Global/JetBrains.gitignore
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
+<<<<<<< HEAD
 #.idea/
 =======
 >>>>>>> 814b47a (initial configuration commit)
+=======
+#.idea/
+>>>>>>> f98de5e (Add initial Django project structure with core and users apps)
