@@ -17,14 +17,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8c6dba0 (Add authentication views and update settings for static files)
 from core import views
 
 urlpatterns = [
     path('', views.home, name='home'),
+<<<<<<< HEAD
 =======
 
 urlpatterns = [
 >>>>>>> f98de5e (Add initial Django project structure with core and users apps)
+=======
+>>>>>>> 8c6dba0 (Add authentication views and update settings for static files)
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
 ]
