@@ -1,0 +1,66 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://cdn.tailwindcss.com"></script>
+  {% block extra_css %}
+  {% endblock %}
+  <title>{% block title %}Ascendia{% endblock %}</title>
+</head>
+
+<body class="min-h-screen flex flex-col text-white {% block body_class %}{% endblock %}">
+
+  <!-- Navbar -->
+  <header class="w-full backdrop-blur-md shadow-md">
+    <nav class="max-w-7xl mx-auto flex items-center justify-between px-0 py-3">
+      <!-- Logo + Nome -->
+      <div class="flex items-center space-x-3">
+        <img src="{% static 'img/Ascendia_logo.png' %}" alt="Ascendia Logo" class="w-10 h-10">
+        <a class="text-2xl font-bold tracking-tight">Ascendia</a>
+      </div>
+
+      <!-- Links -->
+      <div class="hidden md:flex items-center space-x-8">
+        {% block nav_links %}
+          
+        {% endblock %}
+      </div>
+
+      <!-- Autenticação -->
+      <div class="flex items-center space-x-4">
+        {% if user.is_authenticated %}
+          <span class="text-white/80">Olá, {{ user.username }}</span>
+          <form method="post" action="{% url 'logout' %}" class="inline">
+            {% csrf_token %}
+            <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+              Sair
+            </button>
+          </form>
+        {% else %}
+          <a href="{% url 'login' %}" class="px-4 py-2 border border-white text-white rounded-lg hover:bg-white hover:text-blue-700 transition">
+            Login
+          </a>
+          <a href="{% url 'signup' %}" class="px-4 py-2 bg-white text-blue-700 font-semibold rounded-lg hover:bg-blue-100 transition">
+            Signup
+          </a>
+        {% endif %}
+      </div>
+    </nav>
+  </header>
+
+  <!-- Conteúdo Principal -->
+  <main class="flex-grow">
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- Rodapé -->
+  <footer class="backdrop-blur-md py-4 text-center text-sm text-white/80">
+    &copy; {% now "Y" %} Ascendia. Todos os direitos reservados.
+  </footer>
+
+</body>
+</html>
