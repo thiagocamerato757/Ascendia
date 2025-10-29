@@ -6,61 +6,65 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{% static 'css/design.css' %}">
   {% block extra_css %}
   {% endblock %}
   <title>{% block title %}Ascendia{% endblock %}</title>
 </head>
 
-<body class="min-h-screen flex flex-col text-white {% block body_class %}{% endblock %}">
+<body class="h-screen flex flex-col text-white overflow-hidden {% block body_class %}{% endblock %}">
 
   <!-- Navbar -->
-  <header class="w-full backdrop-blur-md shadow-md">
-    <nav class="max-w-7xl mx-auto flex items-center justify-between px-0 py-3">
-      <!-- Logo + Nome -->
+  <header class="w-full navbar-aurora shadow-md flex-shrink-0">
+    <nav class="w-full flex items-center justify-between px-8 py-4">
+      <!-- Logo + Nome (Esquerda) -->
       <div class="flex items-center space-x-3">
-        <img src="{% static 'img/Ascendia_logo.png' %}" alt="Ascendia Logo" class="w-10 h-10">
-        <a class="text-2xl font-bold tracking-tight">Ascendia</a>
+        <img src="{% static 'img/Ascendia_logo.png' %}" alt="Ascendia Logo" class="w-10 h-10 glow-aurora">
+        <a class="text-2xl font-bold tracking-tight text-aurora">Ascendia</a>
       </div>
 
-      <!-- Links -->
-      <div class="hidden md:flex items-center space-x-8">
+      <!-- Links + Autenticação (Direita) -->
+      <div class="flex items-center space-x-6">
         {% block nav_links %}
-          
+          <a href="#about" class="link-aurora font-medium">About</a>
+          <a href="https://github.com/thiagocamerato757/Ascendia" target="_blank" rel="noopener noreferrer" class="text-white hover:text-aurora-cyan transition-colors" title="GitHub Repository">
+            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+            </svg>
+          </a>
+          <a href="#help" class="text-white hover:text-aurora-cyan transition-colors" title="Help">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+          </a>
         {% endblock %}
-      </div>
-
-      <!-- Autenticação -->
-      <div class="flex items-center space-x-4">
+        
         {% if user.is_authenticated %}
+          <div class="h-6 w-px bg-white/20"></div>
           <span class="text-white/80">Olá, {{ user.username }}</span>
           <form method="post" action="{% url 'logout' %}" class="inline">
             {% csrf_token %}
-            <button type="submit" class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+            <button type="submit" class="btn-secondary btn-sm">
               Sair
             </button>
           </form>
-        {% else %}
-          <a href="{% url 'login' %}" class="px-4 py-2 border border-white text-white rounded-lg hover:bg-white hover:text-blue-700 transition">
-            Login
-          </a>
-          <a href="{% url 'signup' %}" class="px-4 py-2 bg-white text-blue-700 font-semibold rounded-lg hover:bg-blue-100 transition">
-            Signup
-          </a>
         {% endif %}
       </div>
     </nav>
   </header>
 
   <!-- Conteúdo Principal -->
-  <main class="flex-grow">
+  <main class="flex-1 overflow-y-auto">
     {% block content %}
     {% endblock %}
   </main>
 
   <!-- Rodapé -->
-  <footer class="backdrop-blur-md py-4 text-center text-sm text-white/80">
+  {% block footer %}
+  <footer class="backdrop-blur-md py-4 text-center text-sm text-white/80 flex-shrink-0">
     &copy; {% now "Y" %} Ascendia. Todos os direitos reservados.
   </footer>
+  {% endblock %}
 
 </body>
 </html>

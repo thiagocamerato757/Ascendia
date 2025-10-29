@@ -1,0 +1,38 @@
+ @keyframes gradient-animation {
+      0%, 100% { 
+        background-position: 0% 50%, 0% 50%, 0% 50%, 0% 50%, 0% 50%; 
+      }
+      25% { 
+        background-position: 25% 30%, 30% 70%, 20% 40%, 35% 60%, 25% 50%; 
+      }
+      50% { 
+        background-position: 50% 50%, 60% 30%, 40% 70%, 70% 50%, 50% 50%; 
+      }
+      75% { 
+        background-position: 75% 70%, 70% 40%, 80% 60%, 65% 30%, 75% 50%; 
+      }
+    }
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animated-gradient {
+      background: 
+        radial-gradient(ellipse 150% 80% at 20% 50%, rgba(16, 185, 129, 0.8) 0%, transparent 50%),
+        radial-gradient(ellipse 120% 90% at 40% 60%, rgba(6, 182, 212, 0.7) 0%, transparent 50%),
+        radial-gradient(ellipse 130% 85% at 60% 40%, rgba(59, 130, 246, 0.7) 0%, transparent 50%),
+        radial-gradient(ellipse 140% 75% at 80% 50%, rgba(139, 92, 246, 0.8) 0%, transparent 50%),
+        linear-gradient(135deg, #10b981 0%, #06b6d4 25%, #3b82f6 50%, #8b5cf6 75%, #a78bfa 100%);
+      background-size: 300% 300%, 280% 280%, 320% 320%, 290% 290%, 200% 200%;
+      animation: gradient-animation 10s ease-in-out infinite;
+      transform-origin: center center;
+    }
+    .fade-in {
+      animation: fadeIn 2s ease-out;
+    }

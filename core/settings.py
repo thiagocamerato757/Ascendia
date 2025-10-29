@@ -9,15 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
-<<<<<<< HEAD
-<<<<<<< HEAD
 import os
-=======
->>>>>>> f98de5e (Add initial Django project structure with core and users apps)
-=======
-import os
->>>>>>> 8c6dba0 (Add authentication views and update settings for static files)
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -122,38 +114,17 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 8c6dba0 (Add authentication views and update settings for static files)
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, './static'),
 ]
-<<<<<<< HEAD
-=======
-STATIC_URL = 'static/'
->>>>>>> f98de5e (Add initial Django project structure with core and users apps)
-=======
->>>>>>> 8c6dba0 (Add authentication views and update settings for static files)
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> 8c6dba0 (Add authentication views and update settings for static files)
 
 # Authentication settings
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
-<<<<<<< HEAD
-=======
->>>>>>> f98de5e (Add initial Django project structure with core and users apps)
-=======
->>>>>>> 8c6dba0 (Add authentication views and update settings for static files)

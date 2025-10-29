@@ -2,21 +2,21 @@
 {% load static %}
 
 {% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/animations.css' %}">
+  <link rel="stylesheet" href="{% static 'css/homepage-animation.css' %}">
 {% endblock %}
 
 {% block body_class %}animated-gradient{% endblock %}
 
 {% block content %}
-<div class="flex flex-col items-center justify-center px-6 py-12 text-center h-full fade-in">
-  <h1 class="text-5xl font-bold mb-4">Welcome to Ascendia</h1>
-  <p class="text-xl text-white/80 mb-8">Organize, track, and evolve your learning journey.</p>
+<div class="h-full flex flex-col items-center justify-center px-6 text-center fade-in">
+  <h1 class="text-6xl font-bold mb-6 title-font">Welcome to <span class="text-aurora">Ascendia</span></h1>
+  <p class="text-xl text-white/90 mb-10 max-w-2xl">Organize, track, and evolve your learning journey with the power of Aurora.</p>
   {% if not user.is_authenticated %}
-  <div class="flex justify-center space-x-4">
-    <a href="{% url 'signup' %}" class="px-8 py-3 bg-white text-blue-700 font-semibold rounded-lg hover:bg-blue-100 transition">
+  <div class="flex justify-center space-x-6">
+    <a href="{% url 'signup' %}" class="btn-primary btn-lg">
       Start Now
     </a>
-    <a href="{% url 'login' %}" class="px-8 py-3 bg-transparent border border-white text-white font-semibold rounded-lg hover:bg-white/20 transition">
+    <a href="{% url 'login' %}" class="btn-secondary btn-lg">
       Login
     </a>
   </div>
