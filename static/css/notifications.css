@@ -1,5 +1,42 @@
-/* Sistema de Notificações - CSS Only (Aurora Style) */
+/**
+ * notifications.css
+ * 
+ * 100% CSS Notification System (No JavaScript)
+ * 
+ * Implements animated notifications using pure CSS only,
+ * leveraging CSS animations and Django's message system.
+ * 
+ * Features:
+ * - Entry animation (slide-in from right)
+ * - Auto-persistence (5 seconds)
+ * - Exit animation (fade-out to right)
+ * - Animated progress bar
+ * - Glassmorphism effects
+ * - Aurora Borealis gradients
+ * - Fully responsive
+ * 
+ * Supported types:
+ * - success: Green/Cyan with ✓ icon
+ * - error: Red with ✕ icon
+ * - info: Blue/Purple with ℹ icon
+ * - warning: Yellow/Orange with ⚠ icon
+ * 
+ * @author Ascendia Team
+ * @version 1.0.0
+ * @dependencies None (Pure CSS)
+ */
 
+
+/* ==================================================================
+   MAIN CONTAINER
+   ================================================================== */
+
+/**
+ * Fixed container for notifications
+ * 
+ * Positioned in the top-right corner of the screen.
+ * Uses flexbox to stack multiple notifications vertically.
+ */
 .notification-container {
   position: fixed;
   top: 5rem;

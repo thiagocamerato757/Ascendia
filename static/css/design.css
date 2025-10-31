@@ -1,42 +1,111 @@
-/* Importar fontes modernas */
+/**
+ * design.css
+ * 
+ * Ascendia Design System with Aurora Borealis Theme
+ * 
+ * This file contains all base styles of the project, including:
+ * - CSS variables with Aurora Borealis color palette
+ * - Typography with Inter and Space Grotesk fonts
+ * - Reusable components (buttons, cards, inputs, badges)
+ * - Visual effects (gradients, glassmorphism, animations)
+ * - Utilities and helpers
+ * 
+ * @author Ascendia Team
+ * @version 1.0.0
+ */
+
+/* ==================================================================
+   IMPORTS
+   ================================================================== */
+
+/**
+ * Google Fonts
+ * - Inter: Modern sans-serif font for body text
+ * - Space Grotesk: Geometric font for headings and highlights
+ */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
-/* Variáveis da paleta Aurora Borealis */
+
+/* ==================================================================
+   CSS VARIABLES
+   ================================================================== */
+
+/**
+ * Aurora Borealis Color Palette
+ * 
+ * Color system inspired by the northern lights (Aurora Borealis)
+ * with gradients of mint-green, cyan, blue and purple.
+ * 
+ * Main colors:
+ * --aurora-mint: Vibrant mint green (#10b981)
+ * --aurora-cyan: Bright cyan (#06b6d4)
+ * --aurora-blue: Intense blue (#3b82f6)
+ * --aurora-purple: Deep purple (#8b5cf6)
+ * --aurora-light: Light purple (#a78bfa)
+ */
 :root {
-  --aurora-mint: #10b981;
-  --aurora-cyan: #06b6d4;
-  --aurora-blue: #3b82f6;
-  --aurora-purple: #8b5cf6;
-  --aurora-light: #a78bfa;
+  /* Main colors */
+  --aurora-mint: #10b981;      /* Vibrant mint green */
+  --aurora-cyan: #06b6d4;      /* Bright cyan */
+  --aurora-blue: #3b82f6;      /* Intense blue */
+  --aurora-purple: #8b5cf6;    /* Deep purple */
+  --aurora-light: #a78bfa;     /* Light purple */
   
-  /* Variações */
+  /* Light variations (for hover, highlights) */
   --aurora-mint-light: #34d399;
   --aurora-cyan-light: #22d3ee;
   --aurora-blue-light: #60a5fa;
   --aurora-purple-light: #a78bfa;
   
-  /* Dark variants */
+  /* Dark variations (for shadows, pressed states) */
   --aurora-mint-dark: #059669;
   --aurora-cyan-dark: #0891b2;
   --aurora-blue-dark: #2563eb;
   --aurora-purple-dark: #7c3aed;
 }
 
-/* Fonte base */
+
+/* ==================================================================
+   TYPOGRAPHY
+   ================================================================== */
+
+/**
+ * Base font styles
+ * 
+ * Uses Inter as the main font for all body text,
+ * with fallbacks to operating system fonts.
+ */
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-weight: 400;
-  letter-spacing: -0.01em;
+  letter-spacing: -0.01em; /* Adjusted kerning for better readability */
 }
 
-/* Títulos com fonte especial */
+/**
+ * Heading typography
+ * 
+ * Space Grotesk is used for all headings,
+ * providing visual contrast with body text.
+ */
 h1, h2, h3, h4, h5, h6, .title-font {
   font-family: 'Space Grotesk', 'Inter', sans-serif;
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.02em; /* Tighter kerning for headings */
 }
 
-/* Botão primário - Aurora gradient */
+
+/* ==================================================================
+   BUTTONS
+   ================================================================== */
+
+/**
+ * Primary button with Aurora gradient
+ * 
+ * Main system button with animated gradient of Aurora colors.
+ * Includes hover effect with gradient movement and elevation.
+ * 
+ * Usage: <button class="btn-primary">Text</button>
+ */
 .btn-primary {
   position: relative;
   padding: 0.75rem 2rem;

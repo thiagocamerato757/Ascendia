@@ -1,6 +1,41 @@
-/* Estilos para páginas de autenticação (Login e Signup) */
+/**
+ * auth-pages.css
+ * 
+ * Authentication Pages Styles (Login and Signup)
+ * 
+ * This file contains specific styles for login and registration forms,
+ * including custom inputs with Aurora Borealis theme.
+ * 
+ * Features:
+ * - Inputs with glassmorphism (blur and transparency)
+ * - Focus states with Aurora cyan glow
+ * - Subtle placeholders
+ * - Smooth transitions
+ * - Django forms compatible
+ * 
+ * Styled fields:
+ * - Login: username, password
+ * - Signup: username, email, password1, password2
+ * 
+ * @author Ascendia Team
+ * @version 1.0.0
+ */
 
-/* Estilização dos inputs de login */
+
+/* ==================================================================
+   LOGIN INPUTS
+   ================================================================== */
+
+/**
+ * Login field styling
+ * 
+ * Specific IDs:
+ * - #id_username: Username field
+ * - #id_password: Password field
+ * 
+ * Applies glassmorphism effect with blur and transparency,
+ * subtle borders and smooth transitions.
+ */
 #id_username,
 #id_password {
   width: 100%;

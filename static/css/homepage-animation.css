@@ -1,3 +1,41 @@
+/**
+ * homepage-animation.css
+ * 
+ * Ascendia Homepage Animations
+ * 
+ * Implements animated background with Aurora Borealis gradients
+ * that continuously move and transform, creating an immersive
+ * visual effect of northern lights.
+ * 
+ * Features:
+ * - Multiple overlapping radial gradients
+ * - Continuous movement animation (10s loop)
+ * - Smooth fade-in for content (2s)
+ * - Fixed background during scroll
+ * 
+ * Main classes:
+ * - .animated-gradient: Aurora animated background
+ * - .fade-in: Content fade-in
+ * 
+ * @author Ascendia Team
+ * @version 1.0.0
+ */
+
+
+/* ==================================================================
+   AURORA GRADIENT ANIMATION
+   ================================================================== */
+
+/**
+ * Keyframes for background animation
+ * 
+ * Moves and transforms multiple radial gradients simultaneously,
+ * creating an organic and dynamic effect similar to northern lights.
+ * 
+ * Duration: 10 seconds
+ * Loop: Infinite
+ * Easing: ease-in-out for smooth movement
+ */
  @keyframes gradient-animation {
       0%, 100% { 
         background-position: 0% 50%, 0% 50%, 0% 50%, 0% 50%, 0% 50%; 
