@@ -118,3 +118,100 @@
   margin-bottom: 1.5rem;
   font-family: 'Space Grotesk', sans-serif;
 }
+
+/* Enhanced avatar section */
+.avatar-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.avatar-info-text {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.5;
+}
+
+.avatar-info-highlight {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 0.25rem;
+  color: var(--aurora-mint);
+  font-weight: 600;
+  font-size: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* Better spacing for help text in avatar section */
+.avatar-upload .help-text {
+  margin-top: 0.75rem;
+  line-height: 1.6;
+}
+
+/* Avatar actions */
+.avatar-actions {
+  margin-top: 0.75rem;
+}
+
+.avatar-info-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.avatar-info-row .help-text {
+  margin: 0;
+  flex: 1;
+  min-width: 200px;
+}
+
+.btn-remove-avatar {
+  padding: 0.5rem 1rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Space Grotesk', sans-serif;
+  backdrop-filter: blur(10px);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-remove-avatar:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ef4444;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.btn-remove-avatar:active {
+  transform: translateY(0);
+}
+
+.btn-remove-avatar svg {
+  transition: transform 0.3s ease;
+}
+
+.btn-remove-avatar:hover svg {
+  transform: scale(1.1);
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 640px) {
+  .avatar-info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .avatar-info-row .help-text {
+    min-width: unset;
+  }
+}

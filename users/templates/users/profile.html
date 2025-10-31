@@ -7,6 +7,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+<link rel="stylesheet" href="{% static 'css/cropper-custom.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -30,14 +32,29 @@
         </div>
         
         <div class="avatar-upload">
-          <label for="{{ profile_form.avatar.id_for_label }}" class="form-label">
+          <label for="avatar-input" class="form-label">
             {{ profile_form.avatar.label }}
           </label>
-          {{ profile_form.avatar }}
+          <input type="file" id="avatar-input" name="avatar_temp" accept="image/*" class="file-input-aurora">
+          <input type="hidden" id="avatar-cropped" name="avatar_cropped">
+          <input type="hidden" id="delete-avatar" name="delete_avatar" value="">
           {% if profile_form.avatar.errors %}
             <p class="error-message">{{ profile_form.avatar.errors.0 }}</p>
           {% endif %}
-          <p class="help-text">Upload a new profile picture (JPG, PNG, GIF)</p>
+          <div class="avatar-actions">
+            <div class="avatar-info-row">
+              <p class="help-text">Click to upload and crop your profile picture</p>
+              {% if user.profile.avatar %}
+                <button type="button" id="remove-avatar-btn" class="btn-remove-avatar">
+                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                  </svg>
+                  Remove
+                </button>
+              {% endif %}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -109,6 +126,33 @@
     </form>
   </div>
 </div>
+
+<!-- Crop Modal -->
+<div id="crop-modal" style="display: none;">
+  <div class="crop-modal-content">
+    <div class="crop-modal-card">
+      <h2 class="crop-modal-title">✂️ Crop Your Profile Picture</h2>
+      
+      <div class="crop-instructions">
+        <strong>📌 How to crop:</strong>
+        Drag to move • Corners to resize • Scroll to zoom • Preview shows as circle
+      </div>
+      
+      <div class="crop-image-container">
+        <img id="crop-image" alt="Image to crop" style="max-width: 100%; display: block;">
+      </div>
+      
+      <div class="crop-buttons">
+        <button type="button" id="cancel-crop" class="btn-secondary">
+          ❌ Cancel
+        </button>
+        <button type="button" id="apply-crop" class="btn-primary">
+          ✓ Apply Crop
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
 
 {% block notifications %}
@@ -138,10 +182,13 @@
   {% endif %}
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const notifications = document.querySelectorAll('.notification');
+    console.log('Ascendia Profile - Cropper Initialized');
     
+    // Notifications
+    const notifications = document.querySelectorAll('.notification');
     notifications.forEach((notification, index) => {
       setTimeout(() => {
         notification.style.opacity = '1';
@@ -154,6 +201,254 @@
         setTimeout(() => notification.remove(), 300);
       }, 5000 + (100 * index));
     });
+
+    // Image Cropper
+    let cropper = null;
+    const avatarInput = document.getElementById('avatar-input');
+    const cropModal = document.getElementById('crop-modal');
+    const cropImage = document.getElementById('crop-image');
+    const cancelCrop = document.getElementById('cancel-crop');
+    const applyCrop = document.getElementById('apply-crop');
+    const avatarCropped = document.getElementById('avatar-cropped');
+    const avatarPreview = document.querySelector('.avatar-preview');
+
+    if (!avatarInput) {
+      console.error('Avatar input not found!');
+      return;
+    }
+
+    // Handle file selection
+    avatarInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      
+      if (!file) return;
+      
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('⚠️ Please select an image file');
+        avatarInput.value = '';
+        return;
+      }
+      
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('⚠️ Image size must be less than 5MB');
+        avatarInput.value = '';
+        return;
+      }
+      
+      // Read and display image
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        cropImage.src = event.target.result;
+        cropModal.style.display = 'block';
+        document.body.style.overflow = 'hidden';
+        
+        // Destroy existing cropper
+        if (cropper) {
+          cropper.destroy();
+        }
+        
+        // Initialize cropper after image loads
+        setTimeout(function() {
+          cropper = new Cropper(cropImage, {
+            aspectRatio: 1,
+            viewMode: 2,
+            dragMode: 'move',
+            autoCropArea: 1,
+            restore: false,
+            guides: true,
+            center: true,
+            highlight: false,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            toggleDragModeOnDblclick: false,
+            background: false,
+            modal: true,
+            ready: function() {
+              console.log('✓ Cropper ready - Circular preview active');
+            }
+          });
+        }, 100);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Cancel button
+    cancelCrop.addEventListener('click', function() {
+      cropModal.style.display = 'none';
+      document.body.style.overflow = '';
+      avatarInput.value = '';
+      if (cropper) {
+        cropper.destroy();
+        cropper = null;
+      }
+    });
+
+    // ESC key to close
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape' && cropModal.style.display === 'block') {
+        cancelCrop.click();
+      }
+    });
+
+    // Apply crop button
+    applyCrop.addEventListener('click', function() {
+      if (!cropper) return;
+      
+      // Show loading state
+      applyCrop.disabled = true;
+      applyCrop.innerHTML = '⏳ Processing...';
+      
+      // Get cropped canvas
+      const canvas = cropper.getCroppedCanvas({
+        width: 400,
+        height: 400,
+        minWidth: 256,
+        minHeight: 256,
+        maxWidth: 4096,
+        maxHeight: 4096,
+        fillColor: '#fff',
+        imageSmoothingEnabled: true,
+        imageSmoothingQuality: 'high',
+      });
+      
+      // Convert to blob
+      canvas.toBlob(function(blob) {
+        if (!blob) {
+          alert('❌ Failed to process image. Please try again.');
+          applyCrop.disabled = false;
+          applyCrop.innerHTML = '✓ Apply Crop';
+          return;
+        }
+        
+        // Convert to base64
+        const reader = new FileReader();
+        reader.onloadend = function() {
+          const base64data = reader.result;
+          
+          // Save via AJAX
+          fetch('{% url "update_avatar" %}', {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}',
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: 'avatar_cropped=' + encodeURIComponent(base64data)
+          })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              // Update preview
+              let previewImg = avatarPreview.querySelector('.avatar-img');
+              if (previewImg) {
+                previewImg.src = data.avatar_url;
+              } else {
+                avatarPreview.innerHTML = '<img src="' + data.avatar_url + '" class="avatar-img" alt="Avatar">';
+              }
+              
+              // Show/update remove button
+              let removeBtn = document.getElementById('remove-avatar-btn');
+              if (!removeBtn) {
+                const infoRow = document.querySelector('.avatar-info-row');
+                const btnHtml = `<button type="button" id="remove-avatar-btn" class="btn-remove-avatar">
+                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                  </svg>
+                  Remove
+                </button>`;
+                infoRow.insertAdjacentHTML('beforeend', btnHtml);
+                attachRemoveListener();
+              } else {
+                removeBtn.style.display = 'inline-block';
+              }
+              
+              console.log('✓ Avatar saved automatically!');
+              
+              // Close modal
+              cropModal.style.display = 'none';
+              document.body.style.overflow = '';
+              
+              // Reset button
+              applyCrop.disabled = false;
+              applyCrop.innerHTML = '✓ Apply Crop';
+              
+              // Cleanup
+              if (cropper) {
+                cropper.destroy();
+                cropper = null;
+              }
+            } else {
+              alert('❌ Failed to save avatar: ' + data.error);
+              applyCrop.disabled = false;
+              applyCrop.innerHTML = '✓ Apply Crop';
+            }
+          })
+          .catch(error => {
+            alert('❌ Network error: ' + error);
+            applyCrop.disabled = false;
+            applyCrop.innerHTML = '✓ Apply Crop';
+          });
+        };
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg', 0.92);
+    });
+
+    // Remove avatar button handler
+    function attachRemoveListener() {
+      const removeBtn = document.getElementById('remove-avatar-btn');
+      if (removeBtn && !removeBtn.dataset.listenerAttached) {
+        removeBtn.dataset.listenerAttached = 'true';
+        removeBtn.addEventListener('click', function handleRemove() {
+          if (confirm('🗑️ Are you sure you want to remove your profile picture?')) {
+            // Show loading
+            removeBtn.disabled = true;
+            const originalContent = removeBtn.innerHTML;
+            removeBtn.innerHTML = '⏳ Removing...';
+            
+            // Delete via AJAX
+            fetch('{% url "update_avatar" %}', {
+              method: 'POST',
+              headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              body: 'delete_avatar=true'
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                // Update preview to placeholder
+                const username = '{{ user.username }}';
+                const initial = username.charAt(0).toUpperCase();
+                avatarPreview.innerHTML = '<div class="avatar-placeholder"><span>' + initial + '</span></div>';
+                
+                // Remove the button completely
+                removeBtn.remove();
+                
+                // Clear file input
+                avatarInput.value = '';
+                
+                console.log('✓ Avatar removed successfully!');
+              } else {
+                alert('❌ Failed to remove avatar: ' + data.error);
+                removeBtn.disabled = false;
+                removeBtn.innerHTML = originalContent;
+              }
+            })
+            .catch(error => {
+              alert('❌ Network error: ' + error);
+              removeBtn.disabled = false;
+              removeBtn.innerHTML = originalContent;
+            });
+          }
+        });
+      }
+    }
+    
+    // Attach listener on page load
+    attachRemoveListener();
   });
 </script>
 {% endblock %}

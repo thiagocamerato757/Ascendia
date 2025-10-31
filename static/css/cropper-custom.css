@@ -1,0 +1,169 @@
+/**
+ * Custom Cropper.js Styles
+ * Aurora theme for image cropping
+ */
+
+/* Modal overlay */
+#crop-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  overflow-y: auto;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Modal content */
+.crop-modal-content {
+  max-width: 900px;
+  margin: 50px auto;
+  padding: 20px;
+}
+
+.crop-modal-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.crop-modal-title {
+  color: white;
+  margin-bottom: 1.5rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Image container */
+.crop-image-container {
+  max-width: 100%;
+  max-height: 500px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.3);
+}
+
+#crop-image {
+  max-width: 100%;
+  display: block;
+}
+
+/* Buttons container */
+.crop-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.crop-buttons button {
+  min-width: 150px;
+  padding: 0.875rem 2rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10000;
+  position: relative;
+}
+
+/* Instructions */
+.crop-instructions {
+  color: rgba(255, 255, 255, 0.7);
+  text-align: center;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(16, 185, 129, 0.1);
+  border-radius: 0.5rem;
+  border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.crop-instructions strong {
+  color: var(--aurora-mint);
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Override Cropper.js styles for circular preview */
+.cropper-view-box,
+.cropper-face {
+  border-radius: 50% !important;
+  outline: 0 !important;
+}
+
+.cropper-view-box {
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.8) !important;
+  outline: 0 !important;
+}
+
+.cropper-line,
+.cropper-point {
+  background-color: var(--aurora-cyan) !important;
+}
+
+.cropper-point {
+  width: 10px !important;
+  height: 10px !important;
+  border-radius: 50% !important;
+  background-color: var(--aurora-cyan) !important;
+}
+
+.cropper-point.point-se {
+  width: 12px !important;
+  height: 12px !important;
+  background-color: var(--aurora-mint) !important;
+}
+
+.cropper-point.point-nw,
+.cropper-point.point-ne,
+.cropper-point.point-sw {
+  background-color: var(--aurora-cyan) !important;
+}
+
+.cropper-bg {
+  background-image: none !important;
+}
+
+.cropper-modal {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .crop-modal-content {
+    margin: 20px auto;
+    padding: 10px;
+  }
+  
+  .crop-modal-card {
+    padding: 1rem;
+  }
+  
+  .crop-image-container {
+    max-height: 400px;
+  }
+  
+  .crop-buttons {
+    flex-direction: column;
+  }
+  
+  .crop-buttons button {
+    width: 100%;
+  }
+}

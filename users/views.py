@@ -93,6 +93,10 @@ def profile_view(request: HttpRequest) -> HttpResponse:
     """
     # Ensure user has a profile
     from .models import Profile
+    from django.core.files.base import ContentFile
+    import base64
+    import uuid
+    
     profile, created = Profile.objects.get_or_create(user=request.user)
     
     if request.method == 'POST':
@@ -103,9 +107,13 @@ def profile_view(request: HttpRequest) -> HttpResponse:
             instance=profile
         )
         
+        # Avatar is now handled via AJAX, so we don't process it here
+        # Just save user info and whatsapp
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
-            profile_form.save()
+            # Don't save avatar field from form, it's handled by AJAX
+            profile.whatsapp = profile_form.cleaned_data.get('whatsapp')
+            profile.save()
             messages.success(
                 request,
                 'Your profile has been updated successfully!',
@@ -122,4 +130,68 @@ def profile_view(request: HttpRequest) -> HttpResponse:
     }
     
     return render(request, 'users/profile.html', context)
+
+
+@login_required
+def update_avatar(request: HttpRequest) -> HttpResponse:
+    """
+    AJAX endpoint to update or delete avatar.
+    
+    Args:
+        request (HttpRequest): HTTP request with avatar data
+        
+    Returns:
+        HttpResponse: JSON response with status
+    """
+    from django.http import JsonResponse
+    from .models import Profile
+    from django.core.files.base import ContentFile
+    import base64
+    import uuid
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Invalid method'}, status=405)
+    
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    
+    try:
+        # Handle avatar deletion
+        delete_avatar = request.POST.get('delete_avatar')
+        if delete_avatar == 'true':
+            if profile.avatar:
+                profile.avatar.delete(save=False)
+                profile.avatar = None
+                profile.save()
+            return JsonResponse({
+                'success': True,
+                'message': 'Avatar removed successfully',
+                'avatar_url': None
+            })
+        
+        # Handle cropped avatar upload
+        avatar_cropped = request.POST.get('avatar_cropped')
+        if avatar_cropped and avatar_cropped.startswith('data:image'):
+            # Delete old avatar if exists
+            if profile.avatar:
+                profile.avatar.delete(save=False)
+            
+            # Extract base64 data
+            format, imgstr = avatar_cropped.split(';base64,')
+            ext = format.split('/')[-1]
+            
+            # Decode and save
+            data = ContentFile(base64.b64decode(imgstr))
+            file_name = f'avatar_{request.user.username}_{uuid.uuid4()}.{ext}'
+            profile.avatar.save(file_name, data, save=True)
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'Avatar updated successfully',
+                'avatar_url': profile.avatar.url
+            })
+        
+        return JsonResponse({'success': False, 'error': 'No avatar data provided'}, status=400)
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
