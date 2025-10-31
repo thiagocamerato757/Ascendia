@@ -6,9 +6,10 @@ description = "Ascendia is an interactive and extensible learning system designe
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
-  # Core framework
+    # Core framework
     "django>=5.0",
     "uvicorn>=0.30",
-    "gunicorn>=21.2",          # para deploys de produção
-    "python-dotenv>=1.0",      # para gerenciar variáveis de ambiente
+    "gunicorn>=21.2", # para deploys de produção
+    "python-dotenv>=1.0", # para gerenciar variáveis de ambiente
+    "pillow>=12.0.0",
 ]

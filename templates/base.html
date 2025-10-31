@@ -7,6 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="{% static 'css/design.css' %}">
+  <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
   {% block extra_css %}
   {% endblock %}
   <title>{% block title %}Ascendia{% endblock %}</title>
@@ -20,7 +21,7 @@
       <!-- Logo + Nome (Esquerda) -->
       <div class="flex items-center space-x-3">
         <img src="{% static 'img/Ascendia_logo.png' %}" alt="Ascendia Logo" class="w-10 h-10 glow-aurora">
-        <a class="text-2xl font-bold tracking-tight text-white">Ascendia</a>
+        <a href="{% url 'home' %}" class="text-2xl font-bold tracking-tight text-white">Ascendia</a>
       </div>
 
       <!-- Links + Autenticação (Direita) -->
@@ -41,13 +42,26 @@
         
         {% if user.is_authenticated %}
           <div class="h-6 w-px bg-white/20"></div>
-          <span class="text-white/80">Olá, {{ user.username }}</span>
-          <form method="post" action="{% url 'logout' %}" class="inline">
-            {% csrf_token %}
-            <button type="submit" class="btn-secondary btn-sm">
-              Sair
-            </button>
-          </form>
+          <div class="flex items-center space-x-3">
+            <div class="relative group">
+              {% if user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-white/20 transition-all group-hover:border-aurora-cyan">
+              {% else %}
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-aurora-mint to-aurora-cyan flex items-center justify-center border-2 border-white/20 transition-all group-hover:border-aurora-cyan">
+                  <span class="text-white font-bold text-lg">{{ user.username.0|upper }}</span>
+                </div>
+              {% endif %}
+              <div class="absolute top-12 right-0 bg-black/90 backdrop-blur-md text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
+                {{ user.username }}
+              </div>
+            </div>
+            <form method="post" action="{% url 'logout' %}" class="inline">
+              {% csrf_token %}
+              <button type="submit" class="btn-secondary btn-sm">
+                Sair
+              </button>
+            </form>
+          </div>
         {% endif %}
       </div>
     </nav>
@@ -61,10 +75,13 @@
 
   <!-- Rodapé -->
   {% block footer %}
-  <footer class="backdrop-blur-md py-4 text-center text-sm text-white/80 flex-shrink-0">
+  <footer class="backdrop-blur-md py-1 text-center text-sm text-white/80 flex-shrink-0">
     &copy; {% now "Y" %} Ascendia. Todos os direitos reservados.
   </footer>
   {% endblock %}
 
+  <!-- Mensagens do Django (apenas onde permitido) -->
+  {% block notifications %}
+  {% endblock %}
 </body>
 </html>

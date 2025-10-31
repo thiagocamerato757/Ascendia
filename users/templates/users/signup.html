@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/homepage-animation.css' %}">
+  <link rel="stylesheet" href="{% static 'css/auth-pages.css' %}">
+{% endblock %}
+
+{% block body_class %}animated-gradient{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center px-6 py-4 fade-in">
+  <div class="card-aurora max-w-md w-full p-6">
+    <div class="text-center mb-6">
+      <h1 class="text-4xl font-bold mb-2 title-font">Join <span class="text-aurora">Ascendia</span></h1>
+      <p class="text-white/70">Start your learning journey today</p>
+    </div>
+
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      
+      <div>
+        <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-white/90 mb-2">
+          Username
+        </label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          {% for error in form.username.errors %}
+            <p class="mt-2 text-sm text-red-400">{{ error }}</p>
+          {% endfor %}
+        {% else %}
+          <p class="mt-1 text-xs text-white/50">Choose a unique username</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-white/90 mb-2">
+          Email
+        </label>
+        {{ form.email }}
+        {% if form.email.errors %}
+          {% for error in form.email.errors %}
+            <p class="mt-2 text-sm text-red-400">{{ error }}</p>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <div>
+        <label for="{{ form.password1.id_for_label }}" class="block text-sm font-medium text-white/90 mb-2">
+          Password
+        </label>
+        {{ form.password1 }}
+        {% if form.password1.errors %}
+          {% for error in form.password1.errors %}
+            <p class="mt-2 text-sm text-red-400">{{ error }}</p>
+          {% endfor %}
+        {% else %}
+          <p class="mt-1 text-xs text-white/50">At least 8 characters</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label for="{{ form.password2.id_for_label }}" class="block text-sm font-medium text-white/90 mb-2">
+          Confirm Password
+        </label>
+        {{ form.password2 }}
+        {% if form.password2.errors %}
+          {% for error in form.password2.errors %}
+            <p class="mt-2 text-sm text-red-400">{{ error }}</p>
+          {% endfor %}
+        {% endif %}
+      </div>
+
+      <div class="flex items-start">
+        <input type="checkbox" name="terms" id="terms" required
+               class="w-4 h-4 mt-1 rounded border-white/30 bg-white/10 text-aurora-cyan focus:ring-aurora-cyan focus:ring-offset-0">
+        <label for="terms" class="ml-2 text-sm text-white/80">
+          I agree to the <a href="#" class="text-aurora-cyan hover:text-aurora-mint transition-colors">Terms of Service</a> and <a href="#" class="text-aurora-cyan hover:text-aurora-mint transition-colors">Privacy Policy</a>
+        </label>
+      </div>
+
+      <button type="submit" class="btn-primary w-full">
+        Create Account
+      </button>
+    </form>
+
+    <div class="mt-6 text-center">
+      <p class="text-white/70 text-sm">
+        Already have an account? 
+        <a href="{% url 'login' %}" class="text-aurora-cyan hover:text-aurora-mint transition-colors font-medium">
+          Sign in
+        </a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

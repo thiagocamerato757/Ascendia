@@ -1,0 +1,282 @@
+/* Sistema de Notificações - CSS Only (Aurora Style) */
+
+.notification-container {
+  position: fixed;
+  top: 5rem;
+  right: 2rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  pointer-events: none;
+  max-width: 420px;
+}
+
+.notification {
+  min-width: 320px;
+  max-width: 420px;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  pointer-events: auto;
+  position: relative;
+  overflow: hidden;
+  
+  /* Animação completa: slide-in -> espera -> fade-out */
+  animation: 
+    slideInFromRight 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+    fadeOutToRight 0.6s ease-in 4.4s forwards;
+}
+
+/* Tipos de notificação com gradientes Aurora */
+.notification-success {
+  background: linear-gradient(
+    135deg,
+    rgba(16, 185, 129, 0.2),
+    rgba(6, 182, 212, 0.2)
+  );
+  border-color: rgba(16, 185, 129, 0.4);
+}
+
+.notification-error {
+  background: linear-gradient(
+    135deg,
+    rgba(239, 68, 68, 0.2),
+    rgba(220, 38, 38, 0.2)
+  );
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.notification-info {
+  background: linear-gradient(
+    135deg,
+    rgba(59, 130, 246, 0.2),
+    rgba(139, 92, 246, 0.2)
+  );
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.notification-warning {
+  background: linear-gradient(
+    135deg,
+    rgba(245, 158, 11, 0.2),
+    rgba(251, 191, 36, 0.2)
+  );
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+/* Ícone com animação bounce */
+.notification-icon {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  font-weight: bold;
+  animation: iconBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.notification-success .notification-icon {
+  background: linear-gradient(135deg, var(--aurora-mint), var(--aurora-cyan));
+  box-shadow: 
+    0 4px 16px rgba(16, 185, 129, 0.4),
+    0 0 20px rgba(6, 182, 212, 0.3);
+  color: white;
+}
+
+.notification-success .notification-icon::before {
+  content: '✓';
+}
+
+.notification-error .notification-icon {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  box-shadow: 
+    0 4px 16px rgba(239, 68, 68, 0.4),
+    0 0 20px rgba(239, 68, 68, 0.3);
+  color: white;
+}
+
+.notification-error .notification-icon::before {
+  content: '✕';
+}
+
+.notification-info .notification-icon {
+  background: linear-gradient(135deg, var(--aurora-blue), var(--aurora-purple));
+  box-shadow: 
+    0 4px 16px rgba(59, 130, 246, 0.4),
+    0 0 20px rgba(139, 92, 246, 0.3);
+  color: white;
+}
+
+.notification-info .notification-icon::before {
+  content: 'ℹ';
+}
+
+.notification-warning .notification-icon {
+  background: linear-gradient(135deg, #f59e0b, #fbbf24);
+  box-shadow: 
+    0 4px 16px rgba(245, 158, 11, 0.4),
+    0 0 20px rgba(251, 191, 36, 0.3);
+  color: white;
+}
+
+.notification-warning .notification-icon::before {
+  content: '⚠';
+}
+
+/* Conteúdo da notificação */
+.notification-content {
+  flex: 1;
+  color: white;
+}
+
+.notification-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.notification-message {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.85);
+  line-height: 1.4;
+}
+
+/* Barra de progresso animada */
+.notification-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0 0 1rem 1rem;
+  overflow: hidden;
+}
+
+.notification-progress::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, var(--aurora-mint), var(--aurora-cyan), var(--aurora-blue));
+  background-size: 200% 100%;
+  animation: 
+    progressBar 5s linear forwards,
+    progressGradient 2s linear infinite;
+}
+
+/* Efeito de brilho no card */
+.notification::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: shine 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Animações CSS puras */
+@keyframes slideInFromRight {
+  0% {
+    transform: translateX(450px);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOutToRight {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(450px);
+    opacity: 0;
+  }
+}
+
+@keyframes iconBounce {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.3) rotate(20deg);
+  }
+  70% {
+    transform: scale(0.9) rotate(-5deg);
+  }
+  100% {
+    transform: scale(1) rotate(0);
+    opacity: 1;
+  }
+}
+
+@keyframes progressBar {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+@keyframes progressGradient {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 200% 0%;
+  }
+}
+
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  50%, 100% {
+    left: 100%;
+  }
+}
+
+/* Responsivo */
+@media (max-width: 640px) {
+  .notification-container {
+    top: 4rem;
+    right: 1rem;
+    left: 1rem;
+    max-width: none;
+  }
+  
+  .notification {
+    min-width: auto;
+    max-width: none;
+  }
+}

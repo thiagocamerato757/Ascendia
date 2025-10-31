@@ -1,0 +1,65 @@
+/* Estilos para páginas de autenticação (Login e Signup) */
+
+/* Estilização dos inputs de login */
+#id_username,
+#id_password {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+#id_username::placeholder,
+#id_password::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+#id_username:focus,
+#id_password:focus {
+  border-color: var(--aurora-cyan);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+}
+
+/* Estilização dos inputs de signup */
+#id_email,
+#id_password1,
+#id_password2 {
+  width: 100%;
+  padding: 0.875rem 1.25rem;
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  color: white;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+#id_email::placeholder,
+#id_password1::placeholder,
+#id_password2::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+#id_email:focus,
+#id_password1:focus,
+#id_password2:focus {
+  border-color: var(--aurora-cyan);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+}
+
+/* Remove as mensagens de ajuda padrão do Django */
+.helptext {
+  display: none;
+}

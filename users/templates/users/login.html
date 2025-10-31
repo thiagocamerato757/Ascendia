@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+  <link rel="stylesheet" href="{% static 'css/homepage-animation.css' %}">
+  <link rel="stylesheet" href="{% static 'css/auth-pages.css' %}">
+{% endblock %}
+
+{% block body_class %}animated-gradient{% endblock %}
+
+{% block content %}
+<div class="h-full flex items-center justify-center px-6 fade-in">
+  <div class="card-aurora max-w-md w-full p-8">
+    <div class="text-center mb-8">
+      <h1 class="text-4xl font-bold mb-2 title-font">Welcome Back</h1>
+      <p class="text-white/70">Sign in to continue your journey</p>
+    </div>
+
+    {% if form.non_field_errors %}
+      <div class="mb-4 p-4 rounded-lg bg-red-500/20 border border-red-500/50">
+        {% for error in form.non_field_errors %}
+          <p class="text-white text-sm">{{ error }}</p>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      
+      <div>
+        <label for="{{ form.username.id_for_label }}" class="block text-sm font-medium text-white/90 mb-2">
+          Username
+        </label>
+        {{ form.username }}
+        {% if form.username.errors %}
+          <p class="mt-2 text-sm text-red-400">{{ form.username.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label for="{{ form.password.id_for_label }}" class="block text-sm font-medium text-white/90 mb-2">
+          Password
+        </label>
+        {{ form.password }}
+        {% if form.password.errors %}
+          <p class="mt-2 text-sm text-red-400">{{ form.password.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div class="flex items-center justify-between">
+        <div class="flex items-center">
+          <input type="checkbox" name="remember_me" id="remember_me" 
+                 class="w-4 h-4 rounded border-white/30 bg-white/10 text-aurora-cyan focus:ring-aurora-cyan focus:ring-offset-0">
+          <label for="remember_me" class="ml-2 text-sm text-white/80">
+            Remember me
+          </label>
+        </div>
+        <a href="#" class="text-sm text-aurora-cyan hover:text-aurora-mint transition-colors">
+          Forgot password?
+        </a>
+      </div>
+
+      <button type="submit" class="btn-primary w-full">
+        Sign In
+      </button>
+
+      <input type="hidden" name="next" value="{{ next }}">
+    </form>
+
+    <div class="mt-8 text-center">
+      <p class="text-white/70 text-sm">
+        Don't have an account? 
+        <a href="{% url 'signup' %}" class="text-aurora-cyan hover:text-aurora-mint transition-colors font-medium">
+          Sign up
+        </a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
