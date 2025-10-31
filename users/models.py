@@ -22,6 +22,7 @@ class Profile(models.Model):
     Attributes:
         user (User): One-to-one relationship with Django's User model
         avatar (ImageField): User's avatar image (optional)
+        whatsapp (CharField): User's WhatsApp number (optional)
     """
     
     user = models.OneToOneField(
@@ -35,6 +36,12 @@ class Profile(models.Model):
         null=True, 
         blank=True,
         help_text="User's profile picture"
+    )
+    whatsapp = models.CharField(
+        max_length=20,
+        null=True,
+        blank=True,
+        help_text="User's WhatsApp number with country code (e.g., +55 11 98765-4321)"
     )
     
     class Meta:
@@ -61,6 +68,22 @@ class Profile(models.Model):
         """
         if self.avatar:
             return self.avatar.url
+        return None
+    
+    @property
+    def whatsapp_link(self) -> Optional[str]:
+        """
+        Returns a WhatsApp click-to-chat URL.
+        
+        Returns:
+            Optional[str]: WhatsApp URL if number exists, None otherwise
+        """
+        if self.whatsapp:
+            # Remove all non-digit characters except +
+            cleaned = ''.join(c for c in self.whatsapp if c.isdigit() or c == '+')
+            # Remove + for the URL
+            number = cleaned.replace('+', '')
+            return f'https://wa.me/{number}'
         return None
 
 

@@ -16,11 +16,12 @@ Including another URLconf
 """
 from django.urls import path
 from django.contrib.auth import views as auth_views
-from .views import SignUpView
+from .views import SignUpView, profile_view
 from .views_auth import CustomLoginView
 
 urlpatterns = [
     path('signup/', SignUpView.as_view(), name='signup'),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
+    path('profile/', profile_view, name='profile'),
 ]

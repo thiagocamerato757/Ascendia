@@ -1,0 +1,120 @@
+/**
+ * profile.css
+ * Specific styles for the user profile page
+ */
+
+/* Profile container */
+.profile-container {
+  max-width: 56rem;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+/* Profile card */
+.profile-card {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.25rem;
+  padding: 2rem;
+}
+
+/* Avatar section */
+.avatar-section {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 1.5rem;
+}
+
+.avatar-preview {
+  flex-shrink: 0;
+}
+
+.avatar-img {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--aurora-cyan);
+  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+}
+
+.avatar-placeholder {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--aurora-mint), var(--aurora-cyan));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.avatar-placeholder span {
+  color: white;
+  font-weight: bold;
+  font-size: 2rem;
+}
+
+.avatar-upload {
+  flex: 1;
+}
+
+/* Form fields */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .form-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.error-message {
+  margin-top: 0.25rem;
+  font-size: 0.875rem;
+  color: #f87171;
+}
+
+.help-text {
+  margin-top: 0.5rem;
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Profile title */
+.profile-title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  color: white;
+  margin-bottom: 1.5rem;
+  font-family: 'Space Grotesk', sans-serif;
+}

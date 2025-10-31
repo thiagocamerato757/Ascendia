@@ -43,18 +43,18 @@
         {% if user.is_authenticated %}
           <div class="h-6 w-px bg-white/20"></div>
           <div class="flex items-center space-x-3">
-            <div class="relative group">
-              {% if user.profile.avatar %}
-                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-white/20 transition-all group-hover:border-aurora-cyan">
+            <a href="{% url 'profile' %}" class="relative group">
+              {% if user.profile and user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-white/20 transition-all group-hover:border-aurora-cyan cursor-pointer">
               {% else %}
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-aurora-mint to-aurora-cyan flex items-center justify-center border-2 border-white/20 transition-all group-hover:border-aurora-cyan">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-aurora-mint to-aurora-cyan flex items-center justify-center border-2 border-white/20 transition-all group-hover:border-aurora-cyan cursor-pointer">
                   <span class="text-white font-bold text-lg">{{ user.username.0|upper }}</span>
                 </div>
               {% endif %}
               <div class="absolute top-12 right-0 bg-black/90 backdrop-blur-md text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
                 {{ user.username }}
               </div>
-            </div>
+            </a>
             <form method="post" action="{% url 'logout' %}" class="inline">
               {% csrf_token %}
               <button type="submit" class="btn-secondary btn-sm">
