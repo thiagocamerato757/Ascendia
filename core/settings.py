@@ -133,3 +133,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 LOGIN_URL = 'login'
+
+# Email settings for development
+# For production, use SMTP or a service like SendGrid
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Default from email
+DEFAULT_FROM_EMAIL = 'noreply@ascendia.com'
+
+# Password reset timeout (24 hours in seconds)
+PASSWORD_RESET_TIMEOUT = 86400
+
+# Session settings
+# Session cookie expires when browser is closed (unless Remember Me is checked)
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+# Default session age (2 weeks in seconds) - only used when Remember Me is checked
+SESSION_COOKIE_AGE = 1209600
+# Session cookie name
+SESSION_COOKIE_NAME = 'ascendia_sessionid'

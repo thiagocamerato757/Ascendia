@@ -989,3 +989,189 @@ class XSSProtectionTests(TestCase):
         self.assertFalse(
             User.objects.filter(email__contains='<script>').exists()
         )
+
+
+class RememberMeTests(TestCase):
+    """
+    Test suite for Remember Me functionality.
+    
+    Verifies that the "Remember Me" checkbox properly controls
+    session expiry behavior.
+    """
+    
+    def setUp(self):
+        """Set up test client and user."""
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username='remembertest',
+            email='remember@example.com',
+            password='testpass123'
+        )
+        self.login_url = reverse('login')
+    
+    def test_login_without_remember_me(self):
+        """Test that session expires on browser close without Remember Me."""
+        response = self.client.post(self.login_url, {
+            'username': 'remembertest',
+            'password': 'testpass123'
+        }, follow=True)
+        
+        # Should be logged in
+        self.assertTrue(response.wsgi_request.user.is_authenticated)
+        
+        # Session should expire on browser close
+        # get_expire_at_browser_close() returns True when expiry is 0
+        self.assertTrue(self.client.session.get_expire_at_browser_close())
+    
+    def test_login_with_remember_me(self):
+        """Test that session persists with Remember Me checked."""
+        response = self.client.post(self.login_url, {
+            'username': 'remembertest',
+            'password': 'testpass123',
+            'remember_me': 'on'
+        }, follow=True)
+        
+        # Should be logged in
+        self.assertTrue(response.wsgi_request.user.is_authenticated)
+        
+        # Session should have extended expiry (2 weeks = 1209600 seconds)
+        session_age = self.client.session.get_expiry_age()
+        self.assertGreater(session_age, 0)
+        # Should be approximately 2 weeks (allow some variance)
+        self.assertGreater(session_age, 1200000)
+
+
+class PasswordResetTests(TestCase):
+    """
+    Test suite for password reset functionality.
+    
+    Tests the complete password reset flow including
+    email sending and password change.
+    """
+    
+    def setUp(self):
+        """Set up test client and user."""
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username='resettest',
+            email='reset@example.com',
+            password='oldpassword123'
+        )
+        self.password_reset_url = reverse('password_reset')
+        self.password_reset_done_url = reverse('password_reset_done')
+    
+    def test_password_reset_page_accessible(self):
+        """Test that password reset page is accessible."""
+        response = self.client.get(self.password_reset_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/password_reset.html')
+    
+    def test_password_reset_form_submission(self):
+        """Test password reset form submission with valid email."""
+        response = self.client.post(self.password_reset_url, {
+            'email': 'reset@example.com'
+        })
+        
+        # Should redirect to done page
+        self.assertRedirects(response, self.password_reset_done_url)
+    
+    def test_password_reset_email_sent(self):
+        """Test that password reset email is sent."""
+        from django.core import mail
+        
+        response = self.client.post(self.password_reset_url, {
+            'email': 'reset@example.com'
+        })
+        
+        # Should send one email
+        self.assertEqual(len(mail.outbox), 1)
+        
+        # Verify email content
+        email = mail.outbox[0]
+        self.assertIn('reset@example.com', email.to)
+        self.assertIn('reset', email.subject.lower())
+    
+    def test_password_reset_with_nonexistent_email(self):
+        """Test password reset with non-existent email (should still succeed for security)."""
+        response = self.client.post(self.password_reset_url, {
+            'email': 'nonexistent@example.com'
+        })
+        
+        # Should still redirect to done page (security feature)
+        self.assertRedirects(response, self.password_reset_done_url)
+    
+    def test_password_reset_confirm_valid_token(self):
+        """Test password reset confirm with valid token."""
+        from django.contrib.auth.tokens import default_token_generator
+        from django.utils.http import urlsafe_base64_encode
+        from django.utils.encoding import force_bytes
+        
+        # Generate token
+        token = default_token_generator.make_token(self.user)
+        uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+        
+        # Access reset confirm page
+        reset_url = reverse('password_reset_confirm', kwargs={
+            'uidb64': uid,
+            'token': token
+        })
+        
+        response = self.client.get(reset_url)
+        # Should redirect to set password form
+        self.assertEqual(response.status_code, 302)
+    
+    def test_password_reset_complete_flow(self):
+        """Test complete password reset flow."""
+        from django.contrib.auth.tokens import default_token_generator
+        from django.utils.http import urlsafe_base64_encode
+        from django.utils.encoding import force_bytes
+        
+        # Generate token
+        token = default_token_generator.make_token(self.user)
+        uid = urlsafe_base64_encode(force_bytes(self.user.pk))
+        
+        # Get reset URL with token
+        reset_url = reverse('password_reset_confirm', kwargs={
+            'uidb64': uid,
+            'token': token
+        })
+        
+        # Follow redirect to get session key
+        response = self.client.get(reset_url, follow=True)
+        
+        # Submit new password
+        response = self.client.post(response.request['PATH_INFO'], {
+            'new_password1': 'newpassword123',
+            'new_password2': 'newpassword123'
+        })
+        
+        # Refresh user from database
+        self.user.refresh_from_db()
+        
+        # Should be able to login with new password
+        login_success = self.client.login(
+            username='resettest',
+            password='newpassword123'
+        )
+        self.assertTrue(login_success)
+        
+        # Old password should not work
+        self.client.logout()
+        old_login = self.client.login(
+            username='resettest',
+            password='oldpassword123'
+        )
+        self.assertFalse(old_login)
+    
+    def test_password_reset_done_page(self):
+        """Test that password reset done page is accessible."""
+        response = self.client.get(self.password_reset_done_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/password_reset_done.html')
+    
+    def test_password_reset_complete_page(self):
+        """Test that password reset complete page is accessible."""
+        complete_url = reverse('password_reset_complete')
+        response = self.client.get(complete_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/password_reset_complete.html')
