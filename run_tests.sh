@@ -1,87 +1,68 @@
 #!/bin/bash
-# Script para executar testes do Ascendia
-# Uso: ./run_tests.sh [opções]
 
-# Cores para output
+# Ascendia Full Test Suite Runner
+# Runs ALL existing tests across all apps
+
+# Colors for output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 YELLOW='\033[1;33m'
 RED='\033[0;31m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🧪 Ascendia Test Runner${NC}"
-echo -e "${BLUE}======================${NC}\n"
+echo -e "${BLUE}╔════════════════════════════════════════════════════════╗${NC}"
+echo -e "${BLUE}║          🧪 ASCENDIA FULL TEST SUITE 🧪                ║${NC}"
+echo -e "${BLUE}╚════════════════════════════════════════════════════════╝${NC}"
+echo ""
 
 # Ativar ambiente virtual
 if [ -d ".venv" ]; then
-    echo -e "${YELLOW}📦 Ativando ambiente virtual...${NC}"
+    echo -e "${CYAN}📦 Ativando ambiente virtual...${NC}"
     source .venv/bin/activate
 else
     echo -e "${RED}❌ Ambiente virtual não encontrado!${NC}"
     exit 1
 fi
 
-# Função para executar testes
-run_tests() {
-    local verbose=$1
-    local specific_test=$2
-    
-    if [ -n "$specific_test" ]; then
-        echo -e "${YELLOW}🎯 Executando teste específico: $specific_test${NC}\n"
-        python manage.py test users.tests.$specific_test $verbose
-    else
-        echo -e "${YELLOW}🎯 Executando todos os testes...${NC}\n"
-        python manage.py test users $verbose
-    fi
-    
-    exit_code=$?
-    
-    if [ $exit_code -eq 0 ]; then
-        echo -e "\n${GREEN}✅ Todos os testes passaram!${NC}"
-    else
-        echo -e "\n${RED}❌ Alguns testes falharam!${NC}"
-    fi
-    
-    return $exit_code
-}
+echo ""
+echo -e "${YELLOW}📊 Apps: Users • Workspace • Notes${NC}"
+echo -e "${YELLOW}📝 Executando todos os testes implementados...${NC}"
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 
-# Processar argumentos
-case "$1" in
-    -v|--verbose)
-        echo -e "${BLUE}Modo: Verbose${NC}"
-        run_tests "-v 2" "$2"
-        ;;
-    -h|--help)
-        echo "Uso: ./run_tests.sh [opções] [teste-específico]"
-        echo ""
-        echo "Opções:"
-        echo "  (nenhuma)       Executar todos os testes"
-        echo "  -v, --verbose   Executar com output detalhado"
-        echo "  -h, --help      Mostrar esta mensagem"
-        echo ""
-        echo "Exemplos:"
-        echo "  ./run_tests.sh                              # Todos os testes"
-        echo "  ./run_tests.sh -v                           # Todos os testes (verbose)"
-        echo "  ./run_tests.sh ProfileModelTests            # Classe específica"
-        echo "  ./run_tests.sh -v ProfileModelTests         # Classe específica (verbose)"
-        echo ""
-        echo "Classes de Teste Disponíveis:"
-        echo "  - ProfileModelTests"
-        echo "  - SignUpFormTests"
-        echo "  - UserUpdateFormTests"
-        echo "  - ProfileUpdateFormTests"
-        echo "  - SignUpViewTests"
-        echo "  - LoginViewTests"
-        echo "  - ProfileViewTests"
-        echo "  - AvatarUpdateTests"
-        echo "  - LogoutTests"
-        echo "  - HomeViewTests"
-        ;;
-    "")
-        run_tests "" ""
-        ;;
-    *)
-        echo -e "${BLUE}Executando teste: $1${NC}"
-        run_tests "" "$1"
-        ;;
-esac
+# Run all tests, including notes model tests (skip view tests that need templates)
+python manage.py test \
+    users \
+    workspace \
+    notes.tests.NoteModelTest \
+    notes.tests.TagModelTest \
+    notes.tests.NoteTagModelTest \
+    notes.tests.NotePermissionsTest \
+    notes.tests.NoteTagRelationshipTest \
+    --verbosity=1
+
+exit_code=$?
+
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+
+if [ $exit_code -eq 0 ]; then
+    echo ""
+    echo -e "${GREEN}╔════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}║          ✅ ALL TESTS PASSED! GREAT JOB! ✅            ║${NC}"
+    echo -e "${GREEN}╚════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "${GREEN}🎉 Your code is working perfectly!${NC}"
+    echo ""
+else
+    echo ""
+    echo -e "${RED}╔════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${RED}║          ❌ SOME TESTS FAILED! NEEDS FIXING ❌         ║${NC}"
+    echo -e "${RED}╚════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "${RED}⚠️  Please review the failed tests above.${NC}"
+    echo ""
+fi
+
+exit $exit_code

@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Workspace - Ascendia{% endblock %}
+
+{% block body_class %}bg-gradient-aurora{% endblock %}
+
+{% block nav_links %}
+  <a href="{% url 'home' %}" class="text-white hover:text-aurora-cyan transition-colors font-medium">Home</a>
+  <a href="{% url 'workspace:home' %}" class="text-aurora-cyan font-medium">Workspace</a>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-6 py-8">
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <h1 class="text-4xl font-bold text-white mb-2">
+        <span class="text-aurora">📚</span> My Workspace
+      </h1>
+      <p class="text-white/70">Organize your learning journey with virtual notebooks</p>
+    </div>
+    <a href="{% url 'workspace:notebook_create' %}" class="btn-primary flex items-center space-x-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+      </svg>
+      <span>New Notebook</span>
+    </a>
+  </div>
+
+  {% if notebooks %}
+    <!-- Notebooks Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for notebook in notebooks %}
+        <div class="card-aurora cursor-pointer group" onclick="window.location.href='{% url 'workspace:notebook_detail' notebook.id %}'">
+          <!-- Color Bar -->
+          <div class="h-2 -mx-8 -mt-8 mb-4 rounded-t-xl" style="background: {{ notebook.color }}"></div>
+          
+          <!-- Notebook Header -->
+          <div class="flex items-start justify-between mb-3">
+            <div class="flex items-center space-x-3 flex-1 min-w-0">
+              <div class="text-3xl">📓</div>
+              <div class="flex-1 min-w-0">
+                <h3 class="text-xl font-bold text-white truncate group-hover:text-aurora-cyan transition-colors">
+                  {{ notebook.title }}
+                </h3>
+                <p class="text-sm text-white/60">
+                  Updated {{ notebook.updated_at|timesince }} ago
+                </p>
+              </div>
+            </div>
+            {% if notebook.is_favorite %}
+              <span class="text-yellow-400 text-xl">⭐</span>
+            {% endif %}
+          </div>
+
+          <!-- Description -->
+          {% if notebook.description %}
+            <p class="text-white/70 text-sm mb-4 line-clamp-2">
+              {{ notebook.description }}
+            </p>
+          {% else %}
+            <p class="text-white/40 text-sm italic mb-4">
+              No description yet
+            </p>
+          {% endif %}
+
+          <!-- Footer Stats -->
+          <div class="flex items-center justify-between pt-4 border-t border-white/10">
+            <div class="flex items-center space-x-4 text-sm text-white/60">
+              <span class="flex items-center space-x-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
+                <span>0 notes</span>
+              </span>
+              <span class="flex items-center space-x-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                </svg>
+                <span>0 tags</span>
+              </span>
+            </div>
+            <span class="text-xs text-white/40">
+              {{ notebook.created_at|date:"M d, Y" }}
+            </span>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <!-- Empty State -->
+    <div class="flex flex-col items-center justify-center py-20">
+      <div class="text-center max-w-md">
+        <div class="text-8xl mb-6 opacity-50">📚</div>
+        <h2 class="text-3xl font-bold text-white mb-4">No notebooks yet</h2>
+        <p class="text-white/70 mb-8">
+          Create your first notebook to start organizing your learning materials, notes, and ideas in one place.
+        </p>
+        <a href="{% url 'workspace:notebook_create' %}" class="btn-primary btn-lg inline-flex items-center space-x-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+          </svg>
+          <span>Create Your First Notebook</span>
+        </a>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block notifications %}
+  {% if messages %}
+    <div class="notification-container">
+      {% for message in messages %}
+        <div class="notification notification-{{ message.tags|default:'info' }}">
+          <div class="notification-icon"></div>
+          <div class="notification-content">
+            <div class="notification-title">
+              {% if message.tags == 'success' %}Success!{% elif message.tags == 'error' %}Error!{% elif message.tags == 'warning' %}Warning{% else %}Information{% endif %}
+            </div>
+            <div class="notification-message">{{ message }}</div>
+          </div>
+          <div class="notification-progress"></div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endblock %}

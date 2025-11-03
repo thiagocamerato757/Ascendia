@@ -24,6 +24,8 @@ urlpatterns = [
     path('', HomeView.as_view(), name='home'),
     path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
+    path('workspace/', include('workspace.urls')),
+    path('notes/', include('notes.urls')),
 ]
 
 if settings.DEBUG:

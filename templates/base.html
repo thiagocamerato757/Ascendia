@@ -27,6 +27,9 @@
       <!-- Links + Autenticação (Direita) -->
       <div class="flex items-center space-x-6">
         {% block nav_links %}
+          {% if user.is_authenticated %}
+            <a href="{% url 'workspace:home' %}" class="text-white hover:text-aurora-cyan transition-colors font-medium">Workspace</a>
+          {% endif %}
           <a href="#about" class="text-white hover:text-aurora-cyan transition-colors font-medium">About</a>
           <a href="https://github.com/thiagocamerato757/Ascendia" target="_blank" rel="noopener noreferrer" class="text-white hover:text-aurora-cyan transition-colors" title="GitHub Repository">
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
