@@ -9,7 +9,7 @@ dependencies = [
     # Core framework
     "django>=5.0",
     "uvicorn>=0.30",
-    "gunicorn>=21.2", # para deploys de produção
-    "python-dotenv>=1.0", # para gerenciar variáveis de ambiente
+    "gunicorn>=21.2",
+    "python-dotenv>=1.0",
     "pillow>=12.0.0",
 ]
