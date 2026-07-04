@@ -22,7 +22,9 @@
     <div class="flex items-start justify-between">
       <div class="flex-1">
         <div class="flex items-center space-x-3 mb-3">
-          <span class="text-5xl">📓</span>
+          <svg class="w-12 h-12 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: {{ notebook.color }}">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+          </svg>
           <div>
             <h1 class="text-4xl font-bold text-white">{{ notebook.title }}</h1>
             <p class="text-white/60 text-sm mt-1">
@@ -41,11 +43,17 @@
       <div class="flex items-center space-x-3">
         <form method="post" action="{% url 'workspace:notebook_toggle_favorite' notebook.id %}" class="inline">
           {% csrf_token %}
-          <button type="submit" class="btn-secondary btn-sm">
+          <button type="submit" class="btn-secondary btn-sm inline-flex items-center space-x-2">
             {% if notebook.is_favorite %}
-              ⭐ Starred
+              <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+              </svg>
+              <span>Starred</span>
             {% else %}
-              ☆ Star
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+              </svg>
+              <span>Star</span>
             {% endif %}
           </button>
         </form>
@@ -89,7 +97,9 @@
                 <div class="flex-1 min-w-0">
                   <div class="flex items-center space-x-2 mb-1">
                     {% if note.is_pinned %}
-                      <span class="text-yellow-400">📌</span>
+                      <svg class="w-4 h-4 text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                      </svg>
                     {% endif %}
                     <h3 class="text-xl font-bold text-white truncate">{{ note.title }}</h3>
                   </div>
@@ -97,7 +107,9 @@
                     Updated {{ note.updated_at|timesince }} ago
                   </p>
                 </div>
-                <span class="text-2xl">📝</span>
+                <svg class="w-6 h-6 text-white/40 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                </svg>
               </div>
               
               {% if note.content %}
@@ -129,7 +141,9 @@
       {% else %}
         <!-- Empty State -->
         <div class="card-aurora text-center py-20">
-          <div class="text-8xl mb-6 opacity-50">📝</div>
+          <svg class="w-16 h-16 mx-auto mb-6 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
           <h2 class="text-3xl font-bold text-white mb-4">No notes yet</h2>
           <p class="text-white/70 mb-8 max-w-md mx-auto">
             Create your first note to start capturing ideas, insights, and knowledge in this notebook.
@@ -155,17 +169,29 @@
           Quick Actions
         </h3>
         <div class="space-y-2">
-          <a href="{% url 'notes:note_create' notebook.id %}" class="w-full btn-secondary btn-sm text-left block">
-            📄 Add Note
+          <a href="{% url 'notes:note_create' notebook.id %}" class="w-full btn-secondary btn-sm text-left flex items-center space-x-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span>Add Note</span>
           </a>
-          <button class="w-full btn-secondary btn-sm text-left" onclick="alert('Upload file coming soon!')">
-            📎 Upload File
+          <button class="w-full btn-secondary btn-sm text-left flex items-center space-x-2" onclick="alert('Upload file coming soon')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+            </svg>
+            <span>Upload File</span>
           </button>
-          <button class="w-full btn-secondary btn-sm text-left" onclick="alert('Add link coming soon!')">
-            🔗 Add Link
+          <button class="w-full btn-secondary btn-sm text-left flex items-center space-x-2" onclick="alert('Add link coming soon')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+            </svg>
+            <span>Add Link</span>
           </button>
-          <button class="w-full btn-secondary btn-sm text-left" onclick="alert('Create folder coming soon!')">
-            📁 New Folder
+          <button class="w-full btn-secondary btn-sm text-left flex items-center space-x-2" onclick="alert('Create folder coming soon')">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
+            </svg>
+            <span>New Folder</span>
           </button>
         </div>
       </div>
@@ -234,7 +260,7 @@
           <div class="notification-icon"></div>
           <div class="notification-content">
             <div class="notification-title">
-              {% if message.tags == 'success' %}Success!{% elif message.tags == 'error' %}Error!{% elif message.tags == 'warning' %}Warning{% else %}Information{% endif %}
+              {% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Information{% endif %}
             </div>
             <div class="notification-message">{{ message }}</div>
           </div>

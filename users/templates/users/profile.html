@@ -131,10 +131,10 @@
 <div id="crop-modal" style="display: none;">
   <div class="crop-modal-content">
     <div class="crop-modal-card">
-      <h2 class="crop-modal-title">✂️ Crop Your Profile Picture</h2>
+      <h2 class="crop-modal-title">Crop Your Profile Picture</h2>
       
       <div class="crop-instructions">
-        <strong>📌 How to crop:</strong>
+        <strong>How to crop:</strong>
         Drag to move • Corners to resize • Scroll to zoom • Preview shows as circle
       </div>
       
@@ -144,10 +144,10 @@
       
       <div class="crop-buttons">
         <button type="button" id="cancel-crop" class="btn-secondary">
-          ❌ Cancel
+          Cancel
         </button>
         <button type="button" id="apply-crop" class="btn-primary">
-          ✓ Apply Crop
+          Apply Crop
         </button>
       </div>
     </div>
@@ -185,8 +185,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    console.log('Ascendia Profile - Cropper Initialized');
-    
     // Notifications
     const notifications = document.querySelectorAll('.notification');
     notifications.forEach((notification, index) => {
@@ -213,7 +211,7 @@
     const avatarPreview = document.querySelector('.avatar-preview');
 
     if (!avatarInput) {
-      console.error('Avatar input not found!');
+      console.error('Avatar input not found');
       return;
     }
 
@@ -225,14 +223,14 @@
       
       // Validate file type
       if (!file.type.startsWith('image/')) {
-        alert('⚠️ Please select an image file');
+        alert('Please select an image file');
         avatarInput.value = '';
         return;
       }
       
       // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('⚠️ Image size must be less than 5MB');
+        alert('Image size must be less than 5MB');
         avatarInput.value = '';
         return;
       }
@@ -264,10 +262,7 @@
             cropBoxResizable: true,
             toggleDragModeOnDblclick: false,
             background: false,
-            modal: true,
-            ready: function() {
-              console.log('✓ Cropper ready - Circular preview active');
-            }
+            modal: true
           });
         }, 100);
       };
@@ -298,7 +293,7 @@
       
       // Show loading state
       applyCrop.disabled = true;
-      applyCrop.innerHTML = '⏳ Processing...';
+      applyCrop.innerHTML = 'Processing...';
       
       // Get cropped canvas
       const canvas = cropper.getCroppedCanvas({
@@ -316,9 +311,9 @@
       // Convert to blob
       canvas.toBlob(function(blob) {
         if (!blob) {
-          alert('❌ Failed to process image. Please try again.');
+          alert('Failed to process image. Please try again.');
           applyCrop.disabled = false;
-          applyCrop.innerHTML = '✓ Apply Crop';
+          applyCrop.innerHTML = 'Apply Crop';
           return;
         }
         
@@ -364,15 +359,13 @@
                 removeBtn.style.display = 'inline-block';
               }
               
-              console.log('✓ Avatar saved automatically!');
-              
               // Close modal
               cropModal.style.display = 'none';
               document.body.style.overflow = '';
               
               // Reset button
               applyCrop.disabled = false;
-              applyCrop.innerHTML = '✓ Apply Crop';
+              applyCrop.innerHTML = 'Apply Crop';
               
               // Cleanup
               if (cropper) {
@@ -380,15 +373,15 @@
                 cropper = null;
               }
             } else {
-              alert('❌ Failed to save avatar: ' + data.error);
+              alert('Failed to save avatar: ' + data.error);
               applyCrop.disabled = false;
-              applyCrop.innerHTML = '✓ Apply Crop';
+              applyCrop.innerHTML = 'Apply Crop';
             }
           })
           .catch(error => {
-            alert('❌ Network error: ' + error);
+            alert('Network error: ' + error);
             applyCrop.disabled = false;
-            applyCrop.innerHTML = '✓ Apply Crop';
+            applyCrop.innerHTML = 'Apply Crop';
           });
         };
         reader.readAsDataURL(blob);
@@ -401,11 +394,11 @@
       if (removeBtn && !removeBtn.dataset.listenerAttached) {
         removeBtn.dataset.listenerAttached = 'true';
         removeBtn.addEventListener('click', function handleRemove() {
-          if (confirm('🗑️ Are you sure you want to remove your profile picture?')) {
+          if (confirm('Remove your profile picture?')) {
             // Show loading
             removeBtn.disabled = true;
             const originalContent = removeBtn.innerHTML;
-            removeBtn.innerHTML = '⏳ Removing...';
+            removeBtn.innerHTML = 'Removing...';
             
             // Delete via AJAX
             fetch('{% url "update_avatar" %}', {
@@ -430,15 +423,14 @@
                 // Clear file input
                 avatarInput.value = '';
                 
-                console.log('✓ Avatar removed successfully!');
               } else {
-                alert('❌ Failed to remove avatar: ' + data.error);
+                alert('Failed to remove avatar: ' + data.error);
                 removeBtn.disabled = false;
                 removeBtn.innerHTML = originalContent;
               }
             })
             .catch(error => {
-              alert('❌ Network error: ' + error);
+              alert('Network error: ' + error);
               removeBtn.disabled = false;
               removeBtn.innerHTML = originalContent;
             });

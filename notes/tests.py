@@ -1,10 +1,3 @@
-"""
-Test suite for notes app.
-
-This module contains comprehensive tests for notes, tags,
-and note-tag relationships functionality.
-"""
-
 from django.test import TestCase, Client
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -13,10 +6,7 @@ from .models import Note, Tag, NoteTag
 
 
 class NoteModelTest(TestCase):
-    """Test cases for the Note model."""
-    
     def setUp(self):
-        """Set up test data before each test method."""
         self.user = User.objects.create_user(
             username='testuser',
             password='testpass123'
@@ -34,7 +24,6 @@ class NoteModelTest(TestCase):
         )
     
     def test_note_creation(self):
-        """Test that a note can be created successfully."""
         self.assertEqual(self.note.title, 'Test Note')
         self.assertEqual(self.note.content, 'Test content')
         self.assertEqual(self.note.user, self.user)
@@ -42,11 +31,9 @@ class NoteModelTest(TestCase):
         self.assertFalse(self.note.is_pinned)
     
     def test_note_str_method(self):
-        """Test the string representation of note."""
         self.assertEqual(str(self.note), 'Test Note')
     
     def test_note_ordering(self):
-        """Test that notes are ordered correctly."""
         pinned_note = Note.objects.create(
             notebook=self.notebook,
             user=self.user,
@@ -58,10 +45,7 @@ class NoteModelTest(TestCase):
 
 
 class TagModelTest(TestCase):
-    """Test cases for the Tag model."""
-    
     def setUp(self):
-        """Set up test data."""
         self.user = User.objects.create_user(
             username='testuser',
             password='testpass123'
@@ -73,17 +57,14 @@ class TagModelTest(TestCase):
         )
     
     def test_tag_creation(self):
-        """Test that a tag can be created successfully."""
         self.assertEqual(self.tag.name, 'Python')
         self.assertEqual(self.tag.user, self.user)
         self.assertEqual(self.tag.color, '#3b82f6')
     
     def test_tag_str_method(self):
-        """Test the string representation of tag."""
         self.assertEqual(str(self.tag), 'Python')
     
     def test_tag_unique_per_user(self):
-        """Test that tag names must be unique per user."""
         with self.assertRaises(Exception):
             Tag.objects.create(
                 name='Python',
@@ -92,7 +73,6 @@ class TagModelTest(TestCase):
             )
     
     def test_different_users_can_have_same_tag_name(self):
-        """Test that different users can have tags with the same name."""
         other_user = User.objects.create_user(
             username='otheruser',
             password='pass123'
@@ -107,10 +87,7 @@ class TagModelTest(TestCase):
 
 
 class NoteTagModelTest(TestCase):
-    """Test cases for the NoteTag relationship model."""
-    
     def setUp(self):
-        """Set up test data."""
         self.user = User.objects.create_user(
             username='testuser',
             password='testpass123'
@@ -130,7 +107,6 @@ class NoteTagModelTest(TestCase):
         )
     
     def test_note_tag_creation(self):
-        """Test creating a note-tag relationship."""
         note_tag = NoteTag.objects.create(
             note=self.note,
             tag=self.tag
@@ -139,7 +115,6 @@ class NoteTagModelTest(TestCase):
         self.assertEqual(note_tag.tag, self.tag)
     
     def test_note_tag_str_method(self):
-        """Test string representation of note-tag relationship."""
         note_tag = NoteTag.objects.create(
             note=self.note,
             tag=self.tag
@@ -148,10 +123,7 @@ class NoteTagModelTest(TestCase):
 
 
 class NoteViewsTest(TestCase):
-    """Test cases for note views."""
-    
     def setUp(self):
-        """Set up test client and data."""
         self.client = Client()
         self.user = User.objects.create_user(
             username='testuser',
@@ -169,7 +141,6 @@ class NoteViewsTest(TestCase):
         )
     
     def test_note_create_requires_login(self):
-        """Test that note creation requires authentication."""
         response = self.client.get(
             reverse('notes:note_create', kwargs={'notebook_id': self.notebook.id})
         )
@@ -177,7 +148,6 @@ class NoteViewsTest(TestCase):
         self.assertIn('/users/login/', response.url)
     
     def test_note_create_get(self):
-        """Test GET request to note create view."""
         self.client.login(username='testuser', password='testpass123')
         response = self.client.get(
             reverse('notes:note_create', kwargs={'notebook_id': self.notebook.id})
@@ -186,7 +156,6 @@ class NoteViewsTest(TestCase):
         self.assertTemplateUsed(response, 'notes/note_create.html')
     
     def test_note_create_post(self):
-        """Test POST request to create a new note."""
         self.client.login(username='testuser', password='testpass123')
         data = {
             'title': 'New Note',
@@ -198,14 +167,12 @@ class NoteViewsTest(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         
-        # Check note was created
         note = Note.objects.get(title='New Note')
         self.assertEqual(note.user, self.user)
         self.assertEqual(note.notebook, self.notebook)
         self.assertEqual(note.content, 'New content')
     
     def test_note_detail_view(self):
-        """Test note detail view."""
         self.client.login(username='testuser', password='testpass123')
         response = self.client.get(
             reverse('notes:note_detail', kwargs={'note_id': self.note.id})
@@ -216,7 +183,6 @@ class NoteViewsTest(TestCase):
         self.assertContains(response, 'Test content')
     
     def test_note_update_get(self):
-        """Test GET request to note update view."""
         self.client.login(username='testuser', password='testpass123')
         response = self.client.get(
             reverse('notes:note_edit', kwargs={'note_id': self.note.id})
@@ -225,7 +191,6 @@ class NoteViewsTest(TestCase):
         self.assertContains(response, 'Test Note')
     
     def test_note_update_post(self):
-        """Test POST request to update a note."""
         self.client.login(username='testuser', password='testpass123')
         data = {
             'title': 'Updated Note',
@@ -237,13 +202,11 @@ class NoteViewsTest(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         
-        # Check note was updated
         self.note.refresh_from_db()
         self.assertEqual(self.note.title, 'Updated Note')
         self.assertEqual(self.note.content, 'Updated content')
     
     def test_note_delete_post(self):
-        """Test POST request to delete a note."""
         self.client.login(username='testuser', password='testpass123')
         note_id = self.note.id
         response = self.client.post(
@@ -251,16 +214,13 @@ class NoteViewsTest(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         
-        # Check note was deleted
         with self.assertRaises(Note.DoesNotExist):
             Note.objects.get(id=note_id)
     
     def test_note_toggle_pin(self):
-        """Test toggling pin status of a note."""
         self.client.login(username='testuser', password='testpass123')
         self.assertFalse(self.note.is_pinned)
         
-        # Toggle to pinned
         response = self.client.post(
             reverse('notes:note_toggle_pin', kwargs={'note_id': self.note.id})
         )
@@ -268,7 +228,6 @@ class NoteViewsTest(TestCase):
         self.note.refresh_from_db()
         self.assertTrue(self.note.is_pinned)
         
-        # Toggle back to unpinned
         response = self.client.post(
             reverse('notes:note_toggle_pin', kwargs={'note_id': self.note.id})
         )
@@ -277,10 +236,7 @@ class NoteViewsTest(TestCase):
 
 
 class TagViewsTest(TestCase):
-    """Test cases for tag views."""
-    
     def setUp(self):
-        """Set up test client and data."""
         self.client = Client()
         self.user = User.objects.create_user(
             username='testuser',
@@ -293,12 +249,10 @@ class TagViewsTest(TestCase):
         )
     
     def test_tag_list_requires_login(self):
-        """Test that tag list requires authentication."""
         response = self.client.get(reverse('notes:tag_list'))
         self.assertEqual(response.status_code, 302)
     
     def test_tag_list_view(self):
-        """Test tag list view."""
         self.client.login(username='testuser', password='testpass123')
         response = self.client.get(reverse('notes:tag_list'))
         self.assertEqual(response.status_code, 200)
@@ -306,7 +260,6 @@ class TagViewsTest(TestCase):
         self.assertContains(response, 'Python')
     
     def test_tag_create_post(self):
-        """Test POST request to create a new tag."""
         self.client.login(username='testuser', password='testpass123')
         data = {
             'name': 'Django',
@@ -315,13 +268,11 @@ class TagViewsTest(TestCase):
         response = self.client.post(reverse('notes:tag_create'), data)
         self.assertEqual(response.status_code, 302)
         
-        # Check tag was created
         tag = Tag.objects.get(name='Django')
         self.assertEqual(tag.user, self.user)
         self.assertEqual(tag.color, '#10b981')
     
     def test_tag_create_duplicate_name(self):
-        """Test creating tag with duplicate name."""
         self.client.login(username='testuser', password='testpass123')
         data = {
             'name': 'Python',  # Already exists
@@ -335,10 +286,7 @@ class TagViewsTest(TestCase):
 
 
 class NoteTagRelationshipTest(TestCase):
-    """Test cases for note-tag relationship views."""
-    
     def setUp(self):
-        """Set up test data."""
         self.client = Client()
         self.user = User.objects.create_user(
             username='testuser',
@@ -359,7 +307,6 @@ class NoteTagRelationshipTest(TestCase):
         )
     
     def test_add_tag_to_note(self):
-        """Test adding a tag to a note."""
         self.client.login(username='testuser', password='testpass123')
         response = self.client.post(
             reverse('notes:note_add_tag', kwargs={'note_id': self.note.id}),
@@ -367,12 +314,9 @@ class NoteTagRelationshipTest(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         
-        # Check tag was added
         self.assertTrue(NoteTag.objects.filter(note=self.note, tag=self.tag).exists())
     
     def test_remove_tag_from_note(self):
-        """Test removing a tag from a note."""
-        # First add the tag
         NoteTag.objects.create(note=self.note, tag=self.tag)
         
         self.client.login(username='testuser', password='testpass123')
@@ -384,15 +328,11 @@ class NoteTagRelationshipTest(TestCase):
         )
         self.assertEqual(response.status_code, 302)
         
-        # Check tag was removed
         self.assertFalse(NoteTag.objects.filter(note=self.note, tag=self.tag).exists())
 
 
 class NotePermissionsTest(TestCase):
-    """Test cases for note permissions and security."""
-    
     def setUp(self):
-        """Set up test users and notes."""
         self.user1 = User.objects.create_user(
             username='user1',
             password='pass123'
@@ -414,7 +354,6 @@ class NotePermissionsTest(TestCase):
         self.client = Client()
     
     def test_user_cannot_view_other_user_note(self):
-        """Test that users cannot view notes of other users."""
         self.client.login(username='user2', password='pass123')
         response = self.client.get(
             reverse('notes:note_detail', kwargs={'note_id': self.note.id})
@@ -422,7 +361,6 @@ class NotePermissionsTest(TestCase):
         self.assertEqual(response.status_code, 404)
     
     def test_user_cannot_edit_other_user_note(self):
-        """Test that users cannot edit notes of other users."""
         self.client.login(username='user2', password='pass123')
         response = self.client.post(
             reverse('notes:note_edit', kwargs={'note_id': self.note.id}),
@@ -433,7 +371,6 @@ class NotePermissionsTest(TestCase):
         self.assertEqual(self.note.title, 'User1 Note')
     
     def test_user_cannot_delete_other_user_note(self):
-        """Test that users cannot delete notes of other users."""
         self.client.login(username='user2', password='pass123')
         response = self.client.post(
             reverse('notes:note_delete', kwargs={'note_id': self.note.id})

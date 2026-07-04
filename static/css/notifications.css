@@ -1,42 +1,5 @@
-/**
- * notifications.css
- * 
- * 100% CSS Notification System (No JavaScript)
- * 
- * Implements animated notifications using pure CSS only,
- * leveraging CSS animations and Django's message system.
- * 
- * Features:
- * - Entry animation (slide-in from right)
- * - Auto-persistence (5 seconds)
- * - Exit animation (fade-out to right)
- * - Animated progress bar
- * - Glassmorphism effects
- * - Aurora Borealis gradients
- * - Fully responsive
- * 
- * Supported types:
- * - success: Green/Cyan with ✓ icon
- * - error: Red with ✕ icon
- * - info: Blue/Purple with ℹ icon
- * - warning: Yellow/Orange with ⚠ icon
- * 
- * @author Ascendia Team
- * @version 1.0.0
- * @dependencies None (Pure CSS)
- */
+/* CSS-only notifications for Django messages: slide in, hold 5s, fade out. */
 
-
-/* ==================================================================
-   MAIN CONTAINER
-   ================================================================== */
-
-/**
- * Fixed container for notifications
- * 
- * Positioned in the top-right corner of the screen.
- * Uses flexbox to stack multiple notifications vertically.
- */
 .notification-container {
   position: fixed;
   top: 5rem;
@@ -54,126 +17,74 @@
   max-width: 420px;
   padding: 1.25rem 1.5rem;
   border-radius: 1rem;
-  backdrop-filter: blur(25px);
-  -webkit-backdrop-filter: blur(25px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    0 4px 16px rgba(0, 0, 0, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   gap: 1rem;
   pointer-events: auto;
   position: relative;
   overflow: hidden;
-  
-  /* Animação completa: slide-in -> espera -> fade-out */
-  animation: 
-    slideInFromRight 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55),
+  animation:
+    slideInFromRight 0.4s ease-out,
     fadeOutToRight 0.6s ease-in 4.4s forwards;
 }
 
-/* Tipos de notificação com gradientes Aurora */
+/* per-type colors */
 .notification-success {
-  background: linear-gradient(
-    135deg,
-    rgba(16, 185, 129, 0.2),
-    rgba(6, 182, 212, 0.2)
-  );
+  background: rgba(6, 78, 59, 0.9);
   border-color: rgba(16, 185, 129, 0.4);
 }
 
 .notification-error {
-  background: linear-gradient(
-    135deg,
-    rgba(239, 68, 68, 0.2),
-    rgba(220, 38, 38, 0.2)
-  );
+  background: rgba(69, 10, 10, 0.9);
   border-color: rgba(239, 68, 68, 0.4);
 }
 
 .notification-info {
-  background: linear-gradient(
-    135deg,
-    rgba(59, 130, 246, 0.2),
-    rgba(139, 92, 246, 0.2)
-  );
+  background: rgba(23, 37, 84, 0.9);
   border-color: rgba(59, 130, 246, 0.4);
 }
 
 .notification-warning {
-  background: linear-gradient(
-    135deg,
-    rgba(245, 158, 11, 0.2),
-    rgba(251, 191, 36, 0.2)
-  );
+  background: rgba(69, 26, 3, 0.9);
   border-color: rgba(245, 158, 11, 0.4);
 }
 
-/* Ícone com animação bounce */
+/* icon */
 .notification-icon {
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
-  font-size: 1.5rem;
-  font-weight: bold;
-  animation: iconBounce 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
 }
 
-.notification-success .notification-icon {
-  background: linear-gradient(135deg, var(--aurora-mint), var(--aurora-cyan));
-  box-shadow: 
-    0 4px 16px rgba(16, 185, 129, 0.4),
-    0 0 20px rgba(6, 182, 212, 0.3);
-  color: white;
+.notification-success div.notification-icon {
+  background-color: var(--aurora-mint);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M5 13l4 4L19 7'/%3E%3C/svg%3E");
 }
 
-.notification-success .notification-icon::before {
-  content: '✓';
+.notification-error div.notification-icon {
+  background-color: #dc2626;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white' stroke-width='2.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M6 18L18 6M6 6l12 12'/%3E%3C/svg%3E");
 }
 
-.notification-error .notification-icon {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  box-shadow: 
-    0 4px 16px rgba(239, 68, 68, 0.4),
-    0 0 20px rgba(239, 68, 68, 0.3);
-  color: white;
+.notification-info div.notification-icon {
+  background-color: var(--aurora-blue);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z'/%3E%3C/svg%3E");
 }
 
-.notification-error .notification-icon::before {
-  content: '✕';
+.notification-warning div.notification-icon {
+  background-color: #d97706;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z'/%3E%3C/svg%3E");
 }
 
-.notification-info .notification-icon {
-  background: linear-gradient(135deg, var(--aurora-blue), var(--aurora-purple));
-  box-shadow: 
-    0 4px 16px rgba(59, 130, 246, 0.4),
-    0 0 20px rgba(139, 92, 246, 0.3);
-  color: white;
-}
-
-.notification-info .notification-icon::before {
-  content: 'ℹ';
-}
-
-.notification-warning .notification-icon {
-  background: linear-gradient(135deg, #f59e0b, #fbbf24);
-  box-shadow: 
-    0 4px 16px rgba(245, 158, 11, 0.4),
-    0 0 20px rgba(251, 191, 36, 0.3);
-  color: white;
-}
-
-.notification-warning .notification-icon::before {
-  content: '⚠';
-}
-
-/* Conteúdo da notificação */
+/* text */
 .notification-content {
   flex: 1;
   color: white;
@@ -192,7 +103,7 @@
   line-height: 1.4;
 }
 
-/* Barra de progresso animada */
+/* progress bar tracks the 5s lifetime */
 .notification-progress {
   position: absolute;
   bottom: 0;
@@ -211,32 +122,10 @@
   left: 0;
   height: 100%;
   width: 100%;
-  background: linear-gradient(90deg, var(--aurora-mint), var(--aurora-cyan), var(--aurora-blue));
-  background-size: 200% 100%;
-  animation: 
-    progressBar 5s linear forwards,
-    progressGradient 2s linear infinite;
+  background: rgba(255, 255, 255, 0.4);
+  animation: progressBar 5s linear forwards;
 }
 
-/* Efeito de brilho no card */
-.notification::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  animation: shine 3s ease-in-out infinite;
-  pointer-events: none;
-}
-
-/* Animações CSS puras */
 @keyframes slideInFromRight {
   0% {
     transform: translateX(450px);
@@ -259,23 +148,6 @@
   }
 }
 
-@keyframes iconBounce {
-  0% {
-    transform: scale(0) rotate(-180deg);
-    opacity: 0;
-  }
-  50% {
-    transform: scale(1.3) rotate(20deg);
-  }
-  70% {
-    transform: scale(0.9) rotate(-5deg);
-  }
-  100% {
-    transform: scale(1) rotate(0);
-    opacity: 1;
-  }
-}
-
 @keyframes progressBar {
   from {
     transform: translateX(0);
@@ -285,25 +157,6 @@
   }
 }
 
-@keyframes progressGradient {
-  0% {
-    background-position: 0% 0%;
-  }
-  100% {
-    background-position: 200% 0%;
-  }
-}
-
-@keyframes shine {
-  0% {
-    left: -100%;
-  }
-  50%, 100% {
-    left: 100%;
-  }
-}
-
-/* Responsivo */
 @media (max-width: 640px) {
   .notification-container {
     top: 4rem;
@@ -311,7 +164,7 @@
     left: 1rem;
     max-width: none;
   }
-  
+
   .notification {
     min-width: auto;
     max-width: none;

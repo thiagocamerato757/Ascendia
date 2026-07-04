@@ -1,76 +1,34 @@
-/**
- * homepage-animation.css
- * 
- * Ascendia Homepage Animations
- * 
- * Implements animated background with Aurora Borealis gradients
- * that continuously move and transform, creating an immersive
- * visual effect of northern lights.
- * 
- * Features:
- * - Multiple overlapping radial gradients
- * - Continuous movement animation (10s loop)
- * - Smooth fade-in for content (2s)
- * - Fixed background during scroll
- * 
- * Main classes:
- * - .animated-gradient: Aurora animated background
- * - .fade-in: Content fade-in
- * 
- * @author Ascendia Team
- * @version 1.0.0
- */
+/* Homepage background: dark base with soft aurora glows, plus content fade-in. */
 
+@keyframes gradient-drift {
+  0%, 100% {
+    background-position: 0% 50%, 100% 50%, 0% 0%;
+  }
+  50% {
+    background-position: 100% 50%, 0% 50%, 0% 0%;
+  }
+}
 
-/* ==================================================================
-   AURORA GRADIENT ANIMATION
-   ================================================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-/**
- * Keyframes for background animation
- * 
- * Moves and transforms multiple radial gradients simultaneously,
- * creating an organic and dynamic effect similar to northern lights.
- * 
- * Duration: 10 seconds
- * Loop: Infinite
- * Easing: ease-in-out for smooth movement
- */
- @keyframes gradient-animation {
-      0%, 100% { 
-        background-position: 0% 50%, 0% 50%, 0% 50%, 0% 50%, 0% 50%; 
-      }
-      25% { 
-        background-position: 25% 30%, 30% 70%, 20% 40%, 35% 60%, 25% 50%; 
-      }
-      50% { 
-        background-position: 50% 50%, 60% 30%, 40% 70%, 70% 50%, 50% 50%; 
-      }
-      75% { 
-        background-position: 75% 70%, 70% 40%, 80% 60%, 65% 30%, 75% 50%; 
-      }
-    }
-    @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    .animated-gradient {
-      background: 
-        radial-gradient(ellipse 150% 80% at 20% 50%, rgba(16, 185, 129, 0.8) 0%, transparent 50%),
-        radial-gradient(ellipse 120% 90% at 40% 60%, rgba(6, 182, 212, 0.7) 0%, transparent 50%),
-        radial-gradient(ellipse 130% 85% at 60% 40%, rgba(59, 130, 246, 0.7) 0%, transparent 50%),
-        radial-gradient(ellipse 140% 75% at 80% 50%, rgba(139, 92, 246, 0.8) 0%, transparent 50%),
-        linear-gradient(135deg, #10b981 0%, #06b6d4 25%, #3b82f6 50%, #8b5cf6 75%, #a78bfa 100%);
-      background-size: 300% 300%, 280% 280%, 320% 320%, 290% 290%, 200% 200%;
-      animation: gradient-animation 10s ease-in-out infinite;
-      transform-origin: center center;
-    }
-    .fade-in {
-      animation: fadeIn 2s ease-out;
-    }
+.animated-gradient {
+  background:
+    radial-gradient(ellipse 80% 60% at 25% 40%, rgba(16, 185, 129, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 75% 60%, rgba(6, 182, 212, 0.18) 0%, transparent 60%),
+    linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  background-size: 200% 200%, 200% 200%, 100% 100%;
+  animation: gradient-drift 40s ease-in-out infinite;
+}
+
+.fade-in {
+  animation: fadeIn 2s ease-out;
+}

@@ -1,111 +1,42 @@
-/**
- * design.css
- * 
- * Ascendia Design System with Aurora Borealis Theme
- * 
- * This file contains all base styles of the project, including:
- * - CSS variables with Aurora Borealis color palette
- * - Typography with Inter and Space Grotesk fonts
- * - Reusable components (buttons, cards, inputs, badges)
- * - Visual effects (gradients, glassmorphism, animations)
- * - Utilities and helpers
- * 
- * @author Ascendia Team
- * @version 1.0.0
- */
+/* Base styles for Ascendia: color variables, typography and shared components. */
 
-/* ==================================================================
-   IMPORTS
-   ================================================================== */
-
-/**
- * Google Fonts
- * - Inter: Modern sans-serif font for body text
- * - Space Grotesk: Geometric font for headings and highlights
- */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
-
-/* ==================================================================
-   CSS VARIABLES
-   ================================================================== */
-
-/**
- * Aurora Borealis Color Palette
- * 
- * Color system inspired by the northern lights (Aurora Borealis)
- * with gradients of mint-green, cyan, blue and purple.
- * 
- * Main colors:
- * --aurora-mint: Vibrant mint green (#10b981)
- * --aurora-cyan: Bright cyan (#06b6d4)
- * --aurora-blue: Intense blue (#3b82f6)
- * --aurora-purple: Deep purple (#8b5cf6)
- * --aurora-light: Light purple (#a78bfa)
- */
 :root {
-  /* Main colors */
-  --aurora-mint: #10b981;      /* Vibrant mint green */
-  --aurora-cyan: #06b6d4;      /* Bright cyan */
-  --aurora-blue: #3b82f6;      /* Intense blue */
-  --aurora-purple: #8b5cf6;    /* Deep purple */
-  --aurora-light: #a78bfa;     /* Light purple */
-  
-  /* Light variations (for hover, highlights) */
+  /* Aurora palette */
+  --aurora-mint: #10b981;
+  --aurora-cyan: #06b6d4;
+  --aurora-blue: #3b82f6;
+  --aurora-purple: #8b5cf6;
+  --aurora-light: #a78bfa;
+
+  /* lighter variants for hover states */
   --aurora-mint-light: #34d399;
   --aurora-cyan-light: #22d3ee;
   --aurora-blue-light: #60a5fa;
   --aurora-purple-light: #a78bfa;
-  
-  /* Dark variations (for shadows, pressed states) */
+
+  /* darker variants for pressed states */
   --aurora-mint-dark: #059669;
   --aurora-cyan-dark: #0891b2;
   --aurora-blue-dark: #2563eb;
   --aurora-purple-dark: #7c3aed;
 }
 
-
-/* ==================================================================
-   TYPOGRAPHY
-   ================================================================== */
-
-/**
- * Base font styles
- * 
- * Uses Inter as the main font for all body text,
- * with fallbacks to operating system fonts.
- */
+/* typography */
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-weight: 400;
-  letter-spacing: -0.01em; /* Adjusted kerning for better readability */
+  letter-spacing: -0.01em;
 }
 
-/**
- * Heading typography
- * 
- * Space Grotesk is used for all headings,
- * providing visual contrast with body text.
- */
 h1, h2, h3, h4, h5, h6, .title-font {
   font-family: 'Space Grotesk', 'Inter', sans-serif;
   font-weight: 700;
-  letter-spacing: -0.02em; /* Tighter kerning for headings */
+  letter-spacing: -0.02em;
 }
 
-
-/* ==================================================================
-   BUTTONS
-   ================================================================== */
-
-/**
- * Primary button with Aurora gradient
- * 
- * Main system button with animated gradient of Aurora colors.
- * Includes hover effect with gradient movement and elevation.
- * 
- * Usage: <button class="btn-primary">Text</button>
- */
+/* buttons */
 .btn-primary {
   position: relative;
   padding: 0.75rem 2rem;
@@ -113,49 +44,43 @@ h1, h2, h3, h4, h5, h6, .title-font {
   font-weight: 600;
   font-size: 1rem;
   color: white;
-  background: linear-gradient(135deg, var(--aurora-mint), var(--aurora-cyan), var(--aurora-blue));
-  background-size: 200% 200%;
+  background: linear-gradient(to right, var(--aurora-mint), var(--aurora-cyan));
   border: none;
   border-radius: 0.75rem;
   cursor: pointer;
   overflow: hidden;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
 }
 
 .btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
-  background-position: 100% 50%;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  filter: brightness(1.05);
 }
 
 .btn-primary:active {
   transform: translateY(0);
 }
 
-/* Botão secundário - Ghost style */
 .btn-secondary {
   padding: 0.75rem 2rem;
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 600;
   font-size: 1rem;
   color: white;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 0.75rem;
   cursor: pointer;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.15);
   border-color: var(--aurora-cyan);
-  box-shadow: 0 4px 20px rgba(6, 182, 212, 0.3);
-  transform: translateY(-2px);
 }
 
-/* Botão outline */
 .btn-outline {
   padding: 0.75rem 2rem;
   font-family: 'Space Grotesk', sans-serif;
@@ -166,58 +91,38 @@ h1, h2, h3, h4, h5, h6, .title-font {
   border: 2px solid var(--aurora-cyan);
   border-radius: 0.75rem;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-outline::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, var(--aurora-mint), var(--aurora-cyan));
-  transition: left 0.3s ease;
-  z-index: -1;
-}
-
-.btn-outline:hover::before {
-  left: 0;
+  transition: all 0.2s ease;
 }
 
 .btn-outline:hover {
   color: white;
-  border-color: var(--aurora-mint);
+  background: var(--aurora-cyan-dark);
+  border-color: var(--aurora-cyan-dark);
 }
 
-/* Botão pequeno */
 .btn-sm {
   padding: 0.5rem 1.25rem;
   font-size: 0.875rem;
   border-radius: 0.5rem;
 }
 
-/* Botão grande */
 .btn-lg {
   padding: 1rem 2.5rem;
   font-size: 1.125rem;
   border-radius: 1rem;
 }
 
-/* Inputs */
+/* inputs */
 .input-aurora {
   width: 100%;
   padding: 0.875rem 1.25rem;
   font-family: 'Inter', sans-serif;
   font-size: 1rem;
   color: white;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   outline: none;
 }
 
@@ -231,86 +136,62 @@ h1, h2, h3, h4, h5, h6, .title-font {
   box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
 }
 
-/* Cards */
+/* cards */
 .card-aurora {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 1.25rem;
   padding: 2rem;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .card-aurora:hover {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(6, 182, 212, 0.3);
-  box-shadow: 0 8px 32px rgba(6, 182, 212, 0.2);
-  transform: translateY(-4px);
 }
 
-/* Badge */
+/* badge */
 .badge-aurora {
   display: inline-block;
   padding: 0.25rem 0.75rem;
   font-size: 0.75rem;
   font-weight: 600;
   color: white;
-  background: linear-gradient(135deg, var(--aurora-cyan), var(--aurora-blue));
+  background: var(--aurora-cyan-dark);
   border-radius: 9999px;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
-/* Link estilizado */
+/* links */
 .link-aurora {
   color: var(--aurora-cyan);
   text-decoration: none;
-  position: relative;
-  transition: color 0.3s ease;
-}
-
-.link-aurora::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 0;
-  width: 0;
-  height: 2px;
-  background: linear-gradient(90deg, var(--aurora-mint), var(--aurora-cyan));
-  transition: width 0.3s ease;
+  transition: color 0.2s ease;
 }
 
 .link-aurora:hover {
   color: var(--aurora-mint);
+  text-decoration: underline;
 }
 
-.link-aurora:hover::after {
-  width: 100%;
-}
-
-/* Text gradient */
+/* gradient text for the brand name */
 .text-aurora {
-  background: linear-gradient(135deg, var(--aurora-mint), var(--aurora-cyan), var(--aurora-blue), var(--aurora-purple));
+  background: linear-gradient(to right, var(--aurora-mint), var(--aurora-cyan), var(--aurora-blue));
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-size: 200% 200%;
-  animation: gradient-text 8s ease infinite;
 }
 
-@keyframes gradient-text {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-}
-
-/* Glassmorphism navbar */
+/* navbar */
 .navbar-aurora {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Divider com gradient */
+/* divider */
 .divider-aurora {
   height: 2px;
   background: linear-gradient(90deg, transparent, var(--aurora-cyan), transparent);
@@ -318,7 +199,7 @@ h1, h2, h3, h4, h5, h6, .title-font {
   margin: 2rem 0;
 }
 
-/* Scrollbar customizada */
+/* scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -328,24 +209,24 @@ h1, h2, h3, h4, h5, h6, .title-font {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(180deg, var(--aurora-cyan), var(--aurora-blue));
+  background: var(--aurora-cyan-dark);
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(180deg, var(--aurora-mint), var(--aurora-cyan));
+  background: var(--aurora-cyan);
 }
 
-/* Efeito de brilho ao hover */
+/* logo hover glow */
 .glow-aurora {
-  transition: all 0.3s ease;
+  transition: filter 0.2s ease;
 }
 
 .glow-aurora:hover {
-  filter: drop-shadow(0 0 20px rgba(6, 182, 212, 0.6));
+  filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.4));
 }
 
-/* Loading spinner */
+/* loading spinner */
 .spinner-aurora {
   width: 40px;
   height: 40px;
@@ -360,18 +241,17 @@ h1, h2, h3, h4, h5, h6, .title-font {
   100% { transform: rotate(360deg); }
 }
 
-/* File Input */
+/* file input */
 .file-input-aurora {
   width: 100%;
   padding: 0.75rem 1rem;
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   color: white;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 0.75rem;
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   outline: none;
   cursor: pointer;
 }
@@ -394,19 +274,18 @@ h1, h2, h3, h4, h5, h6, .title-font {
   font-weight: 600;
   font-size: 0.875rem;
   color: white;
-  background: linear-gradient(135deg, var(--aurora-mint), var(--aurora-cyan));
+  background: var(--aurora-mint-dark);
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: background 0.2s ease;
 }
 
 .file-input-aurora::file-selector-button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  background: var(--aurora-mint);
 }
 
-/* Background gradient */
+/* dark page background */
 .bg-gradient-aurora {
   background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
   min-height: 100vh;

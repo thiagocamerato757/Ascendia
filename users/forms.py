@@ -1,11 +1,4 @@
-"""
-Users app forms.
-
-This module contains custom forms for user registration,
-with validations and additional fields.
-"""
-
-from typing import Any, Dict
+from typing import Any
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -13,16 +6,7 @@ from .models import Profile
 
 
 class SignUpForm(UserCreationForm):
-    """
-    Custom user registration form.
-    
-    Extends Django's default UserCreationForm by adding a required email field
-    and custom placeholders for better UX.
-    
-    Attributes:
-        email (EmailField): Required email field with placeholder
-    """
-    
+    """UserCreationForm with a required email field."""
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
@@ -42,16 +26,7 @@ class SignUpForm(UserCreationForm):
         }
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
-        """
-        Initializes the form and adds placeholders to password fields.
-        
-        Args:
-            *args: Positional arguments
-            **kwargs: Keyword arguments
-        """
         super(SignUpForm, self).__init__(*args, **kwargs)
-        
-        # Add placeholders to password fields
         self.fields['password1'].widget.attrs.update({
             'placeholder': 'Create a password'
         })
@@ -60,32 +35,16 @@ class SignUpForm(UserCreationForm):
         })
 
     def save(self, commit: bool = True) -> User:
-        """
-        Saves the user with the provided email.
-        
-        Args:
-            commit (bool): If True, saves the user to the database.
-                          If False, only creates the instance without saving.
-        
-        Returns:
-            User: Created user instance
-        """
         user = super(SignUpForm, self).save(commit=False)
         user.email = self.cleaned_data['email']
-        
+
         if commit:
             user.save()
-        
+
         return user
 
 
 class UserUpdateForm(forms.ModelForm):
-    """
-    Form for updating user information.
-    
-    Allows users to update their username, email, first name, and last name.
-    """
-    
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
@@ -94,7 +53,7 @@ class UserUpdateForm(forms.ModelForm):
         }),
         label='Email'
     )
-    
+
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name', 'last_name']
@@ -120,12 +79,6 @@ class UserUpdateForm(forms.ModelForm):
 
 
 class ProfileUpdateForm(forms.ModelForm):
-    """
-    Form for updating user profile information.
-    
-    Allows users to update their avatar image and WhatsApp number.
-    """
-    
     whatsapp = forms.CharField(
         max_length=20,
         required=False,
@@ -136,7 +89,7 @@ class ProfileUpdateForm(forms.ModelForm):
         label='WhatsApp',
         help_text='Enter your WhatsApp number with country code'
     )
-    
+
     class Meta:
         model = Profile
         fields = ['avatar', 'whatsapp']
@@ -150,28 +103,20 @@ class ProfileUpdateForm(forms.ModelForm):
             'avatar': 'Profile Picture',
             'whatsapp': 'WhatsApp'
         }
-    
+
     def clean_whatsapp(self) -> str:
-        """
-        Validates and cleans the WhatsApp number.
-        
-        Returns:
-            str: Cleaned WhatsApp number
-        """
         whatsapp = self.cleaned_data.get('whatsapp', '')
-        
+
         if whatsapp:
-            # Remove common formatting characters
             cleaned = ''.join(c for c in whatsapp if c.isdigit() or c == '+')
-            
-            # Basic validation: must start with + and have at least 10 digits
+
             if not cleaned.startswith('+'):
                 raise forms.ValidationError('WhatsApp number must start with country code (e.g., +55)')
-            
-            digits = cleaned[1:]  # Remove the + sign
+
+            digits = cleaned[1:]
             if len(digits) < 10:
                 raise forms.ValidationError('WhatsApp number must have at least 10 digits')
-            
+
             return whatsapp
-        
+
         return whatsapp

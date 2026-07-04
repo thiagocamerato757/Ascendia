@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,13 +18,13 @@
   <!-- Navbar -->
   <header class="w-full navbar-aurora shadow-md flex-shrink-0">
     <nav class="w-full flex items-center justify-between px-8 py-4">
-      <!-- Logo + Nome (Esquerda) -->
+      <!-- Logo -->
       <div class="flex items-center space-x-3">
         <img src="{% static 'img/Ascendia_logo.png' %}" alt="Ascendia Logo" class="w-10 h-10 glow-aurora">
         <a href="{% url 'home' %}" class="text-2xl font-bold tracking-tight text-white">Ascendia</a>
       </div>
 
-      <!-- Links + Autenticação (Direita) -->
+      <!-- Nav links and auth -->
       <div class="flex items-center space-x-6">
         {% block nav_links %}
           {% if user.is_authenticated %}
@@ -61,7 +61,7 @@
             <form method="post" action="{% url 'logout' %}" class="inline">
               {% csrf_token %}
               <button type="submit" class="btn-secondary btn-sm">
-                Sair
+                Log out
               </button>
             </form>
           </div>
@@ -70,20 +70,20 @@
     </nav>
   </header>
 
-  <!-- Conteúdo Principal -->
+  <!-- Main content -->
   <main class="flex-1 overflow-y-auto">
     {% block content %}
     {% endblock %}
   </main>
 
-  <!-- Rodapé -->
+  <!-- Footer -->
   {% block footer %}
   <footer class="backdrop-blur-md py-1 text-center text-sm text-white/80 flex-shrink-0">
-    &copy; {% now "Y" %} Ascendia. Todos os direitos reservados.
+    &copy; {% now "Y" %} Ascendia. All rights reserved.
   </footer>
   {% endblock %}
 
-  <!-- Mensagens do Django (apenas onde permitido) -->
+  <!-- Django messages (only where a page opts in) -->
   {% block notifications %}
   {% endblock %}
 </body>

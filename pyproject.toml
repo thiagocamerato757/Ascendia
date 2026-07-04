@@ -1,7 +1,7 @@
 [project]
 name = "ascendia"
 version = "0.1.0"
-description = "Ascendia is an interactive and extensible learning system designed to help users organize, track, and evolve their knowledge journey. Built with Django and managed by uv, it serves as a foundation for exploring modern backend development, data management, and integration with AI"
+description = "Django app for organizing notebooks, notes and study materials"
 
 readme = "README.md"
 requires-python = ">=3.14"

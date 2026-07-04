@@ -1,25 +1,3 @@
-"""
-Comprehensive automated tests for Users app.
-
-This module contains extensive test coverage for:
-- User Profile model and its properties
-- User authentication (login, signup, logout)
-- Profile management (view, update)
-- Avatar upload and management
-- Forms validation
-- Signals and automatic profile creation
-
-Test Organization:
-    - ProfileModelTests: Tests for Profile model methods and properties
-    - SignUpFormTests: Tests for user registration form
-    - UserUpdateFormTests: Tests for user update form
-    - ProfileUpdateFormTests: Tests for profile update form with WhatsApp validation
-    - SignUpViewTests: Tests for user registration view
-    - LoginViewTests: Tests for user authentication
-    - ProfileViewTests: Tests for profile view and update
-    - AvatarUpdateTests: Tests for avatar upload/delete functionality
-"""
-
 from django.test import TestCase, Client, override_settings
 from django.contrib.auth.models import User
 from django.urls import reverse
@@ -39,15 +17,7 @@ TEMP_MEDIA_ROOT = tempfile.mkdtemp()
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class ProfileModelTests(TestCase):
-    """
-    Test suite for Profile model.
-    
-    Tests the Profile model's methods, properties, and automatic creation
-    via Django signals when a User is created.
-    """
-    
     def setUp(self):
-        """Set up test data: create a test user and profile."""
         self.user = User.objects.create_user(
             username='testuser',
             email='test@example.com',
@@ -57,21 +27,17 @@ class ProfileModelTests(TestCase):
         self.profile = self.user.profile
     
     def test_profile_creation_signal(self):
-        """Test that Profile is automatically created when User is created."""
         self.assertIsNotNone(self.profile)
         self.assertEqual(self.profile.user, self.user)
     
     def test_profile_str_representation(self):
-        """Test the string representation of Profile."""
         expected = f'{self.user.username} Profile'
         self.assertEqual(str(self.profile), expected)
     
     def test_profile_avatar_url_without_avatar(self):
-        """Test avatar_url property returns None when no avatar is set."""
         self.assertIsNone(self.profile.avatar_url)
     
     def test_profile_avatar_url_with_avatar(self):
-        """Test avatar_url property returns URL when avatar exists."""
         # Create a dummy image file
         image_content = b'GIF89a\x01\x00\x01\x00\x00\xff\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;'
         image_file = SimpleUploadedFile(
@@ -86,11 +52,9 @@ class ProfileModelTests(TestCase):
         self.assertIn('avatars/', self.profile.avatar_url)
     
     def test_profile_whatsapp_link_without_number(self):
-        """Test whatsapp_link property returns None when no number is set."""
         self.assertIsNone(self.profile.whatsapp_link)
     
     def test_profile_whatsapp_link_with_number(self):
-        """Test whatsapp_link property generates correct WhatsApp URL."""
         self.profile.whatsapp = '+55 11 98765-4321'
         self.profile.save()
         
@@ -98,7 +62,6 @@ class ProfileModelTests(TestCase):
         self.assertEqual(self.profile.whatsapp_link, expected_url)
     
     def test_profile_whatsapp_link_removes_special_chars(self):
-        """Test that WhatsApp link correctly removes special characters."""
         self.profile.whatsapp = '+1 (555) 123-4567'
         self.profile.save()
         
@@ -106,7 +69,6 @@ class ProfileModelTests(TestCase):
         self.assertEqual(self.profile.whatsapp_link, expected_url)
     
     def test_profile_ordering(self):
-        """Test that profiles are ordered by username."""
         user2 = User.objects.create_user(username='auser', password='pass123')
         user3 = User.objects.create_user(username='zuser', password='pass123')
         
@@ -117,20 +79,12 @@ class ProfileModelTests(TestCase):
     
     @classmethod
     def tearDownClass(cls):
-        """Clean up temporary media directory."""
         super().tearDownClass()
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
 
 class SignUpFormTests(TestCase):
-    """
-    Test suite for SignUpForm.
-    
-    Tests form validation, email requirement, and proper user creation.
-    """
-    
     def test_signup_form_valid_data(self):
-        """Test SignUpForm with valid data."""
         form_data = {
             'username': 'newuser',
             'email': 'newuser@example.com',
@@ -141,7 +95,6 @@ class SignUpFormTests(TestCase):
         self.assertTrue(form.is_valid())
     
     def test_signup_form_missing_email(self):
-        """Test that email is required in SignUpForm."""
         form_data = {
             'username': 'newuser',
             'email': '',
@@ -153,7 +106,6 @@ class SignUpFormTests(TestCase):
         self.assertIn('email', form.errors)
     
     def test_signup_form_invalid_email(self):
-        """Test SignUpForm rejects invalid email format."""
         form_data = {
             'username': 'newuser',
             'email': 'invalid-email',
@@ -165,7 +117,6 @@ class SignUpFormTests(TestCase):
         self.assertIn('email', form.errors)
     
     def test_signup_form_password_mismatch(self):
-        """Test SignUpForm rejects mismatched passwords."""
         form_data = {
             'username': 'newuser',
             'email': 'newuser@example.com',
@@ -177,7 +128,6 @@ class SignUpFormTests(TestCase):
         self.assertIn('password2', form.errors)
     
     def test_signup_form_saves_user_with_email(self):
-        """Test that SignUpForm properly saves user with email."""
         form_data = {
             'username': 'emailuser',
             'email': 'emailuser@example.com',
@@ -193,14 +143,7 @@ class SignUpFormTests(TestCase):
 
 
 class UserUpdateFormTests(TestCase):
-    """
-    Test suite for UserUpdateForm.
-    
-    Tests user information update functionality.
-    """
-    
     def setUp(self):
-        """Set up test user."""
         self.user = User.objects.create_user(
             username='testuser',
             email='test@example.com',
@@ -208,7 +151,6 @@ class UserUpdateFormTests(TestCase):
         )
     
     def test_user_update_form_valid_data(self):
-        """Test UserUpdateForm with valid data."""
         form_data = {
             'username': 'updateduser',
             'email': 'updated@example.com',
@@ -219,7 +161,6 @@ class UserUpdateFormTests(TestCase):
         self.assertTrue(form.is_valid())
     
     def test_user_update_form_missing_email(self):
-        """Test that email is required in UserUpdateForm."""
         form_data = {
             'username': 'updateduser',
             'email': '',
@@ -232,14 +173,7 @@ class UserUpdateFormTests(TestCase):
 
 
 class ProfileUpdateFormTests(TestCase):
-    """
-    Test suite for ProfileUpdateForm.
-    
-    Tests profile update functionality and WhatsApp number validation.
-    """
-    
     def setUp(self):
-        """Set up test user and profile."""
         self.user = User.objects.create_user(
             username='testuser',
             email='test@example.com',
@@ -248,7 +182,6 @@ class ProfileUpdateFormTests(TestCase):
         self.profile = self.user.profile
     
     def test_profile_update_form_valid_whatsapp(self):
-        """Test ProfileUpdateForm with valid WhatsApp number."""
         form_data = {
             'whatsapp': '+55 11 98765-4321',
         }
@@ -256,7 +189,6 @@ class ProfileUpdateFormTests(TestCase):
         self.assertTrue(form.is_valid())
     
     def test_profile_update_form_whatsapp_without_country_code(self):
-        """Test that WhatsApp number must start with country code."""
         form_data = {
             'whatsapp': '11 98765-4321',
         }
@@ -265,7 +197,6 @@ class ProfileUpdateFormTests(TestCase):
         self.assertIn('whatsapp', form.errors)
     
     def test_profile_update_form_whatsapp_too_short(self):
-        """Test that WhatsApp number must have at least 10 digits."""
         form_data = {
             'whatsapp': '+55 123',
         }
@@ -274,7 +205,6 @@ class ProfileUpdateFormTests(TestCase):
         self.assertIn('whatsapp', form.errors)
     
     def test_profile_update_form_empty_whatsapp(self):
-        """Test that WhatsApp number is optional."""
         form_data = {
             'whatsapp': '',
         }
@@ -283,25 +213,16 @@ class ProfileUpdateFormTests(TestCase):
 
 
 class SignUpViewTests(TestCase):
-    """
-    Test suite for SignUpView.
-    
-    Tests user registration view, automatic login, and redirect behavior.
-    """
-    
     def setUp(self):
-        """Set up test client."""
         self.client = Client()
         self.signup_url = reverse('signup')
     
     def test_signup_view_get(self):
-        """Test GET request to signup page."""
         response = self.client.get(self.signup_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'users/signup.html')
     
     def test_signup_view_post_valid_data(self):
-        """Test POST request with valid signup data."""
         form_data = {
             'username': 'newuser',
             'email': 'newuser@example.com',
@@ -314,7 +235,6 @@ class SignUpViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('home'))
         
-        # User should be created
         self.assertTrue(User.objects.filter(username='newuser').exists())
         
         # User should be logged in automatically
@@ -322,7 +242,6 @@ class SignUpViewTests(TestCase):
         self.assertEqual(int(self.client.session['_auth_user_id']), user.pk)
     
     def test_signup_view_post_invalid_data(self):
-        """Test POST request with invalid signup data."""
         form_data = {
             'username': 'newuser',
             'email': 'invalid-email',
@@ -337,7 +256,6 @@ class SignUpViewTests(TestCase):
                            'Enter a valid email address.')
     
     def test_signup_view_redirects_authenticated_user(self):
-        """Test that authenticated users are redirected from signup page."""
         user = User.objects.create_user(
             username='existinguser',
             password='testpass123'
@@ -350,14 +268,7 @@ class SignUpViewTests(TestCase):
 
 
 class LoginViewTests(TestCase):
-    """
-    Test suite for CustomLoginView.
-    
-    Tests user authentication and login functionality.
-    """
-    
     def setUp(self):
-        """Set up test client and user."""
         self.client = Client()
         self.login_url = reverse('login')
         self.user = User.objects.create_user(
@@ -367,13 +278,11 @@ class LoginViewTests(TestCase):
         )
     
     def test_login_view_get(self):
-        """Test GET request to login page."""
         response = self.client.get(self.login_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'users/login.html')
     
     def test_login_view_post_valid_credentials(self):
-        """Test POST request with valid login credentials."""
         form_data = {
             'username': 'testuser',
             'password': 'testpass123',
@@ -387,7 +296,6 @@ class LoginViewTests(TestCase):
         self.assertEqual(int(self.client.session['_auth_user_id']), self.user.pk)
     
     def test_login_view_post_invalid_credentials(self):
-        """Test POST request with invalid login credentials."""
         form_data = {
             'username': 'testuser',
             'password': 'wrongpassword',
@@ -400,7 +308,6 @@ class LoginViewTests(TestCase):
                           status_code=200)
     
     def test_login_view_success_message(self):
-        """Test that success message is displayed after login."""
         form_data = {
             'username': 'testuser',
             'password': 'testpass123',
@@ -413,14 +320,7 @@ class LoginViewTests(TestCase):
 
 
 class ProfileViewTests(TestCase):
-    """
-    Test suite for profile_view.
-    
-    Tests profile viewing and updating functionality.
-    """
-    
     def setUp(self):
-        """Set up test client and authenticated user."""
         self.client = Client()
         self.profile_url = reverse('profile')
         self.user = User.objects.create_user(
@@ -432,7 +332,6 @@ class ProfileViewTests(TestCase):
         self.profile = self.user.profile
     
     def test_profile_view_requires_login(self):
-        """Test that profile view requires authentication."""
         self.client.logout()
         response = self.client.get(self.profile_url)
         
@@ -441,7 +340,6 @@ class ProfileViewTests(TestCase):
         self.assertIn('/login/', response.url)
     
     def test_profile_view_get(self):
-        """Test GET request to profile page."""
         response = self.client.get(self.profile_url)
         
         self.assertEqual(response.status_code, 200)
@@ -450,7 +348,6 @@ class ProfileViewTests(TestCase):
         self.assertIn('profile_form', response.context)
     
     def test_profile_view_post_update_user_info(self):
-        """Test POST request to update user information."""
         form_data = {
             'username': 'updateduser',
             'email': 'updated@example.com',
@@ -476,8 +373,6 @@ class ProfileViewTests(TestCase):
         self.assertEqual(self.profile.whatsapp, '+55 11 98765-4321')
     
     def test_profile_view_creates_profile_if_missing(self):
-        """Test that profile is created if it doesn't exist."""
-        # Delete the profile
         Profile.objects.filter(user=self.user).delete()
         
         response = self.client.get(self.profile_url)
@@ -489,14 +384,7 @@ class ProfileViewTests(TestCase):
 
 @override_settings(MEDIA_ROOT=TEMP_MEDIA_ROOT)
 class AvatarUpdateTests(TestCase):
-    """
-    Test suite for update_avatar view.
-    
-    Tests avatar upload, update, and deletion via AJAX endpoint.
-    """
-    
     def setUp(self):
-        """Set up test client and authenticated user."""
         self.client = Client()
         self.avatar_url = reverse('update_avatar')
         self.user = User.objects.create_user(
@@ -508,7 +396,6 @@ class AvatarUpdateTests(TestCase):
         self.profile = self.user.profile
     
     def test_avatar_update_requires_login(self):
-        """Test that avatar update requires authentication."""
         self.client.logout()
         response = self.client.post(self.avatar_url)
         
@@ -516,7 +403,6 @@ class AvatarUpdateTests(TestCase):
         self.assertEqual(response.status_code, 302)
     
     def test_avatar_update_only_accepts_post(self):
-        """Test that avatar update only accepts POST requests."""
         response = self.client.get(self.avatar_url)
         
         self.assertEqual(response.status_code, 405)
@@ -524,7 +410,6 @@ class AvatarUpdateTests(TestCase):
         self.assertFalse(data['success'])
     
     def test_avatar_update_delete_avatar(self):
-        """Test deleting user avatar."""
         # First, add an avatar
         image_content = b'GIF89a\x01\x00\x01\x00\x00\xff\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;'
         image_file = SimpleUploadedFile(
@@ -535,7 +420,6 @@ class AvatarUpdateTests(TestCase):
         self.profile.avatar = image_file
         self.profile.save()
         
-        # Now delete it
         response = self.client.post(self.avatar_url, {'delete_avatar': 'true'})
         
         self.assertEqual(response.status_code, 200)
@@ -548,7 +432,6 @@ class AvatarUpdateTests(TestCase):
         self.assertFalse(self.profile.avatar)
     
     def test_avatar_update_upload_cropped_image(self):
-        """Test uploading a cropped avatar image."""
         # Create a small base64 encoded image
         image_data = b'GIF89a\x01\x00\x01\x00\x00\xff\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;'
         base64_data = base64.b64encode(image_data).decode('utf-8')
@@ -567,7 +450,6 @@ class AvatarUpdateTests(TestCase):
         self.assertIn('avatars/', self.profile.avatar.name)
     
     def test_avatar_update_no_data_provided(self):
-        """Test avatar update without providing data."""
         response = self.client.post(self.avatar_url, {})
         
         self.assertEqual(response.status_code, 400)
@@ -576,7 +458,6 @@ class AvatarUpdateTests(TestCase):
         self.assertIn('No avatar data provided', data['error'])
     
     def test_avatar_update_replaces_old_avatar(self):
-        """Test that uploading new avatar replaces the old one."""
         # Upload first avatar
         image_data1 = b'GIF89a\x01\x00\x01\x00\x00\xff\x00,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x00;'
         base64_data1 = base64.b64encode(image_data1).decode('utf-8')
@@ -603,20 +484,12 @@ class AvatarUpdateTests(TestCase):
     
     @classmethod
     def tearDownClass(cls):
-        """Clean up temporary media directory."""
         super().tearDownClass()
         shutil.rmtree(TEMP_MEDIA_ROOT, ignore_errors=True)
 
 
 class LogoutTests(TestCase):
-    """
-    Test suite for logout functionality.
-    
-    Tests user logout and redirect behavior.
-    """
-    
     def setUp(self):
-        """Set up test client and authenticated user."""
         self.client = Client()
         self.logout_url = reverse('logout')
         self.user = User.objects.create_user(
@@ -627,8 +500,6 @@ class LogoutTests(TestCase):
         self.client.login(username='testuser', password='testpass123')
     
     def test_logout_view(self):
-        """Test logout functionality."""
-        # Verify user is logged in
         self.assertIn('_auth_user_id', self.client.session)
         
         response = self.client.post(self.logout_url)
@@ -642,31 +513,21 @@ class LogoutTests(TestCase):
 
 
 class HomeViewTests(TestCase):
-    """
-    Test suite for HomeView.
-    
-    Tests the homepage view accessibility.
-    """
-    
     def setUp(self):
-        """Set up test client."""
         self.client = Client()
         self.home_url = reverse('home')
     
     def test_home_view_get(self):
-        """Test GET request to homepage."""
         response = self.client.get(self.home_url)
         
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'homepage.html')
     
     def test_home_view_accessible_without_login(self):
-        """Test that homepage is accessible to unauthenticated users."""
         response = self.client.get(self.home_url)
         self.assertEqual(response.status_code, 200)
     
     def test_home_view_accessible_with_login(self):
-        """Test that homepage is accessible to authenticated users."""
         user = User.objects.create_user(
             username='testuser',
             password='testpass123'
@@ -678,15 +539,7 @@ class HomeViewTests(TestCase):
 
 
 class CSRFProtectionTests(TestCase):
-    """
-    Test suite for CSRF protection.
-    
-    Verifies that CSRF tokens are required for state-changing operations
-    and that requests without valid tokens are rejected.
-    """
-    
     def setUp(self):
-        """Set up test client and user."""
         self.client = Client(enforce_csrf_checks=True)
         self.user = User.objects.create_user(
             username='csrftest',
@@ -699,7 +552,6 @@ class CSRFProtectionTests(TestCase):
         self.logout_url = reverse('logout')
     
     def test_signup_requires_csrf_token(self):
-        """Test that signup POST requires CSRF token."""
         response = self.client.post(self.signup_url, {
             'username': 'newuser',
             'email': 'newuser@example.com',
@@ -710,7 +562,6 @@ class CSRFProtectionTests(TestCase):
         self.assertEqual(response.status_code, 403)
     
     def test_signup_works_with_csrf_token(self):
-        """Test that signup succeeds with valid CSRF token."""
         # Get CSRF token first
         response = self.client.get(self.signup_url)
         csrf_token = response.cookies.get('csrftoken').value
@@ -728,7 +579,6 @@ class CSRFProtectionTests(TestCase):
         self.assertTrue(User.objects.filter(username='newuser').exists())
     
     def test_profile_update_requires_csrf_token(self):
-        """Test that profile update requires CSRF token."""
         self.client.force_login(self.user)
         
         response = self.client.post(self.profile_url, {
@@ -740,7 +590,6 @@ class CSRFProtectionTests(TestCase):
         self.assertEqual(response.status_code, 403)
     
     def test_avatar_update_requires_csrf_token(self):
-        """Test that avatar update endpoint requires CSRF token."""
         self.client.force_login(self.user)
         
         response = self.client.post(self.update_avatar_url, {
@@ -751,7 +600,6 @@ class CSRFProtectionTests(TestCase):
         self.assertEqual(response.status_code, 403)
     
     def test_logout_requires_csrf_token(self):
-        """Test that logout requires CSRF token."""
         self.client.force_login(self.user)
         
         response = self.client.post(self.logout_url)
@@ -761,15 +609,7 @@ class CSRFProtectionTests(TestCase):
 
 
 class SQLInjectionTests(TestCase):
-    """
-    Test suite for SQL injection protection.
-    
-    Verifies that the application properly sanitizes inputs and uses
-    parameterized queries to prevent SQL injection attacks.
-    """
-    
     def setUp(self):
-        """Set up test client and users."""
         self.client = Client()
         self.user = User.objects.create_user(
             username='sqltest',
@@ -781,7 +621,6 @@ class SQLInjectionTests(TestCase):
         self.profile_url = reverse('profile')
     
     def test_sql_injection_in_signup_username(self):
-        """Test SQL injection attempt in signup username field."""
         malicious_username = "admin' OR '1'='1"
         
         response = self.client.post(self.signup_url, {
@@ -801,7 +640,6 @@ class SQLInjectionTests(TestCase):
                 self.assertEqual(user.username, malicious_username)
     
     def test_sql_injection_in_login_username(self):
-        """Test SQL injection attempt in login username field."""
         malicious_username = "' OR '1'='1' --"
         
         response = self.client.post(self.login_url, {
@@ -815,7 +653,6 @@ class SQLInjectionTests(TestCase):
         self.assertEqual(response.status_code, 200)  # Login form shown again
     
     def test_sql_injection_in_email_field(self):
-        """Test SQL injection attempt in email field."""
         malicious_email = "test@example.com' OR '1'='1"
         
         response = self.client.post(self.signup_url, {
@@ -833,7 +670,6 @@ class SQLInjectionTests(TestCase):
             self.assertTrue(form.errors.get('email') or not form.is_valid())
     
     def test_sql_injection_in_profile_fields(self):
-        """Test SQL injection attempts in profile update fields."""
         self.client.login(username='sqltest', password='testpass123')
         
         malicious_data = {
@@ -857,15 +693,7 @@ class SQLInjectionTests(TestCase):
 
 
 class XSSProtectionTests(TestCase):
-    """
-    Test suite for XSS (Cross-Site Scripting) protection.
-    
-    Verifies that user inputs are properly escaped and sanitized
-    to prevent XSS attacks in forms and templates.
-    """
-    
     def setUp(self):
-        """Set up test client and user."""
         self.client = Client()
         self.user = User.objects.create_user(
             username='xsstest',
@@ -878,7 +706,6 @@ class XSSProtectionTests(TestCase):
         self.profile_url = reverse('profile')
     
     def test_xss_in_signup_username(self):
-        """Test XSS attempt in signup username field."""
         xss_username = '<script>alert("XSS")</script>'
         
         response = self.client.post(self.signup_url, {
@@ -896,7 +723,6 @@ class XSSProtectionTests(TestCase):
             self.assertIn('<script>', user.username)
     
     def test_xss_in_profile_first_name(self):
-        """Test XSS attempt in profile first name field."""
         self.client.login(username='xsstest', password='testpass123')
         
         xss_payload = '<img src=x onerror=alert("XSS")>'
@@ -924,7 +750,6 @@ class XSSProtectionTests(TestCase):
         self.assertTrue('&lt;' in content or '<img src=x onerror=alert("XSS")>' not in content)
     
     def test_xss_in_profile_last_name(self):
-        """Test XSS attempt in profile last name field."""
         self.client.login(username='xsstest', password='testpass123')
         
         xss_payload = '"><script>alert(document.cookie)</script>'
@@ -936,7 +761,6 @@ class XSSProtectionTests(TestCase):
             'last_name': xss_payload
         })
         
-        # Get profile page
         response = self.client.get(self.profile_url)
         content = response.content.decode('utf-8')
         
@@ -944,7 +768,6 @@ class XSSProtectionTests(TestCase):
         self.assertNotIn('<script>alert(document.cookie)</script>', content)
     
     def test_xss_in_whatsapp_field(self):
-        """Test XSS attempt in WhatsApp field."""
         self.client.login(username='xsstest', password='testpass123')
         
         xss_payload = '+55<script>alert("XSS")</script>11999999999'
@@ -968,7 +791,6 @@ class XSSProtectionTests(TestCase):
         self.assertNotIn('<script>alert("XSS")</script>', content)
     
     def test_xss_in_email_field(self):
-        """Test XSS attempt in email field."""
         xss_email = 'test@example.com<script>alert("XSS")</script>'
         
         response = self.client.post(self.signup_url, {
@@ -992,15 +814,7 @@ class XSSProtectionTests(TestCase):
 
 
 class RememberMeTests(TestCase):
-    """
-    Test suite for Remember Me functionality.
-    
-    Verifies that the "Remember Me" checkbox properly controls
-    session expiry behavior.
-    """
-    
     def setUp(self):
-        """Set up test client and user."""
         self.client = Client()
         self.user = User.objects.create_user(
             username='remembertest',
@@ -1010,7 +824,6 @@ class RememberMeTests(TestCase):
         self.login_url = reverse('login')
     
     def test_login_without_remember_me(self):
-        """Test that session expires on browser close without Remember Me."""
         response = self.client.post(self.login_url, {
             'username': 'remembertest',
             'password': 'testpass123'
@@ -1024,7 +837,6 @@ class RememberMeTests(TestCase):
         self.assertTrue(self.client.session.get_expire_at_browser_close())
     
     def test_login_with_remember_me(self):
-        """Test that session persists with Remember Me checked."""
         response = self.client.post(self.login_url, {
             'username': 'remembertest',
             'password': 'testpass123',
@@ -1042,15 +854,7 @@ class RememberMeTests(TestCase):
 
 
 class PasswordResetTests(TestCase):
-    """
-    Test suite for password reset functionality.
-    
-    Tests the complete password reset flow including
-    email sending and password change.
-    """
-    
     def setUp(self):
-        """Set up test client and user."""
         self.client = Client()
         self.user = User.objects.create_user(
             username='resettest',
@@ -1061,13 +865,11 @@ class PasswordResetTests(TestCase):
         self.password_reset_done_url = reverse('password_reset_done')
     
     def test_password_reset_page_accessible(self):
-        """Test that password reset page is accessible."""
         response = self.client.get(self.password_reset_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'users/password_reset.html')
     
     def test_password_reset_form_submission(self):
-        """Test password reset form submission with valid email."""
         response = self.client.post(self.password_reset_url, {
             'email': 'reset@example.com'
         })
@@ -1076,7 +878,6 @@ class PasswordResetTests(TestCase):
         self.assertRedirects(response, self.password_reset_done_url)
     
     def test_password_reset_email_sent(self):
-        """Test that password reset email is sent."""
         from django.core import mail
         
         response = self.client.post(self.password_reset_url, {
@@ -1092,7 +893,6 @@ class PasswordResetTests(TestCase):
         self.assertIn('reset', email.subject.lower())
     
     def test_password_reset_with_nonexistent_email(self):
-        """Test password reset with non-existent email (should still succeed for security)."""
         response = self.client.post(self.password_reset_url, {
             'email': 'nonexistent@example.com'
         })
@@ -1101,12 +901,10 @@ class PasswordResetTests(TestCase):
         self.assertRedirects(response, self.password_reset_done_url)
     
     def test_password_reset_confirm_valid_token(self):
-        """Test password reset confirm with valid token."""
         from django.contrib.auth.tokens import default_token_generator
         from django.utils.http import urlsafe_base64_encode
         from django.utils.encoding import force_bytes
         
-        # Generate token
         token = default_token_generator.make_token(self.user)
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
         
@@ -1121,12 +919,10 @@ class PasswordResetTests(TestCase):
         self.assertEqual(response.status_code, 302)
     
     def test_password_reset_complete_flow(self):
-        """Test complete password reset flow."""
         from django.contrib.auth.tokens import default_token_generator
         from django.utils.http import urlsafe_base64_encode
         from django.utils.encoding import force_bytes
         
-        # Generate token
         token = default_token_generator.make_token(self.user)
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
         
@@ -1139,13 +935,11 @@ class PasswordResetTests(TestCase):
         # Follow redirect to get session key
         response = self.client.get(reset_url, follow=True)
         
-        # Submit new password
         response = self.client.post(response.request['PATH_INFO'], {
             'new_password1': 'newpassword123',
             'new_password2': 'newpassword123'
         })
         
-        # Refresh user from database
         self.user.refresh_from_db()
         
         # Should be able to login with new password
@@ -1164,13 +958,11 @@ class PasswordResetTests(TestCase):
         self.assertFalse(old_login)
     
     def test_password_reset_done_page(self):
-        """Test that password reset done page is accessible."""
         response = self.client.get(self.password_reset_done_url)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'users/password_reset_done.html')
     
     def test_password_reset_complete_page(self):
-        """Test that password reset complete page is accessible."""
         complete_url = reverse('password_reset_complete')
         response = self.client.get(complete_url)
         self.assertEqual(response.status_code, 200)
