@@ -1,12 +1,14 @@
-from typing import Any
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.http import HttpResponse
 
+from .forms import LoginForm
+
 
 class CustomLoginView(LoginView):
     template_name = 'users/login.html'
+    authentication_form = LoginForm
 
     def form_valid(self, form: AuthenticationForm) -> HttpResponse:
         response = super().form_valid(form)

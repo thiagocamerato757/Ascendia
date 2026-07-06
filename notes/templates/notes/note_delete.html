@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Delete Notebook - Workspace{% endblock %}
+{% block title %}Delete Note - Workspace{% endblock %}
 
 {% block nav_links %}
   <a href="{% url 'home' %}" class="text-white hover:text-aurora-cyan transition-colors font-medium">Home</a>
@@ -21,64 +21,41 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
         </svg>
       </div>
-      <h1 class="text-3xl font-bold text-white mb-2">Delete Notebook?</h1>
+      <h1 class="text-3xl font-bold text-white mb-2 title-font">Delete Note?</h1>
       <p class="text-white/70">This action cannot be undone</p>
     </div>
 
-    <!-- Notebook Info -->
+    <!-- Note Info -->
     <div class="bg-black/20 rounded-lg p-4 mb-6">
       <div class="flex items-center space-x-3">
-        <div class="w-3 h-3 rounded-full" style="background-color: {{ notebook.color }}"></div>
+        <div class="w-3 h-3 rounded-full" style="background-color: {{ note.notebook.color }}"></div>
         <div class="flex-1">
-          <h3 class="text-xl font-bold text-white">{{ notebook.title }}</h3>
-          {% if notebook.description %}
-            <p class="text-white/60 text-sm mt-1">{{ notebook.description|truncatechars:100 }}</p>
-          {% endif %}
+          <h3 class="text-xl font-bold text-white">{{ note.title }}</h3>
+          <p class="text-white/60 text-sm mt-1">In {{ note.notebook.title }}</p>
         </div>
-        <svg class="w-8 h-8 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: {{ notebook.color }}">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        <svg class="w-8 h-8 flex-shrink-0 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
-      </div>
-    </div>
-
-    <!-- Warning Message -->
-    <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4 mb-6">
-      <div class="flex items-start space-x-3">
-        <svg class="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-        </svg>
-        <div class="flex-1">
-          <p class="text-red-300 font-semibold mb-1">Warning</p>
-          <p class="text-white/80 text-sm">
-            Deleting this notebook will permanently remove:
-          </p>
-          <ul class="text-white/70 text-sm mt-2 space-y-1 ml-4">
-            <li>• All notes and documents</li>
-            <li>• All uploaded files</li>
-            <li>• All tags and organization</li>
-            <li>• All associated data</li>
-          </ul>
-        </div>
       </div>
     </div>
 
     <!-- Confirmation Form -->
     <form method="post" class="space-y-4">
       {% csrf_token %}
-      
+
       <div class="flex items-center justify-between gap-4">
-        <a href="{% url 'workspace:notebook_detail' notebook.id %}" class="btn-secondary flex-1 text-center">
+        <a href="{% url 'notes:note_detail' note.id %}" class="btn-secondary flex-1 text-center">
           <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
           </svg>
           Cancel
         </a>
-        
+
         <button type="submit" class="btn-danger flex-1">
           <svg class="w-5 h-5 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
           </svg>
-          Yes, Delete Notebook
+          Yes, Delete Note
         </button>
       </div>
     </form>

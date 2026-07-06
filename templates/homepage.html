@@ -1,12 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block extra_css %}
-  <link rel="stylesheet" href="{% static 'css/homepage-animation.css' %}">
-{% endblock %}
-
-{% block body_class %}animated-gradient{% endblock %}
-
 {% block content %}
 <div class="h-full flex flex-col items-center justify-center px-6 text-center fade-in">
   <h1 class="text-6xl font-bold mb-6 title-font">Welcome to <span class="text-aurora">Ascendia</span></h1>
@@ -22,24 +16,4 @@
   </div>
   {% endif %}
 </div>
-{% endblock %}
-
-{% block notifications %}
-  <!-- Notifications (CSS only) -->
-  {% if messages %}
-    <div class="notification-container">
-      {% for message in messages %}
-        <div class="notification notification-{{ message.tags|default:'info' }}">
-          <div class="notification-icon"></div>
-          <div class="notification-content">
-            <div class="notification-title">
-              {% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Information{% endif %}
-            </div>
-            <div class="notification-message">{{ message }}</div>
-          </div>
-          <div class="notification-progress"></div>
-        </div>
-      {% endfor %}
-    </div>
-  {% endif %}
 {% endblock %}

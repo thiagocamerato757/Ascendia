@@ -13,7 +13,7 @@
   <title>{% block title %}Ascendia{% endblock %}</title>
 </head>
 
-<body class="h-screen flex flex-col text-white overflow-hidden {% block body_class %}{% endblock %}">
+<body class="h-screen flex flex-col text-white overflow-hidden {% block body_class %}bg-aurora{% endblock %}">
 
   <!-- Navbar -->
   <header class="w-full navbar-aurora shadow-md flex-shrink-0">
@@ -83,8 +83,27 @@
   </footer>
   {% endblock %}
 
-  <!-- Django messages (only where a page opts in) -->
+  <!-- Django messages -->
   {% block notifications %}
+    {% if messages %}
+      <div class="notification-container">
+        {% for message in messages %}
+          <div class="notification notification-{{ message.tags|default:'info' }}">
+            <div class="notification-icon"></div>
+            <div class="notification-content">
+              <div class="notification-title">
+                {% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Information{% endif %}
+              </div>
+              <div class="notification-message">{{ message }}</div>
+            </div>
+            <div class="notification-progress"></div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  {% endblock %}
+
+  {% block extra_js %}
   {% endblock %}
 </body>
 </html>

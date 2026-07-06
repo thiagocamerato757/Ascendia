@@ -100,6 +100,30 @@ h1, h2, h3, h4, h5, h6, .title-font {
   border-color: var(--aurora-cyan-dark);
 }
 
+.btn-danger {
+  padding: 0.75rem 2rem;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: white;
+  background: #dc2626;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+}
+
+.btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  filter: brightness(1.05);
+}
+
+.btn-danger:active {
+  transform: translateY(0);
+}
+
 .btn-sm {
   padding: 0.5rem 1.25rem;
   font-size: 0.875rem;
@@ -285,8 +309,118 @@ h1, h2, h3, h4, h5, h6, .title-font {
   background: var(--aurora-mint);
 }
 
-/* dark page background */
-.bg-gradient-aurora {
-  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-  min-height: 100vh;
+/* color picker (radio group of color swatches) */
+.color-picker-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.color-option {
+  position: relative;
+}
+
+.color-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.color-option label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.color-option label:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.color-swatch {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.2s ease;
+}
+
+.color-option input[type="radio"]:checked + label {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--aurora-cyan);
+}
+
+.color-option input[type="radio"]:checked + label .color-swatch {
+  border-color: white;
+}
+
+.color-name {
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* checkbox row */
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkbox-container:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.checkbox-container input[type="checkbox"] {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  accent-color: var(--aurora-cyan);
+}
+
+.checkbox-label {
+  color: white;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* page background: dark base with soft aurora glows */
+.bg-aurora {
+  background:
+    radial-gradient(ellipse 80% 60% at 25% 40%, rgba(16, 185, 129, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 75% 60%, rgba(6, 182, 212, 0.18) 0%, transparent 60%),
+    linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+}
+
+/* content fade-in */
+.fade-in {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -5,16 +5,20 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.urls import reverse_lazy, reverse
 from django.http import JsonResponse
 from workspace.models import Notebook
+from .forms import NoteForm, TagForm
 from .models import Note, Tag, NoteTag
 
 
 class NoteCreateView(LoginRequiredMixin, CreateView):
     model = Note
     template_name = 'notes/note_create.html'
-    fields = ['title', 'content']
+    form_class = NoteForm
 
     def dispatch(self, request, *args, **kwargs):
-        self.notebook = get_object_or_404(Notebook, id=kwargs['notebook_id'], user=request.user)
+        # LoginRequiredMixin only runs inside super().dispatch, so guard the
+        # notebook lookup against anonymous users
+        if request.user.is_authenticated:
+            self.notebook = get_object_or_404(Notebook, id=kwargs['notebook_id'], user=request.user)
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -51,7 +55,7 @@ class NoteDetailView(LoginRequiredMixin, DetailView):
 class NoteUpdateView(LoginRequiredMixin, UpdateView):
     model = Note
     template_name = 'notes/note_create.html'
-    fields = ['title', 'content']
+    form_class = NoteForm
     pk_url_kwarg = 'note_id'
 
     def get_queryset(self):
@@ -119,7 +123,7 @@ class TagListView(LoginRequiredMixin, ListView):
 class TagCreateView(LoginRequiredMixin, CreateView):
     model = Tag
     template_name = 'notes/tag_create.html'
-    fields = ['name', 'color']
+    form_class = TagForm
     success_url = reverse_lazy('notes:tag_list')
 
     def form_valid(self, form):

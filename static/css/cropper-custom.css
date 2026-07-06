@@ -25,12 +25,8 @@
   padding: 20px;
 }
 
+/* base card look comes from .card-aurora; add depth over the dark overlay */
 .crop-modal-card {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(8px);
-  border-radius: 1.25rem;
-  padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
 }
 

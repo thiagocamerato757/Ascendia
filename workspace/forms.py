@@ -1,21 +1,23 @@
 from django import forms
 from .models import Notebook
 
+COLOR_CHOICES = [
+    ('#06b6d4', 'Cyan'),
+    ('#10b981', 'Mint'),
+    ('#3b82f6', 'Blue'),
+    ('#8b5cf6', 'Purple'),
+    ('#ec4899', 'Pink'),
+    ('#f59e0b', 'Amber'),
+    ('#ef4444', 'Red'),
+    ('#14b8a6', 'Teal'),
+]
+
 
 class NotebookForm(forms.ModelForm):
     """Form for creating and editing notebooks"""
-    
-    COLOR_CHOICES = [
-        ('#06b6d4', 'Cyan'),
-        ('#10b981', 'Mint'),
-        ('#3b82f6', 'Blue'),
-        ('#8b5cf6', 'Purple'),
-        ('#ec4899', 'Pink'),
-        ('#f59e0b', 'Amber'),
-        ('#ef4444', 'Red'),
-        ('#14b8a6', 'Teal'),
-    ]
-    
+
+    COLOR_CHOICES = COLOR_CHOICES
+
     title = forms.CharField(
         max_length=200,
         widget=forms.TextInput(attrs={

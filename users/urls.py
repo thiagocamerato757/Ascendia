@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from .forms import StyledPasswordResetForm, StyledSetPasswordForm
 from .views import SignUpView, profile_view, update_avatar
 from .views_auth import CustomLoginView
 
@@ -26,22 +27,24 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='home'), name='logout'),
     
     # Password Reset
-    path('password-reset/', 
+    path('password-reset/',
          auth_views.PasswordResetView.as_view(
              template_name='users/password_reset.html',
              email_template_name='registration/password_reset_email.html',
-             subject_template_name='registration/password_reset_subject.txt'
-         ), 
+             subject_template_name='registration/password_reset_subject.txt',
+             form_class=StyledPasswordResetForm
+         ),
          name='password_reset'),
     path('password-reset/done/', 
          auth_views.PasswordResetDoneView.as_view(
              template_name='users/password_reset_done.html'
          ), 
          name='password_reset_done'),
-    path('password-reset-confirm/<uidb64>/<token>/', 
+    path('password-reset-confirm/<uidb64>/<token>/',
          auth_views.PasswordResetConfirmView.as_view(
-             template_name='users/password_reset_confirm.html'
-         ), 
+             template_name='users/password_reset_confirm.html',
+             form_class=StyledSetPasswordForm
+         ),
          name='password_reset_confirm'),
     path('password-reset-complete/', 
          auth_views.PasswordResetCompleteView.as_view(

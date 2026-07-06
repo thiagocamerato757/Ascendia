@@ -1,6 +1,11 @@
 from typing import Any
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import (
+    AuthenticationForm,
+    PasswordResetForm,
+    SetPasswordForm,
+    UserCreationForm,
+)
 from django.contrib.auth.models import User
 from .models import Profile
 
@@ -10,7 +15,8 @@ class SignUpForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
-            'placeholder': 'Enter your email'
+            'placeholder': 'Enter your email',
+            'class': 'input-aurora'
         }),
         help_text='Required. Enter a valid email address.',
         label='Email'
@@ -21,17 +27,20 @@ class SignUpForm(UserCreationForm):
         fields = ('username', 'email', 'password1', 'password2')
         widgets = {
             'username': forms.TextInput(attrs={
-                'placeholder': 'Choose a username'
+                'placeholder': 'Choose a username',
+                'class': 'input-aurora'
             }),
         }
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super(SignUpForm, self).__init__(*args, **kwargs)
         self.fields['password1'].widget.attrs.update({
-            'placeholder': 'Create a password'
+            'placeholder': 'Create a password',
+            'class': 'input-aurora'
         })
         self.fields['password2'].widget.attrs.update({
-            'placeholder': 'Confirm your password'
+            'placeholder': 'Confirm your password',
+            'class': 'input-aurora'
         })
 
     def save(self, commit: bool = True) -> User:
@@ -42,6 +51,41 @@ class SignUpForm(UserCreationForm):
             user.save()
 
         return user
+
+
+class LoginForm(AuthenticationForm):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({
+            'placeholder': 'Enter your username',
+            'class': 'input-aurora'
+        })
+        self.fields['password'].widget.attrs.update({
+            'placeholder': 'Enter your password',
+            'class': 'input-aurora'
+        })
+
+
+class StyledPasswordResetForm(PasswordResetForm):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields['email'].widget.attrs.update({
+            'placeholder': 'Enter your email',
+            'class': 'input-aurora'
+        })
+
+
+class StyledSetPasswordForm(SetPasswordForm):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.fields['new_password1'].widget.attrs.update({
+            'placeholder': 'New password',
+            'class': 'input-aurora'
+        })
+        self.fields['new_password2'].widget.attrs.update({
+            'placeholder': 'Confirm new password',
+            'class': 'input-aurora'
+        })
 
 
 class UserUpdateForm(forms.ModelForm):
