@@ -1,109 +1,128 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ LANGUAGE_CODE|default:'pt-br' }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="{% static 'css/design.css' %}">
-  <link rel="stylesheet" href="{% static 'css/notifications.css' %}">
-  {% block extra_css %}
-  {% endblock %}
+  <!-- Apply the saved theme before paint to avoid a flash of the wrong theme. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme');
+        if (t === 'dark' || t === 'light') {
+          document.documentElement.setAttribute('data-theme', t);
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'css/components.css' %}">
+  <script src="{% static 'js/htmx.min.js' %}" defer></script>
+  {% block extra_css %}{% endblock %}
   <title>{% block title %}Ascendia{% endblock %}</title>
 </head>
 
-<body class="h-screen flex flex-col text-white overflow-hidden {% block body_class %}bg-aurora{% endblock %}">
+<body>
+  <div class="l-app">
+    <!-- Navbar -->
+    <header class="c-nav">
+      <nav class="c-nav__inner">
+        <div class="c-nav__brand">
+          <img src="{% static 'img/Ascendia_logo.png' %}" alt="{% trans 'Ascendia logo' %}" class="c-nav__logo">
+          <a href="{% url 'home' %}" class="c-nav__title">Ascendia</a>
+        </div>
 
-  <!-- Navbar -->
-  <header class="w-full navbar-aurora shadow-md flex-shrink-0">
-    <nav class="w-full flex items-center justify-between px-8 py-4">
-      <!-- Logo -->
-      <div class="flex items-center space-x-3">
-        <img src="{% static 'img/Ascendia_logo.png' %}" alt="Ascendia Logo" class="w-10 h-10 glow-aurora">
-        <a href="{% url 'home' %}" class="text-2xl font-bold tracking-tight text-white">Ascendia</a>
-      </div>
-
-      <!-- Nav links and auth -->
-      <div class="flex items-center space-x-6">
-        {% block nav_links %}
-          {% if user.is_authenticated %}
-            <a href="{% url 'workspace:home' %}" class="text-white hover:text-aurora-cyan transition-colors font-medium">Workspace</a>
-          {% endif %}
-          <a href="#about" class="text-white hover:text-aurora-cyan transition-colors font-medium">About</a>
-          <a href="https://github.com/thiagocamerato757/Ascendia" target="_blank" rel="noopener noreferrer" class="text-white hover:text-aurora-cyan transition-colors" title="GitHub Repository">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
-            </svg>
-          </a>
-          <a href="#help" class="text-white hover:text-aurora-cyan transition-colors" title="Help">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
-          </a>
-        {% endblock %}
-        
-        {% if user.is_authenticated %}
-          <div class="h-6 w-px bg-white/20"></div>
-          <div class="flex items-center space-x-3">
-            <a href="{% url 'profile' %}" class="relative group">
-              {% if user.profile and user.profile.avatar %}
-                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="w-10 h-10 rounded-full object-cover border-2 border-white/20 transition-all group-hover:border-aurora-cyan cursor-pointer">
-              {% else %}
-                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-aurora-mint to-aurora-cyan flex items-center justify-center border-2 border-white/20 transition-all group-hover:border-aurora-cyan cursor-pointer">
-                  <span class="text-white font-bold text-lg">{{ user.username.0|upper }}</span>
-                </div>
-              {% endif %}
-              <div class="absolute top-12 right-0 bg-black/90 backdrop-blur-md text-white px-3 py-2 rounded-lg text-sm opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-                {{ user.username }}
-              </div>
+        <div class="c-nav__links">
+          {% block nav_links %}
+            {% if user.is_authenticated %}
+              <a href="{% url 'workspace:home' %}" class="c-nav__link">{% trans "Workspace" %}</a>
+            {% endif %}
+            <a href="#about" class="c-nav__link">{% trans "About" %}</a>
+            <a href="https://github.com/thiagocamerato757/Ascendia" target="_blank" rel="noopener noreferrer" class="c-nav__icon-link" title="{% trans 'GitHub repository' %}">
+              <svg class="c-button__icon" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+              </svg>
             </a>
-            <form method="post" action="{% url 'logout' %}" class="inline">
+          {% endblock %}
+
+          <button type="button" class="c-theme-toggle" id="theme-toggle" title="{% trans 'Toggle theme' %}" aria-label="{% trans 'Toggle theme' %}">
+            <svg class="c-theme-toggle__icon c-theme-toggle__icon--moon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+            <svg class="c-theme-toggle__icon c-theme-toggle__icon--sun" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+            </svg>
+          </button>
+
+          {% if user.is_authenticated %}
+            <span class="c-nav__sep"></span>
+            <a href="{% url 'profile' %}" title="{{ user.username }}">
+              {% if user.profile and user.profile.avatar %}
+                <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="c-avatar">
+              {% else %}
+                <span class="c-avatar c-avatar--fallback">{{ user.username.0|upper }}</span>
+              {% endif %}
+            </a>
+            <form method="post" action="{% url 'logout' %}">
               {% csrf_token %}
-              <button type="submit" class="btn-secondary btn-sm">
-                Log out
-              </button>
+              <button type="submit" class="c-button c-button--secondary c-button--sm">{% trans "Log out" %}</button>
             </form>
-          </div>
-        {% endif %}
-      </div>
-    </nav>
-  </header>
+          {% endif %}
+        </div>
+      </nav>
+    </header>
 
-  <!-- Main content -->
-  <main class="flex-1 overflow-y-auto">
-    {% block content %}
+    <!-- Main content -->
+    <main class="l-main">
+      {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% block footer %}
+    <footer class="l-footer">
+      &copy; {% now "Y" %} Ascendia. {% trans "All rights reserved." %}
+    </footer>
     {% endblock %}
-  </main>
+  </div>
 
-  <!-- Footer -->
-  {% block footer %}
-  <footer class="backdrop-blur-md py-1 text-center text-sm text-white/80 flex-shrink-0">
-    &copy; {% now "Y" %} Ascendia. All rights reserved.
-  </footer>
-  {% endblock %}
-
-  <!-- Django messages -->
+  <!-- Django messages as toasts -->
   {% block notifications %}
     {% if messages %}
-      <div class="notification-container">
+      <div class="c-toasts" aria-live="polite">
         {% for message in messages %}
-          <div class="notification notification-{{ message.tags|default:'info' }}">
-            <div class="notification-icon"></div>
-            <div class="notification-content">
-              <div class="notification-title">
-                {% if message.tags == 'success' %}Success{% elif message.tags == 'error' %}Error{% elif message.tags == 'warning' %}Warning{% else %}Information{% endif %}
+          <div class="c-toast c-toast--{{ message.tags|default:'info' }}">
+            <span class="c-toast__icon"></span>
+            <div>
+              <div class="c-toast__title">
+                {% if message.tags == 'success' %}{% trans "Success" %}{% elif message.tags == 'error' %}{% trans "Error" %}{% elif message.tags == 'warning' %}{% trans "Warning" %}{% else %}{% trans "Information" %}{% endif %}
               </div>
-              <div class="notification-message">{{ message }}</div>
+              <div class="c-toast__message">{{ message }}</div>
             </div>
-            <div class="notification-progress"></div>
+            <span class="c-toast__bar"></span>
           </div>
         {% endfor %}
       </div>
     {% endif %}
   {% endblock %}
 
-  {% block extra_js %}
-  {% endblock %}
+  <script>
+    (function () {
+      var btn = document.getElementById('theme-toggle');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var root = document.documentElement;
+        var current = root.getAttribute('data-theme');
+        if (!current) {
+          current = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        var next = current === 'dark' ? 'light' : 'dark';
+        root.setAttribute('data-theme', next);
+        try { localStorage.setItem('theme', next); } catch (e) {}
+      });
+    })();
+  </script>
+
+  {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -1,0 +1,251 @@
+/*
+ * Ascendia — base layer: reset, element defaults and layout objects.
+ * Loaded after tokens.css. No hardcoded colors/sizes — tokens only.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+
+/* ---- Reset ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-sans);
+  font-weight: var(--weight-normal);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  letter-spacing: -0.01em;
+  color: var(--text);
+  background: var(--page-bg);
+  background-attachment: fixed;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-display);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--aurora-mint);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Visible keyboard focus everywhere (a11y, §10.6). */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+/* ---- Brand helpers ---- */
+.text-brand {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.title-font {
+  font-family: var(--font-display);
+}
+
+/* ========================================================
+ * Text helpers — content roles, part of the same system as
+ * .text-brand above (ITCSS helpers layer). Each maps to one
+ * token; they replace ad-hoc inline style="" on text.
+ * ======================================================== */
+.text-muted { color: var(--text-muted); }
+.text-subtle { color: var(--text-subtle); }
+.text-accent { color: var(--accent); }
+.text-danger { color: var(--danger); }
+.text-warning { color: var(--warning); }
+.text-success { color: var(--success); }
+.text-italic { font-style: italic; }
+.text-center { text-align: center; }
+.text-pre { white-space: pre-wrap; }
+.text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Type scale — each maps to exactly one typography token. */
+.text-xs { font-size: var(--text-xs); }
+.text-sm { font-size: var(--text-sm); }
+.text-lg { font-size: var(--text-lg); }
+.text-xl { font-size: var(--text-xl); }
+.text-2xl { font-size: var(--text-2xl); }
+.text-3xl { font-size: var(--text-3xl); }
+.text-4xl { font-size: var(--text-4xl); }
+
+/* Generic hide state (JS-toggled regions). */
+.is-hidden { display: none !important; }
+
+/* ---- App shell ---- */
+.l-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.l-main {
+  flex: 1;
+}
+.l-footer {
+  padding: var(--space-2);
+  text-align: center;
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+.l-auth {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 9rem);
+  padding: var(--space-6) var(--space-5);
+}
+.l-hero {
+  min-height: 70vh;
+  gap: var(--space-5);
+}
+.l-hero__title {
+  font-size: var(--text-6xl);
+}
+.l-hero__lead {
+  font-size: var(--text-xl);
+  color: var(--text-muted);
+  max-width: 42rem;
+}
+
+/* ========================================================
+ * Layout objects — single convention (prefix .o-).
+ * These replace the Tailwind layout utilities; they are
+ * composition primitives, not atomic utilities.
+ * ======================================================== */
+
+/* Horizontally-centered page column with side gutters. */
+.o-container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+  padding-inline: var(--space-5);
+}
+.o-container--narrow {
+  max-width: var(--container-narrow);
+}
+
+/* Vertical rhythm: children separated by a gap. */
+.o-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+.o-stack--sm { gap: var(--space-2); }
+.o-stack--lg { gap: var(--space-6); }
+
+/* Horizontal group that wraps; items vertically centered. */
+.o-cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+.o-cluster--sm { gap: var(--space-2); }
+.o-cluster--between { justify-content: space-between; }
+.o-cluster--center { justify-content: center; }
+.o-cluster--nowrap { flex-wrap: nowrap; }
+.o-cluster--top { align-items: flex-start; }
+
+/* Flex child that takes the remaining space and may shrink to truncate. */
+.o-grow { flex: 1; min-width: 0; }
+.o-min0 { min-width: 0; }
+
+/* Right-aligned form button row with a top divider. */
+.o-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-5);
+}
+
+/* Responsive card grid. */
+.o-grid {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+}
+.o-grid--sm {
+  grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+}
+
+/* Centered content block (empty states, hero). */
+.o-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Vertical padding for page sections. */
+.o-section {
+  padding-block: var(--space-6);
+}
+
+/* Main + sidebar, collapses to a single column on narrow screens. */
+.l-two-col {
+  display: grid;
+  gap: var(--space-5);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 64rem) {
+  .l-two-col {
+    grid-template-columns: 2fr 1fr;
+    align-items: start;
+  }
+}

@@ -1,0 +1,647 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Ascendia\nReport-Msgid-Bugs-To: \nMIME-Version: 1.0\nContent-Type: text/plain; charset=UTF-8\nContent-Transfer-Encoding: 8bit\nLanguage: pt_BR\nPlural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "%(counter)s note"
+msgid_plural "%(counter)s notes"
+msgstr[0] "%(counter)s nota"
+msgstr[1] "%(counter)s notas"
+
+msgid "+ Add tag"
+msgstr "+ Adicionar tag"
+
+msgid "A link"
+msgstr "Um link"
+
+msgid "About"
+msgstr "Sobre"
+
+msgid "According to the sources, X means… "
+msgstr "De acordo com as fontes, X significa… "
+
+msgid "Add link"
+msgstr "Adicionar link"
+
+msgid "Add note"
+msgstr "Adicionar nota"
+
+msgid "All associated data"
+msgstr "Todos os dados associados"
+
+msgid "All notes and documents"
+msgstr "Todas as notas e documentos"
+
+msgid "All rights reserved."
+msgstr "Todos os direitos reservados."
+
+msgid "All tags and organization"
+msgstr "Todas as tags e a organização"
+
+msgid "All uploaded files"
+msgstr "Todos os arquivos enviados"
+
+msgid "Already have an account?"
+msgstr "Já tem uma conta?"
+
+msgid "Apply crop"
+msgstr "Aplicar recorte"
+
+msgid "Ascendia logo"
+msgstr "Logo do Ascendia"
+
+msgid "Ascendia password reset"
+msgstr "Redefinição de senha do Ascendia"
+
+msgid "At least 8 characters"
+msgstr "Pelo menos 8 caracteres"
+
+msgid "Back to %(name)s"
+msgstr "Voltar para %(name)s"
+
+msgid "Back to sign in"
+msgstr "Voltar para o login"
+
+msgid "Back to workspace"
+msgstr "Voltar para o workspace"
+
+msgid "Badges, tags & callouts"
+msgstr "Selos, tags e avisos"
+
+msgid "Body text in Inter. The quick brown fox jumps over the lazy dog."
+msgstr "Texto em Inter. Um pangrama qualquer para ver a fonte."
+
+msgid "Brand gradient"
+msgstr "Gradiente da marca"
+
+msgid "Buttons"
+msgstr "Botões"
+
+msgid "Callout"
+msgstr "Aviso"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "Check your email"
+msgstr "Verifique seu e-mail"
+
+msgid "Checkbox option"
+msgstr "Opção de caixa de seleção"
+
+msgid "Choose a color"
+msgstr "Escolha uma cor"
+
+msgid "Choose a unique username"
+msgstr "Escolha um nome de usuário único"
+
+msgid "Click the button below to reset it:"
+msgstr "Clique no botão abaixo para redefini-la:"
+
+msgid "Click to upload and crop your profile picture"
+msgstr "Clique para enviar e recortar sua foto de perfil"
+
+msgid "Coming soon"
+msgstr "Em breve"
+
+msgid "Confirm new password"
+msgstr "Confirme a nova senha"
+
+msgid "Confirm password"
+msgstr "Confirme a senha"
+
+msgid "Content"
+msgstr "Conteúdo"
+
+msgid "Create a new"
+msgstr "Criar um novo"
+
+msgid "Create account"
+msgstr "Criar conta"
+
+msgid "Create an account to get started"
+msgstr "Crie uma conta para começar"
+
+msgid "Create first note"
+msgstr "Criar a primeira nota"
+
+msgid "Create first tag"
+msgstr "Criar a primeira tag"
+
+msgid "Create note"
+msgstr "Criar nota"
+
+msgid "Create notebook"
+msgstr "Criar caderno"
+
+msgid "Create tag"
+msgstr "Criar tag"
+
+msgid "Create tags to label and group the notes across your notebooks."
+msgstr "Crie tags para rotular e agrupar as notas dos seus cadernos."
+
+msgid "Create your first note to start capturing ideas, insights and knowledge in this notebook."
+msgstr "Crie sua primeira nota para começar a registrar ideias, percepções e conhecimento neste caderno."
+
+msgid "Create your first notebook"
+msgstr "Crie seu primeiro caderno"
+
+msgid "Create your first notebook to start organizing your learning materials, notes and ideas in one place."
+msgstr "Crie seu primeiro caderno para organizar seus materiais de estudo, notas e ideias em um só lugar."
+
+msgid "Created %(created)s • Updated %(updated)s ago"
+msgstr "Criado em %(created)s • Atualizado há %(updated)s"
+
+msgid "Crop your profile picture"
+msgstr "Recorte sua foto de perfil"
+
+msgid "Danger"
+msgstr "Perigo"
+
+msgid "Delete"
+msgstr "Excluir"
+
+msgid "Delete note"
+msgstr "Excluir nota"
+
+msgid "Delete note?"
+msgstr "Excluir nota?"
+
+msgid "Delete notebook"
+msgstr "Excluir caderno"
+
+msgid "Delete notebook?"
+msgstr "Excluir caderno?"
+
+msgid "Deleting this notebook will permanently remove:"
+msgstr "Excluir este caderno removerá permanentemente:"
+
+msgid "Description"
+msgstr "Descrição"
+
+msgid "Didn't receive the email? Check your spam folder or"
+msgstr "Não recebeu o e-mail? Verifique a pasta de spam ou"
+
+msgid "Don't have an account?"
+msgstr "Não tem uma conta?"
+
+msgid "Drag to move • Corners to resize • Scroll to zoom • Preview shows as a circle"
+msgstr "Arraste para mover • Cantos para redimensionar • Role para dar zoom • A prévia aparece como um círculo"
+
+msgid "Edit"
+msgstr "Editar"
+
+msgid "Edit note"
+msgstr "Editar nota"
+
+msgid "Edit notebook"
+msgstr "Editar caderno"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Email address"
+msgstr "Endereço de e-mail"
+
+msgid "Empty state & skeleton"
+msgstr "Estado vazio e esqueleto"
+
+msgid "Empty states explain what to do next."
+msgstr "Estados vazios explicam o próximo passo."
+
+msgid "Enter your email to receive reset instructions"
+msgstr "Informe seu e-mail para receber as instruções de redefinição"
+
+msgid "Enter your new password below"
+msgstr "Informe sua nova senha abaixo"
+
+msgid "Error"
+msgstr "Erro"
+
+msgid "Example message."
+msgstr "Mensagem de exemplo."
+
+msgid "Failed to process image. Please try again."
+msgstr "Falha ao processar a imagem. Tente novamente."
+
+msgid "Failed to remove avatar:"
+msgstr "Falha ao remover o avatar:"
+
+msgid "Failed to save avatar:"
+msgstr "Falha ao salvar o avatar:"
+
+msgid "Favorite notebooks appear first in your workspace"
+msgstr "Cadernos favoritos aparecem primeiro no seu workspace"
+
+msgid "Files"
+msgstr "Arquivos"
+
+msgid "Forgot password?"
+msgstr "Esqueceu a senha?"
+
+msgid "Form fields"
+msgstr "Campos de formulário"
+
+msgid "GitHub repository"
+msgstr "Repositório no GitHub"
+
+msgid "Give it a name and pick a color to get started"
+msgstr "Dê um nome e escolha uma cor para começar"
+
+msgid "Give your notebook a clear, descriptive name"
+msgstr "Dê ao caderno um nome claro e descritivo"
+
+msgid "Hello, %(name)s!"
+msgstr "Olá, %(name)s!"
+
+msgid "Helper text explaining the field."
+msgstr "Texto de ajuda explicando o campo."
+
+msgid "Home"
+msgstr "Início"
+
+msgid "How to crop:"
+msgstr "Como recortar:"
+
+msgid "I agree to the"
+msgstr "Eu concordo com os"
+
+msgid "If the button doesn't work, copy and paste this link:"
+msgstr "Se o botão não funcionar, copie e cole este link:"
+
+msgid "If you didn't request a password reset, you can safely ignore this email."
+msgstr "Se você não solicitou a redefinição de senha, pode ignorar este e-mail com segurança."
+
+msgid "Image size must be less than 5MB"
+msgstr "A imagem deve ter menos de 5MB"
+
+msgid "Image to crop"
+msgstr "Imagem para recortar"
+
+msgid "In %(name)s"
+msgstr "Em %(name)s"
+
+msgid "Information"
+msgstr "Informação"
+
+msgid "Invalid reset link"
+msgstr "Link de redefinição inválido"
+
+msgid "Join"
+msgstr "Junte-se ao"
+
+msgid "Keep your notes, notebooks and study materials in one place."
+msgstr "Mantenha suas notas, cadernos e materiais de estudo em um só lugar."
+
+msgid "Label"
+msgstr "Rótulo"
+
+msgid "Labels for organizing your notes"
+msgstr "Rótulos para organizar suas notas"
+
+msgid "Links"
+msgstr "Links"
+
+msgid "Living reference of tokens and components. Use the navbar toggle to check both themes."
+msgstr "Referência viva de tokens e componentes. Use o botão na barra para checar os dois temas."
+
+msgid "Log in"
+msgstr "Entrar"
+
+msgid "Log out"
+msgstr "Sair"
+
+msgid "Mark as favorite"
+msgstr "Marcar como favorito"
+
+msgid "Must be at least 8 characters long and not too common."
+msgstr "Deve ter pelo menos 8 caracteres e não ser muito comum."
+
+msgid "Muted text."
+msgstr "Texto suave."
+
+msgid "My"
+msgstr "Meu"
+
+msgid "My profile"
+msgstr "Meu perfil"
+
+msgid "Name"
+msgstr "Nome"
+
+msgid "Name it and pick a color"
+msgstr "Dê um nome e escolha uma cor"
+
+msgid "Network error:"
+msgstr "Erro de rede:"
+
+msgid "Neutral informational box."
+msgstr "Caixa informativa neutra."
+
+msgid "New"
+msgstr "Nova"
+
+msgid "New note"
+msgstr "Nova nota"
+
+msgid "New notebook"
+msgstr "Novo caderno"
+
+msgid "New password"
+msgstr "Nova senha"
+
+msgid "New tag"
+msgstr "Nova tag"
+
+msgid "No content yet"
+msgstr "Ainda sem conteúdo"
+
+msgid "No description yet"
+msgstr "Ainda sem descrição"
+
+msgid "No notebooks yet"
+msgstr "Nenhum caderno ainda"
+
+msgid "No notes yet"
+msgstr "Nenhuma nota ainda"
+
+msgid "No tags yet"
+msgstr "Nenhuma tag ainda"
+
+msgid "Note \"%(title)s\" created."
+msgstr "Nota \"%(title)s\" criada."
+
+msgid "Note \"%(title)s\" deleted."
+msgstr "Nota \"%(title)s\" excluída."
+
+msgid "Note \"%(title)s\" updated."
+msgstr "Nota \"%(title)s\" atualizada."
+
+msgid "Note pinned."
+msgstr "Nota fixada."
+
+msgid "Note unpinned."
+msgstr "Nota desafixada."
+
+msgid "Notebook \"%(title)s\" created."
+msgstr "Caderno \"%(title)s\" criado."
+
+msgid "Notebook \"%(title)s\" deleted."
+msgstr "Caderno \"%(title)s\" excluído."
+
+msgid "Notebook \"%(title)s\" updated."
+msgstr "Caderno \"%(title)s\" atualizado."
+
+msgid "Notebook added to favorites."
+msgstr "Caderno adicionado aos favoritos."
+
+msgid "Notebook removed from favorites."
+msgstr "Caderno removido dos favoritos."
+
+msgid "Notebook title"
+msgstr "Título do caderno"
+
+msgid "Notes"
+msgstr "Notas"
+
+msgid "Nothing here yet"
+msgstr "Nada aqui ainda"
+
+msgid "Password"
+msgstr "Senha"
+
+msgid "Password reset complete"
+msgstr "Redefinição de senha concluída"
+
+msgid "Pin"
+msgstr "Fixar"
+
+msgid "Placeholder"
+msgstr "Espaço reservado"
+
+msgid "Please correct the errors below."
+msgstr "Corrija os erros abaixo."
+
+msgid "Please select an image file"
+msgstr "Selecione um arquivo de imagem"
+
+msgid "Privacy Policy"
+msgstr "Política de Privacidade"
+
+msgid "Profile"
+msgstr "Perfil"
+
+msgid "Quick actions"
+msgstr "Ações rápidas"
+
+msgid "RAG components (preview)"
+msgstr "Componentes de RAG (prévia)"
+
+msgid "Remember me"
+msgstr "Lembrar de mim"
+
+msgid "Remember your password?"
+msgstr "Lembrou sua senha?"
+
+msgid "Remove"
+msgstr "Remover"
+
+msgid "Remove tag"
+msgstr "Remover tag"
+
+msgid "Remove your profile picture?"
+msgstr "Remover sua foto de perfil?"
+
+msgid "Request new reset link"
+msgstr "Solicitar novo link de redefinição"
+
+msgid "Reset password"
+msgstr "Redefinir senha"
+
+msgid "Reset your password"
+msgstr "Redefina sua senha"
+
+msgid "Save changes"
+msgstr "Salvar alterações"
+
+msgid "Semantic colors"
+msgstr "Cores semânticas"
+
+msgid "Send reset link"
+msgstr "Enviar link de redefinição"
+
+msgid "Set new password"
+msgstr "Definir nova senha"
+
+msgid "Sign in"
+msgstr "Entrar"
+
+msgid "Sign in now"
+msgstr "Entrar agora"
+
+msgid "Sign in to your account"
+msgstr "Entre na sua conta"
+
+msgid "Sign up"
+msgstr "Cadastre-se"
+
+msgid "Something needs attention."
+msgstr "Algo precisa de atenção."
+
+msgid "Star"
+msgstr "Favoritar"
+
+msgid "Starred"
+msgstr "Favoritado"
+
+msgid "Start now"
+msgstr "Começar agora"
+
+msgid "Statistics"
+msgstr "Estatísticas"
+
+msgid "Success"
+msgstr "Sucesso"
+
+msgid "Tag \"%(name)s\" added."
+msgstr "Tag \"%(name)s\" adicionada."
+
+msgid "Tag \"%(name)s\" already exists."
+msgstr "A tag \"%(name)s\" já existe."
+
+msgid "Tag \"%(name)s\" created."
+msgstr "Tag \"%(name)s\" criada."
+
+msgid "Tag \"%(name)s\" removed."
+msgstr "Tag \"%(name)s\" removida."
+
+msgid "Tags"
+msgstr "Tags"
+
+msgid "Take action"
+msgstr "Agir"
+
+msgid "Terms of Service"
+msgstr "Termos de Serviço"
+
+msgid "Textarea"
+msgstr "Área de texto"
+
+msgid "This action cannot be undone"
+msgstr "Esta ação não pode ser desfeita"
+
+msgid "This field has an error."
+msgstr "Este campo tem um erro."
+
+msgid "This is an automated message from Ascendia. Please do not reply."
+msgstr "Esta é uma mensagem automática do Ascendia. Por favor, não responda."
+
+msgid "This link will expire in 24 hours."
+msgstr "Este link expira em 24 horas."
+
+msgid "This note has no content yet."
+msgstr "Esta nota ainda não tem conteúdo."
+
+msgid "This password reset link is invalid or has already been used. Reset links expire after 24 hours."
+msgstr "Este link de redefinição é inválido ou já foi usado. Os links expiram após 24 horas."
+
+msgid "Title"
+msgstr "Título"
+
+msgid "Toasts"
+msgstr "Notificações"
+
+msgid "Toggle theme"
+msgstr "Alternar tema"
+
+msgid "Typography"
+msgstr "Tipografia"
+
+msgid "Unpin"
+msgstr "Desafixar"
+
+msgid "Update note"
+msgstr "Atualizar nota"
+
+msgid "Update notebook"
+msgstr "Atualizar caderno"
+
+msgid "Update your notebook details"
+msgstr "Atualize os detalhes do seu caderno"
+
+msgid "Updated %(when)s ago"
+msgstr "Atualizado há %(when)s"
+
+msgid "Upload file"
+msgstr "Enviar arquivo"
+
+msgid "Username"
+msgstr "Nome de usuário"
+
+msgid "Warning"
+msgstr "Aviso"
+
+msgid "We've sent password reset instructions to your email address. Check your inbox and follow the link to reset your password."
+msgstr "Enviamos as instruções de redefinição de senha para o seu e-mail. Verifique a caixa de entrada e siga o link para redefinir sua senha."
+
+msgid "Welcome back"
+msgstr "Bem-vindo de volta"
+
+msgid "Welcome back, %(name)s!"
+msgstr "Bem-vindo de volta, %(name)s!"
+
+msgid "Welcome to"
+msgstr "Bem-vindo ao"
+
+msgid "Welcome to Ascendia, %(name)s!"
+msgstr "Bem-vindo ao Ascendia, %(name)s!"
+
+msgid "What does the source say about X?"
+msgstr "O que a fonte diz sobre X?"
+
+msgid "What topics or subjects will this notebook cover?"
+msgstr "Quais tópicos ou assuntos este caderno vai abordar?"
+
+msgid "With error"
+msgstr "Com erro"
+
+msgid "Workspace"
+msgstr "Workspace"
+
+msgid "Yes, delete note"
+msgstr "Sim, excluir nota"
+
+msgid "Yes, delete notebook"
+msgstr "Sim, excluir caderno"
+
+msgid "You recently requested to reset your password for your Ascendia account."
+msgstr "Você solicitou recentemente a redefinição da senha da sua conta Ascendia."
+
+msgid "Your notebooks and notes"
+msgstr "Seus cadernos e notas"
+
+msgid "Your password has been reset. You can now sign in with your new password."
+msgstr "Sua senha foi redefinida. Agora você pode entrar com a nova senha."
+
+msgid "Your profile has been updated."
+msgstr "Seu perfil foi atualizado."
+
+msgid "and"
+msgstr "e"
+
+msgid "more"
+msgstr "mais"
+
+msgid "note"
+msgstr "nota"
+
+msgid "notebook"
+msgstr "caderno"
+
+msgid "optional"
+msgstr "opcional"
+
+msgid "tag"
+msgstr "tag"
+
+msgid "try again"
+msgstr "tente novamente"

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static i18n %}
 
-{% block title %}Profile - Ascendia{% endblock %}
+{% block title %}{% trans "Profile" %} - Ascendia{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
@@ -10,143 +10,89 @@
 {% endblock %}
 
 {% block content %}
-<div class="profile-container">
-  <div class="card-aurora">
-    <h1 class="text-3xl font-bold text-white mb-6 title-font">My Profile</h1>
-    
-    <form method="post" enctype="multipart/form-data">
+<div class="o-container o-container--narrow o-section">
+  <div class="c-card o-stack o-stack--lg">
+    <h1 class="text-3xl">{% trans "My profile" %}</h1>
+
+    <form method="post" enctype="multipart/form-data" class="o-stack o-stack--lg">
       {% csrf_token %}
-      
-      <!-- Avatar Section -->
-      <div class="avatar-section">
+
+      <!-- Avatar -->
+      <div class="profile-avatar-section">
         <div class="avatar-preview">
           {% if user.profile.avatar %}
             <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="avatar-img">
           {% else %}
-            <div class="avatar-placeholder">
-              <span>{{ user.username.0|upper }}</span>
-            </div>
+            <div class="avatar-placeholder"><span>{{ user.username.0|upper }}</span></div>
           {% endif %}
         </div>
-        
-        <div class="avatar-upload">
-          <label for="avatar-input" class="form-label">
-            {{ profile_form.avatar.label }}
-          </label>
-          <input type="file" id="avatar-input" name="avatar_temp" accept="image/*" class="file-input-aurora">
+        <div class="o-grow o-stack o-stack--sm">
+          <label class="c-field__label" for="avatar-input">{{ profile_form.avatar.label }}</label>
+          <input type="file" id="avatar-input" name="avatar_temp" accept="image/*" class="c-field__input c-field--file">
           <input type="hidden" id="avatar-cropped" name="avatar_cropped">
           <input type="hidden" id="delete-avatar" name="delete_avatar" value="">
-          {% if profile_form.avatar.errors %}
-            <p class="error-message">{{ profile_form.avatar.errors.0 }}</p>
-          {% endif %}
-          <div class="avatar-actions">
-            <div class="avatar-info-row">
-              <p class="help-text">Click to upload and crop your profile picture</p>
-              {% if user.profile.avatar %}
-                <button type="button" id="remove-avatar-btn" class="btn-danger btn-sm">
-                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
-                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                  </svg>
-                  Remove
-                </button>
-              {% endif %}
-            </div>
+          {% for error in profile_form.avatar.errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
+          <div class="avatar-info-row">
+            <p class="c-field__help">{% trans "Click to upload and crop your profile picture" %}</p>
+            {% if user.profile.avatar %}
+              <button type="button" id="remove-avatar-btn" class="c-button c-button--danger c-button--sm">{% trans "Remove" %}</button>
+            {% endif %}
           </div>
         </div>
       </div>
 
-      <!-- User Information Section -->
-      <div class="form-grid">
-        <!-- Username -->
-        <div class="form-field">
-          <label for="{{ user_form.username.id_for_label }}" class="form-label">
-            {{ user_form.username.label }}
-          </label>
+      <!-- User info -->
+      <div class="profile-grid">
+        <div class="c-field">
+          <label class="c-field__label" for="{{ user_form.username.id_for_label }}">{{ user_form.username.label }}</label>
           {{ user_form.username }}
-          {% if user_form.username.errors %}
-            <p class="error-message">{{ user_form.username.errors.0 }}</p>
-          {% endif %}
+          {% for error in user_form.username.errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
         </div>
-
-        <!-- Email -->
-        <div class="form-field">
-          <label for="{{ user_form.email.id_for_label }}" class="form-label">
-            {{ user_form.email.label }}
-          </label>
+        <div class="c-field">
+          <label class="c-field__label" for="{{ user_form.email.id_for_label }}">{{ user_form.email.label }}</label>
           {{ user_form.email }}
-          {% if user_form.email.errors %}
-            <p class="error-message">{{ user_form.email.errors.0 }}</p>
-          {% endif %}
+          {% for error in user_form.email.errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
         </div>
-
-        <!-- First Name -->
-        <div class="form-field">
-          <label for="{{ user_form.first_name.id_for_label }}" class="form-label">
-            {{ user_form.first_name.label }}
-          </label>
+        <div class="c-field">
+          <label class="c-field__label" for="{{ user_form.first_name.id_for_label }}">{{ user_form.first_name.label }}</label>
           {{ user_form.first_name }}
-          {% if user_form.first_name.errors %}
-            <p class="error-message">{{ user_form.first_name.errors.0 }}</p>
-          {% endif %}
+          {% for error in user_form.first_name.errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
         </div>
-
-        <!-- Last Name -->
-        <div class="form-field">
-          <label for="{{ user_form.last_name.id_for_label }}" class="form-label">
-            {{ user_form.last_name.label }}
-          </label>
+        <div class="c-field">
+          <label class="c-field__label" for="{{ user_form.last_name.id_for_label }}">{{ user_form.last_name.label }}</label>
           {{ user_form.last_name }}
-          {% if user_form.last_name.errors %}
-            <p class="error-message">{{ user_form.last_name.errors.0 }}</p>
-          {% endif %}
+          {% for error in user_form.last_name.errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
         </div>
-
-        <!-- WhatsApp -->
-        <div class="form-field">
-          <label for="{{ profile_form.whatsapp.id_for_label }}" class="form-label">
-            {{ profile_form.whatsapp.label }}
-          </label>
+        <div class="c-field">
+          <label class="c-field__label" for="{{ profile_form.whatsapp.id_for_label }}">{{ profile_form.whatsapp.label }}</label>
           {{ profile_form.whatsapp }}
-          {% if profile_form.whatsapp.errors %}
-            <p class="error-message">{{ profile_form.whatsapp.errors.0 }}</p>
-          {% endif %}
-          <p class="help-text">{{ profile_form.whatsapp.help_text }}</p>
+          {% for error in profile_form.whatsapp.errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
+          <p class="c-field__help">{{ profile_form.whatsapp.help_text }}</p>
         </div>
       </div>
 
-      <!-- Submit Button -->
-      <div class="form-actions">
-        <button type="submit" class="btn-primary">
-          Save Changes
-        </button>
+      <div class="o-form-actions">
+        <button type="submit" class="c-button c-button--primary">{% trans "Save changes" %}</button>
       </div>
     </form>
   </div>
 </div>
 
-<!-- Crop Modal -->
-<div id="crop-modal" style="display: none;">
+<!-- Crop modal -->
+<div id="crop-modal" class="is-hidden">
   <div class="crop-modal-content">
-    <div class="card-aurora crop-modal-card">
-      <h2 class="crop-modal-title">Crop Your Profile Picture</h2>
-      
+    <div class="c-card crop-modal-card">
+      <h2 class="crop-modal-title">{% trans "Crop your profile picture" %}</h2>
       <div class="crop-instructions">
-        <strong>How to crop:</strong>
-        Drag to move • Corners to resize • Scroll to zoom • Preview shows as circle
+        <strong>{% trans "How to crop:" %}</strong>
+        {% trans "Drag to move • Corners to resize • Scroll to zoom • Preview shows as a circle" %}
       </div>
-      
       <div class="crop-image-container">
-        <img id="crop-image" alt="Image to crop" style="max-width: 100%; display: block;">
+        <img id="crop-image" alt="{% trans 'Image to crop' %}">
       </div>
-      
       <div class="crop-buttons">
-        <button type="button" id="cancel-crop" class="btn-secondary">
-          Cancel
-        </button>
-        <button type="button" id="apply-crop" class="btn-primary">
-          Apply Crop
-        </button>
+        <button type="button" id="cancel-crop" class="c-button c-button--secondary">{% trans "Cancel" %}</button>
+        <button type="button" id="apply-crop" class="c-button c-button--primary">{% trans "Apply crop" %}</button>
       </div>
     </div>
   </div>
@@ -157,246 +103,150 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    // Image Cropper
     let cropper = null;
     const avatarInput = document.getElementById('avatar-input');
     const cropModal = document.getElementById('crop-modal');
     const cropImage = document.getElementById('crop-image');
     const cancelCrop = document.getElementById('cancel-crop');
     const applyCrop = document.getElementById('apply-crop');
-    const avatarCropped = document.getElementById('avatar-cropped');
     const avatarPreview = document.querySelector('.avatar-preview');
 
-    if (!avatarInput) {
-      console.error('Avatar input not found');
-      return;
-    }
+    if (!avatarInput) return;
 
-    // Handle file selection
     avatarInput.addEventListener('change', function(e) {
       const file = e.target.files[0];
-      
       if (!file) return;
-      
-      // Validate file type
       if (!file.type.startsWith('image/')) {
-        alert('Please select an image file');
+        alert('{% trans "Please select an image file" %}');
         avatarInput.value = '';
         return;
       }
-      
-      // Validate file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
-        alert('Image size must be less than 5MB');
+        alert('{% trans "Image size must be less than 5MB" %}');
         avatarInput.value = '';
         return;
       }
-      
-      // Read and display image
       const reader = new FileReader();
       reader.onload = function(event) {
         cropImage.src = event.target.result;
-        cropModal.style.display = 'block';
+        cropModal.classList.remove('is-hidden');
         document.body.style.overflow = 'hidden';
-        
-        // Destroy existing cropper
-        if (cropper) {
-          cropper.destroy();
-        }
-        
-        // Initialize cropper after image loads
+        if (cropper) cropper.destroy();
         setTimeout(function() {
           cropper = new Cropper(cropImage, {
-            aspectRatio: 1,
-            viewMode: 2,
-            dragMode: 'move',
-            autoCropArea: 1,
-            restore: false,
-            guides: true,
-            center: true,
-            highlight: false,
-            cropBoxMovable: true,
-            cropBoxResizable: true,
-            toggleDragModeOnDblclick: false,
-            background: false,
-            modal: true
+            aspectRatio: 1, viewMode: 2, dragMode: 'move', autoCropArea: 1,
+            restore: false, guides: true, center: true, highlight: false,
+            cropBoxMovable: true, cropBoxResizable: true,
+            toggleDragModeOnDblclick: false, background: false, modal: true
           });
         }, 100);
       };
       reader.readAsDataURL(file);
     });
 
-    // Cancel button
     cancelCrop.addEventListener('click', function() {
-      cropModal.style.display = 'none';
+      cropModal.classList.add('is-hidden');
       document.body.style.overflow = '';
       avatarInput.value = '';
-      if (cropper) {
-        cropper.destroy();
-        cropper = null;
-      }
+      if (cropper) { cropper.destroy(); cropper = null; }
     });
 
-    // ESC key to close
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape' && cropModal.style.display === 'block') {
-        cancelCrop.click();
-      }
+      if (e.key === 'Escape' && !cropModal.classList.contains('is-hidden')) cancelCrop.click();
     });
 
-    // Apply crop button
     applyCrop.addEventListener('click', function() {
       if (!cropper) return;
-      
-      // Show loading state
       applyCrop.disabled = true;
-      applyCrop.innerHTML = 'Processing...';
-      
-      // Get cropped canvas
+      applyCrop.classList.add('is-loading');
       const canvas = cropper.getCroppedCanvas({
-        width: 400,
-        height: 400,
-        minWidth: 256,
-        minHeight: 256,
-        maxWidth: 4096,
-        maxHeight: 4096,
-        fillColor: '#fff',
-        imageSmoothingEnabled: true,
-        imageSmoothingQuality: 'high',
+        width: 400, height: 400, minWidth: 256, minHeight: 256,
+        maxWidth: 4096, maxHeight: 4096, fillColor: '#fff',
+        imageSmoothingEnabled: true, imageSmoothingQuality: 'high',
       });
-      
-      // Convert to blob
       canvas.toBlob(function(blob) {
         if (!blob) {
-          alert('Failed to process image. Please try again.');
-          applyCrop.disabled = false;
-          applyCrop.innerHTML = 'Apply Crop';
+          alert('{% trans "Failed to process image. Please try again." %}');
+          applyCrop.disabled = false; applyCrop.classList.remove('is-loading');
           return;
         }
-        
-        // Convert to base64
         const reader = new FileReader();
         reader.onloadend = function() {
-          const base64data = reader.result;
-          
-          // Save via AJAX
           fetch('{% url "update_avatar" %}', {
             method: 'POST',
-            headers: {
-              'X-CSRFToken': '{{ csrf_token }}',
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'avatar_cropped=' + encodeURIComponent(base64data)
+            headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'avatar_cropped=' + encodeURIComponent(reader.result)
           })
           .then(response => response.json())
           .then(data => {
             if (data.success) {
-              // Update preview
               let previewImg = avatarPreview.querySelector('.avatar-img');
               if (previewImg) {
                 previewImg.src = data.avatar_url;
               } else {
                 avatarPreview.innerHTML = '<img src="' + data.avatar_url + '" class="avatar-img" alt="Avatar">';
               }
-              
-              // Show/update remove button
               let removeBtn = document.getElementById('remove-avatar-btn');
               if (!removeBtn) {
                 const infoRow = document.querySelector('.avatar-info-row');
-                const btnHtml = `<button type="button" id="remove-avatar-btn" class="btn-danger btn-sm">
-                  <svg width="14" height="14" fill="currentColor" viewBox="0 0 16 16" style="display: inline-block; vertical-align: middle; margin-right: 4px;">
-                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                  </svg>
-                  Remove
-                </button>`;
-                infoRow.insertAdjacentHTML('beforeend', btnHtml);
+                infoRow.insertAdjacentHTML('beforeend',
+                  '<button type="button" id="remove-avatar-btn" class="c-button c-button--danger c-button--sm">{% trans "Remove" %}</button>');
                 attachRemoveListener();
               } else {
-                removeBtn.style.display = 'inline-block';
+                removeBtn.style.display = 'inline-flex';
               }
-              
-              // Close modal
-              cropModal.style.display = 'none';
+              cropModal.classList.add('is-hidden');
               document.body.style.overflow = '';
-              
-              // Reset button
-              applyCrop.disabled = false;
-              applyCrop.innerHTML = 'Apply Crop';
-              
-              // Cleanup
-              if (cropper) {
-                cropper.destroy();
-                cropper = null;
-              }
+              applyCrop.disabled = false; applyCrop.classList.remove('is-loading');
+              if (cropper) { cropper.destroy(); cropper = null; }
             } else {
-              alert('Failed to save avatar: ' + data.error);
-              applyCrop.disabled = false;
-              applyCrop.innerHTML = 'Apply Crop';
+              alert('{% trans "Failed to save avatar:" %} ' + data.error);
+              applyCrop.disabled = false; applyCrop.classList.remove('is-loading');
             }
           })
           .catch(error => {
-            alert('Network error: ' + error);
-            applyCrop.disabled = false;
-            applyCrop.innerHTML = 'Apply Crop';
+            alert('{% trans "Network error:" %} ' + error);
+            applyCrop.disabled = false; applyCrop.classList.remove('is-loading');
           });
         };
         reader.readAsDataURL(blob);
       }, 'image/jpeg', 0.92);
     });
 
-    // Remove avatar button handler
     function attachRemoveListener() {
       const removeBtn = document.getElementById('remove-avatar-btn');
       if (removeBtn && !removeBtn.dataset.listenerAttached) {
         removeBtn.dataset.listenerAttached = 'true';
-        removeBtn.addEventListener('click', function handleRemove() {
-          if (confirm('Remove your profile picture?')) {
-            // Show loading
+        removeBtn.addEventListener('click', function() {
+          if (confirm('{% trans "Remove your profile picture?" %}')) {
             removeBtn.disabled = true;
-            const originalContent = removeBtn.innerHTML;
-            removeBtn.innerHTML = 'Removing...';
-            
-            // Delete via AJAX
+            removeBtn.classList.add('is-loading');
             fetch('{% url "update_avatar" %}', {
               method: 'POST',
-              headers: {
-                'X-CSRFToken': '{{ csrf_token }}',
-                'Content-Type': 'application/x-www-form-urlencoded',
-              },
+              headers: { 'X-CSRFToken': '{{ csrf_token }}', 'Content-Type': 'application/x-www-form-urlencoded' },
               body: 'delete_avatar=true'
             })
             .then(response => response.json())
             .then(data => {
               if (data.success) {
-                // Update preview to placeholder
-                const username = '{{ user.username }}';
-                const initial = username.charAt(0).toUpperCase();
+                const initial = '{{ user.username }}'.charAt(0).toUpperCase();
                 avatarPreview.innerHTML = '<div class="avatar-placeholder"><span>' + initial + '</span></div>';
-                
-                // Remove the button completely
                 removeBtn.remove();
-                
-                // Clear file input
                 avatarInput.value = '';
-                
               } else {
-                alert('Failed to remove avatar: ' + data.error);
-                removeBtn.disabled = false;
-                removeBtn.innerHTML = originalContent;
+                alert('{% trans "Failed to remove avatar:" %} ' + data.error);
+                removeBtn.disabled = false; removeBtn.classList.remove('is-loading');
               }
             })
             .catch(error => {
-              alert('Network error: ' + error);
-              removeBtn.disabled = false;
-              removeBtn.innerHTML = originalContent;
+              alert('{% trans "Network error:" %} ' + error);
+              removeBtn.disabled = false; removeBtn.classList.remove('is-loading');
             });
           }
         });
       }
     }
-    
-    // Attach listener on page load
+
     attachRemoveListener();
   });
 </script>

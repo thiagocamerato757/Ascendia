@@ -1,7 +1,9 @@
 # Auditoria do repositório — Ascendia
 
-> Fase 0 da `ASCENDIA_SPEC.md` (seção 0, item 1). Levantamento do estado atual **antes** de implementar. Nenhum código foi alterado.
+> Fase 0 da `ASCENDIA_SPEC.md` (seção 0, item 1). Levantamento do estado **antes** de implementar. Nenhum código foi alterado *no momento da auditoria*.
 > Data: 2026-10-06.
+
+> **Status pós-Fase 0 (2026-10-06):** este documento é o retrato do ponto de partida e foi mantido como tal. A Fase 0 já resolveu parte dos achados — o que mudou está registrado em `docs/decisions.md` (seção "Implementadas na Fase 0"). Em resumo, já **não** valem mais como "estado atual": §1 (Python agora `>=3.11`; banco **Postgres** via `psycopg`; `settings.py` lê o `.env`, sem `SECRET_KEY`/`DEBUG` hardcoded; deps incluem `psycopg` e `whitenoise`), §5 (o `run_tests.sh` agora exige `.env`), §6 (Docker, `docker-compose`, `.env.example`, CI, README e `CLAUDE.md` **existem**; ruff configurado) e §7-Fase 0 (concluída). O **front-end (§4) e `docs/frontend.md` seguem válidos** — nada de `templates/`/`static/` foi alterado, então são o insumo da Fase 1.
 
 ## Resumo executivo
 

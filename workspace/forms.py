@@ -22,7 +22,7 @@ class NotebookForm(forms.ModelForm):
     title = forms.CharField(
         max_length=200,
         widget=forms.TextInput(attrs={
-            'class': 'input-aurora',
+            'class': 'c-field__input',
             'placeholder': 'My Learning Notebook',
             'autofocus': True,
         })
@@ -31,7 +31,7 @@ class NotebookForm(forms.ModelForm):
     description = forms.CharField(
         required=False,
         widget=forms.Textarea(attrs={
-            'class': 'input-aurora',
+            'class': 'c-field__input',
             'placeholder': 'What will you learn in this notebook? (optional)',
             'rows': 4,
         })
@@ -48,7 +48,7 @@ class NotebookForm(forms.ModelForm):
     is_favorite = forms.BooleanField(
         required=False,
         widget=forms.CheckboxInput(attrs={
-            'class': 'checkbox-aurora'
+            'class': 'c-checkbox__input'
         })
     )
     

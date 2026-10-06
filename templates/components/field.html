@@ -1,0 +1,21 @@
+{% comment %}
+  Reusable form field. Usage:
+    {% include 'components/field.html' with field=form.title %}
+  The widget's CSS class (c-field__input) is set in the form definitions.
+{% endcomment %}
+{% load i18n %}
+<div class="c-field">
+  {% if field.label %}
+    <label class="c-field__label" for="{{ field.id_for_label }}">
+      {{ field.label }}
+      {% if field.field.required %}<span class="c-field__required" aria-hidden="true">*</span>{% endif %}
+    </label>
+  {% endif %}
+  {{ field }}
+  {% if field.help_text %}
+    <p class="c-field__help">{{ field.help_text }}</p>
+  {% endif %}
+  {% for error in field.errors %}
+    <p class="c-field__error">{{ error }}</p>
+  {% endfor %}
+</div>

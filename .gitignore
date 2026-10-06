@@ -78,6 +78,9 @@ cover/
 
 # Translations
 *.mo
+# ...but keep the project's committed locale catalogs (we ship the compiled .mo
+# so the app serves pt-BR without requiring GNU gettext at build/runtime).
+!locale/**/*.mo
 
 # Django stuff:
 

@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.http import HttpResponse
+from django.utils.translation import gettext as _
 
 from .forms import LoginForm
 
@@ -26,7 +27,7 @@ class CustomLoginView(LoginView):
 
         messages.success(
             self.request,
-            f'Welcome back, {self.request.user.username}!',
+            _('Welcome back, %(name)s!') % {'name': self.request.user.username},
             extra_tags='success'
         )
         return response

@@ -1,76 +1,56 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load i18n %}
 
-{% block title %}{% if is_edit %}Edit Note{% else %}New Note{% endif %} - Workspace{% endblock %}
+{% block title %}{% if is_edit %}{% trans "Edit note" %}{% else %}{% trans "New note" %}{% endif %} - {% trans "Workspace" %}{% endblock %}
 
 {% block nav_links %}
-  <a href="{% url 'home' %}" class="text-white hover:text-aurora-cyan transition-colors font-medium">Home</a>
-  <a href="{% url 'workspace:home' %}" class="text-white hover:text-aurora-cyan transition-colors font-medium">Workspace</a>
-  <span class="text-white/40">•</span>
-  <a href="{% url 'workspace:notebook_detail' notebook.id %}" class="text-white hover:text-aurora-cyan transition-colors font-medium">{{ notebook.title|truncatechars:20 }}</a>
-  <span class="text-white/40">•</span>
-  <span class="text-aurora-cyan font-medium">{% if is_edit %}Edit Note{% else %}New Note{% endif %}</span>
+  <a href="{% url 'home' %}" class="c-nav__link">{% trans "Home" %}</a>
+  <a href="{% url 'workspace:home' %}" class="c-nav__link">{% trans "Workspace" %}</a>
+  <span class="c-nav__sep"></span>
+  <a href="{% url 'workspace:notebook_detail' notebook.id %}" class="c-nav__link">{{ notebook.title|truncatechars:20 }}</a>
+  <span class="c-nav__sep"></span>
+  <span class="c-nav__link is-active">{% if is_edit %}{% trans "Edit note" %}{% else %}{% trans "New note" %}{% endif %}</span>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-6 py-8">
-  <!-- Header -->
-  <div class="text-center mb-8">
-    <svg class="w-14 h-14 mx-auto mb-4 text-aurora-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-    </svg>
-    <h1 class="text-4xl font-bold text-white mb-3 title-font">
-      {% if is_edit %}
-        Edit <span class="text-aurora">Note</span>
-      {% else %}
-        New <span class="text-aurora">Note</span>
-      {% endif %}
+<div class="o-container o-container--narrow o-section o-stack o-stack--lg">
+  <div class="o-center o-stack o-stack--sm">
+    <h1 class="text-4xl">
+      {% if is_edit %}{% trans "Edit" %} <span class="text-brand">{% trans "note" %}</span>
+      {% else %}{% trans "New" %} <span class="text-brand">{% trans "note" %}</span>{% endif %}
     </h1>
-    <p class="text-white/70 text-lg">
-      In <span class="font-medium" style="color: {{ notebook.color }}">{{ notebook.title }}</span>
+    <p class="text-muted text-lg">
+      {% blocktrans with name=notebook.title %}In {{ name }}{% endblocktrans %}
     </p>
   </div>
 
-  <!-- Form -->
-  <form method="post" class="space-y-8">
+  <form method="post" class="o-stack o-stack--lg">
     {% csrf_token %}
 
-    <!-- Title -->
-    <div class="card-aurora">
-      <label class="block text-white text-lg font-semibold mb-3">
-        Title <span class="text-red-400">*</span>
+    <div class="c-card c-field">
+      <label class="c-field__label" for="{{ form.title.id_for_label }}">
+        {% trans "Title" %} <span class="c-field__required" aria-hidden="true">*</span>
       </label>
       {{ form.title }}
-      {% if form.title.errors %}
-        <p class="text-red-400 text-sm mt-2">{{ form.title.errors.0 }}</p>
-      {% endif %}
+      {% for error in form.title.errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
     </div>
 
-    <!-- Content -->
-    <div class="card-aurora">
-      <label class="block text-white text-lg font-semibold mb-3">
-        Content <span class="text-white/40 text-sm font-normal">(optional)</span>
+    <div class="c-card c-field">
+      <label class="c-field__label" for="{{ form.content.id_for_label }}">
+        {% trans "Content" %} <span class="c-field__optional">({% trans "optional" %})</span>
       </label>
       {{ form.content }}
-      {% if form.content.errors %}
-        <p class="text-red-400 text-sm mt-2">{{ form.content.errors.0 }}</p>
-      {% endif %}
+      {% for error in form.content.errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
     </div>
 
-    <!-- Actions -->
-    <div class="flex items-center justify-between gap-4">
-      <a href="{% if is_edit %}{% url 'notes:note_detail' note.id %}{% else %}{% url 'workspace:notebook_detail' notebook.id %}{% endif %}" class="btn-secondary inline-flex items-center space-x-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-        </svg>
-        <span>Cancel</span>
+    <div class="o-cluster o-cluster--between">
+      <a href="{% if is_edit %}{% url 'notes:note_detail' note.id %}{% else %}{% url 'workspace:notebook_detail' notebook.id %}{% endif %}" class="c-button c-button--secondary">
+        <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <span>{% trans "Cancel" %}</span>
       </a>
-
-      <button type="submit" class="btn-primary btn-lg inline-flex items-center space-x-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-        </svg>
-        <span>{% if is_edit %}Update Note{% else %}Create Note{% endif %}</span>
+      <button type="submit" class="c-button c-button--primary c-button--lg">
+        <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span>{% if is_edit %}{% trans "Update note" %}{% else %}{% trans "Create note" %}{% endif %}</span>
       </button>
     </div>
   </form>

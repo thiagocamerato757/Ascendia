@@ -21,6 +21,12 @@ fases estão em [`docs/audit.md`](docs/audit.md),
 - Django 5.2 (server-rendered), Python 3.11+
 - Postgres 16 + pgvector
 - uv para dependências; gunicorn + uvicorn worker (ASGI) para servir; WhiteNoise para estáticos
+- Front-end próprio com design tokens (CSS, tema claro/escuro) + HTMX; interface em pt-BR (i18n)
+
+## Guia de estilo (styleguide)
+
+Com `DEBUG=True`, a rota `/styleguide/` renderiza todos os componentes e estados nos
+dois temas — a referência de consistência visual. Fica indisponível (404) em produção.
 
 ## Como rodar com Docker
 

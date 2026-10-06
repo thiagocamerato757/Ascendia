@@ -1,143 +1,86 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load i18n %}
 
-{% block title %}Create Notebook - Workspace{% endblock %}
+{% block title %}{% if is_edit %}{% trans "Edit notebook" %}{% else %}{% trans "Create notebook" %}{% endif %} - {% trans "Workspace" %}{% endblock %}
 
 {% block nav_links %}
-  <a href="{% url 'home' %}" class="text-white hover:text-aurora-cyan transition-colors font-medium">Home</a>
-  <a href="{% url 'workspace:home' %}" class="text-white hover:text-aurora-cyan transition-colors font-medium">Workspace</a>
-  <span class="text-white/40">•</span>
-  <span class="text-aurora-cyan font-medium">New Notebook</span>
+  <a href="{% url 'home' %}" class="c-nav__link">{% trans "Home" %}</a>
+  <a href="{% url 'workspace:home' %}" class="c-nav__link">{% trans "Workspace" %}</a>
+  <span class="c-nav__sep"></span>
+  <span class="c-nav__link is-active">{% if is_edit %}{% trans "Edit notebook" %}{% else %}{% trans "New notebook" %}{% endif %}</span>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-6 py-8">
-  <!-- Header -->
-  <div class="text-center mb-8">
-    <svg class="w-14 h-14 mx-auto mb-4 text-aurora-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-    </svg>
-    <h1 class="text-4xl font-bold text-white mb-3 title-font">
-      {% if is_edit %}
-        Edit <span class="text-aurora">Notebook</span>
-      {% else %}
-        Create a New <span class="text-aurora">Notebook</span>
-      {% endif %}
+<div class="o-container o-container--narrow o-section o-stack o-stack--lg">
+  <div class="o-center o-stack o-stack--sm">
+    <h1 class="text-4xl">
+      {% if is_edit %}{% trans "Edit" %} <span class="text-brand">{% trans "notebook" %}</span>
+      {% else %}{% trans "Create a new" %} <span class="text-brand">{% trans "notebook" %}</span>{% endif %}
     </h1>
-    <p class="text-white/70 text-lg">
-      {% if is_edit %}
-        Update your notebook details
-      {% else %}
-        Give it a name and pick a color to get started
-      {% endif %}
+    <p class="text-muted text-lg">
+      {% if is_edit %}{% trans "Update your notebook details" %}
+      {% else %}{% trans "Give it a name and pick a color to get started" %}{% endif %}
     </p>
   </div>
 
-  <!-- Form -->
-  <form method="post" class="space-y-8">
+  <form method="post" class="o-stack o-stack--lg">
     {% csrf_token %}
-    
-    <!-- Title -->
-    <div class="card-aurora">
-      <label class="block text-white text-lg font-semibold mb-3">
-        <span class="flex items-center gap-2">
-          <svg class="w-5 h-5 text-aurora-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/>
-          </svg>
-          Notebook Title <span class="text-red-400">*</span>
-        </span>
+
+    <div class="c-card c-field">
+      <label class="c-field__label" for="{{ form.title.id_for_label }}">
+        {% trans "Notebook title" %} <span class="c-field__required" aria-hidden="true">*</span>
       </label>
       {{ form.title }}
-      {% if form.title.errors %}
-        <p class="text-red-400 text-sm mt-2">{{ form.title.errors.0 }}</p>
-      {% endif %}
-      <p class="text-white/50 text-sm mt-2">
-        Give your notebook a clear, descriptive name
-      </p>
+      {% for error in form.title.errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
+      <p class="c-field__help">{% trans "Give your notebook a clear, descriptive name" %}</p>
     </div>
 
-    <!-- Description -->
-    <div class="card-aurora">
-      <label class="block text-white text-lg font-semibold mb-3">
-        <span class="flex items-center gap-2">
-          <svg class="w-5 h-5 text-aurora-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-          </svg>
-          Description <span class="text-white/40 text-sm font-normal">(optional)</span>
-        </span>
+    <div class="c-card c-field">
+      <label class="c-field__label" for="{{ form.description.id_for_label }}">
+        {% trans "Description" %} <span class="c-field__optional">({% trans "optional" %})</span>
       </label>
       {{ form.description }}
-      {% if form.description.errors %}
-        <p class="text-red-400 text-sm mt-2">{{ form.description.errors.0 }}</p>
-      {% endif %}
-      <p class="text-white/50 text-sm mt-2">
-        What topics or subjects will this notebook cover?
-      </p>
+      {% for error in form.description.errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
+      <p class="c-field__help">{% trans "What topics or subjects will this notebook cover?" %}</p>
     </div>
 
-    <!-- Color Picker -->
-    <div class="card-aurora">
-      <label class="block text-white text-lg font-semibold mb-4">
-        <span class="flex items-center gap-2">
-          <svg class="w-5 h-5 text-aurora-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/>
-          </svg>
-          Choose a Color
-        </span>
-      </label>
-      <div class="color-picker-container">
+    <div class="c-card o-stack">
+      <span class="c-field__label">{% trans "Choose a color" %}</span>
+      <div class="c-color-picker">
         {% for value, label in form.fields.color.choices %}
-          <div class="color-option">
-            <input type="radio" id="color_{{ forloop.counter }}" name="color" value="{{ value }}" 
-                   {% if forloop.first %}checked{% endif %}>
-            <label for="color_{{ forloop.counter }}">
-              <div class="color-swatch" style="background-color: {{ value }};"></div>
-              <span class="color-name">{{ label }}</span>
+          <div class="c-color-picker__option">
+            <input type="radio" id="color_{{ forloop.counter }}" name="color" value="{{ value }}" {% if forloop.first %}checked{% endif %}>
+            <label class="c-color-picker__label" for="color_{{ forloop.counter }}">
+              <span class="c-color-picker__swatch" style="background-color: {{ value }};"></span>
+              <span class="c-color-picker__name">{{ label }}</span>
             </label>
           </div>
         {% endfor %}
       </div>
-      {% if form.color.errors %}
-        <p class="text-red-400 text-sm mt-3">{{ form.color.errors.0 }}</p>
-      {% endif %}
-      <p class="text-white/50 text-sm mt-4">
-        Pick a color to help you quickly identify this notebook
-      </p>
+      {% for error in form.color.errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
     </div>
 
-    <!-- Favorite -->
-    <div class="card-aurora">
-      <label class="checkbox-container">
+    <div class="c-card o-stack o-stack--sm">
+      <label class="c-checkbox">
         {{ form.is_favorite }}
-        <span class="checkbox-label flex items-center gap-2">
-          <svg class="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-          </svg>
-          <span>Mark as Favorite</span>
-        </span>
+        <span class="c-checkbox__label">{% trans "Mark as favorite" %}</span>
       </label>
-      {% if form.is_favorite.errors %}
-        <p class="text-red-400 text-sm mt-2">{{ form.is_favorite.errors.0 }}</p>
-      {% endif %}
-      <p class="text-white/50 text-sm mt-3">
-        Favorite notebooks appear first in your workspace
-      </p>
+      {% for error in form.is_favorite.errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
+      <p class="c-field__help">{% trans "Favorite notebooks appear first in your workspace" %}</p>
     </div>
 
-    <!-- Actions -->
-    <div class="flex items-center justify-between gap-4">
-      <a href="{% if is_edit %}{% url 'workspace:notebook_detail' notebook.id %}{% else %}{% url 'workspace:home' %}{% endif %}" class="btn-secondary inline-flex items-center space-x-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="o-cluster o-cluster--between">
+      <a href="{% if is_edit %}{% url 'workspace:notebook_detail' notebook.id %}{% else %}{% url 'workspace:home' %}{% endif %}" class="c-button c-button--secondary">
+        <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
         </svg>
-        <span>Cancel</span>
+        <span>{% trans "Cancel" %}</span>
       </a>
-      
-      <button type="submit" class="btn-primary btn-lg inline-flex items-center space-x-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <button type="submit" class="c-button c-button--primary c-button--lg">
+        <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
         </svg>
-        <span>{% if is_edit %}Update Notebook{% else %}Create Notebook{% endif %}</span>
+        <span>{% if is_edit %}{% trans "Update notebook" %}{% else %}{% trans "Create notebook" %}{% endif %}</span>
       </button>
     </div>
   </form>

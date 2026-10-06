@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
+from django.utils.translation import gettext as _
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
 
 from workspace.models import Notebook
@@ -32,7 +33,7 @@ class NoteCreateView(LoginRequiredMixin, CreateView):
         form.instance.notebook = self.notebook
         form.instance.user = self.request.user
         response = super().form_valid(form)
-        messages.success(self.request, f'Note "{self.object.title}" created.')
+        messages.success(self.request, _('Note "%(title)s" created.') % {'title': self.object.title})
         return response
 
     def get_success_url(self):
@@ -71,7 +72,7 @@ class NoteUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        messages.success(self.request, f'Note "{self.object.title}" updated.')
+        messages.success(self.request, _('Note "%(title)s" updated.') % {'title': self.object.title})
         return response
 
     def get_success_url(self):
@@ -92,7 +93,7 @@ class NoteDeleteView(LoginRequiredMixin, DeleteView):
     def form_valid(self, form):
         title = self.object.title
         response = super().form_valid(form)
-        messages.success(self.request, f'Note "{title}" deleted.')
+        messages.success(self.request, _('Note "%(title)s" deleted.') % {'title': title})
         return response
 
 
@@ -108,8 +109,10 @@ class NoteTogglePinView(LoginRequiredMixin, View):
                 'is_pinned': note.is_pinned
             })
 
-        status = 'pinned' if note.is_pinned else 'unpinned'
-        messages.success(request, f'Note {status}.')
+        if note.is_pinned:
+            messages.success(request, _('Note pinned.'))
+        else:
+            messages.success(request, _('Note unpinned.'))
         return redirect('notes:note_detail', note_id=note.id)
 
 
@@ -137,11 +140,11 @@ class TagCreateView(LoginRequiredMixin, CreateView):
         ).first()
 
         if existing_tag:
-            messages.info(self.request, f'Tag "{existing_tag.name}" already exists.')
+            messages.info(self.request, _('Tag "%(name)s" already exists.') % {'name': existing_tag.name})
             return redirect('notes:tag_list')
 
         response = super().form_valid(form)
-        messages.success(self.request, f'Tag "{self.object.name}" created.')
+        messages.success(self.request, _('Tag "%(name)s" created.') % {'name': self.object.name})
         return response
 
 
@@ -152,7 +155,7 @@ class NoteAddTagView(LoginRequiredMixin, View):
         tag = get_object_or_404(Tag, id=tag_id, user=request.user)
 
         NoteTag.objects.get_or_create(note=note, tag=tag)
-        messages.success(request, f'Tag "{tag.name}" added.')
+        messages.success(request, _('Tag "%(name)s" added.') % {'name': tag.name})
 
         return redirect('notes:note_detail', note_id=note.id)
 
@@ -163,6 +166,6 @@ class NoteRemoveTagView(LoginRequiredMixin, View):
         tag = get_object_or_404(Tag, id=tag_id, user=request.user)
 
         NoteTag.objects.filter(note=note, tag=tag).delete()
-        messages.success(request, f'Tag "{tag.name}" removed.')
+        messages.success(request, _('Tag "%(name)s" removed.') % {'name': tag.name})
 
         return redirect('notes:note_detail', note_id=note.id)

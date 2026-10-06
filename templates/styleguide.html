@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Styleguide - Ascendia{% endblock %}
+
+{% block content %}
+<div class="o-container o-section o-stack o-stack--lg">
+  <div class="o-stack o-stack--sm">
+    <h1 class="text-4xl">Styleguide</h1>
+    <p class="text-muted">
+      {% trans "Living reference of tokens and components. Use the navbar toggle to check both themes." %}
+    </p>
+  </div>
+
+  <!-- Colors -->
+  <section class="c-card o-stack">
+    <h2 class="text-2xl">{% trans "Semantic colors" %}</h2>
+    <div class="o-grid o-grid--sm">
+      {% for name, var in colors %}
+        <div class="o-stack o-stack--sm">
+          <div class="c-swatch" style="background: var({{ var }});"></div>
+          <code class="text-xs">{{ var }}</code>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Typography -->
+  <section class="c-card o-stack">
+    <h2 class="text-2xl">{% trans "Typography" %}</h2>
+    <h1>Heading 1 — Space Grotesk</h1>
+    <h2>Heading 2</h2>
+    <h3>Heading 3</h3>
+    <p>{% trans "Body text in Inter. The quick brown fox jumps over the lazy dog." %}</p>
+    <p class="text-muted">{% trans "Muted text." %}</p>
+    <p><a href="#">{% trans "A link" %}</a> · <span class="text-brand">{% trans "Brand gradient" %}</span></p>
+  </section>
+
+  <!-- Buttons -->
+  <section class="c-card o-stack">
+    <h2 class="text-2xl">{% trans "Buttons" %}</h2>
+    <div class="o-cluster">
+      <button class="c-button c-button--primary">Primary</button>
+      <button class="c-button c-button--secondary">Secondary</button>
+      <button class="c-button c-button--outline">Outline</button>
+      <button class="c-button c-button--danger">Danger</button>
+      <button class="c-button c-button--primary" disabled>Disabled</button>
+      <button class="c-button c-button--primary is-loading">Loading</button>
+    </div>
+    <div class="o-cluster">
+      <button class="c-button c-button--primary c-button--sm">Small</button>
+      <button class="c-button c-button--primary">Default</button>
+      <button class="c-button c-button--primary c-button--lg">Large</button>
+    </div>
+  </section>
+
+  <!-- Fields -->
+  <section class="c-card o-stack">
+    <h2 class="text-2xl">{% trans "Form fields" %}</h2>
+    <div class="c-field">
+      <label class="c-field__label">{% trans "Label" %} <span class="c-field__required">*</span></label>
+      <input class="c-field__input" type="text" placeholder="{% trans 'Placeholder' %}">
+      <p class="c-field__help">{% trans "Helper text explaining the field." %}</p>
+    </div>
+    <div class="c-field">
+      <label class="c-field__label">{% trans "With error" %}</label>
+      <input class="c-field__input" type="text" value="invalid">
+      <p class="c-field__error">{% trans "This field has an error." %}</p>
+    </div>
+    <div class="c-field">
+      <label class="c-field__label">{% trans "Select" %}</label>
+      <div class="c-select">
+        <select class="c-field__control c-select__control">
+          <option>{% trans "First option" %}</option>
+          <option>{% trans "Second option" %}</option>
+          <option>{% trans "Third option" %}</option>
+        </select>
+      </div>
+    </div>
+    <div class="c-field">
+      <label class="c-field__label">{% trans "Textarea" %}</label>
+      <textarea class="c-field__input" rows="3"></textarea>
+    </div>
+    <label class="c-checkbox">
+      <input type="checkbox" class="c-checkbox__input" checked>
+      <span class="c-checkbox__label">{% trans "Checkbox option" %}</span>
+    </label>
+  </section>
+
+  <!-- Badges, tags, callouts -->
+  <section class="c-card o-stack">
+    <h2 class="text-2xl">{% trans "Badges, tags & callouts" %}</h2>
+    <div class="o-cluster">
+      <span class="c-badge">Badge</span>
+      <span class="c-badge c-badge--muted">Muted</span>
+      <span class="c-tag c-tag--demo">tag</span>
+    </div>
+    <div class="c-callout">
+      <div class="c-callout__body"><p class="c-callout__title">{% trans "Callout" %}</p><p>{% trans "Neutral informational box." %}</p></div>
+    </div>
+    <div class="c-callout c-callout--danger">
+      <div class="c-callout__body"><p class="c-callout__title">{% trans "Danger" %}</p><p>{% trans "Something needs attention." %}</p></div>
+    </div>
+  </section>
+
+  <!-- Empty state & skeleton -->
+  <section class="c-card o-stack">
+    <h2 class="text-2xl">{% trans "Empty state & skeleton" %}</h2>
+    <div class="c-empty-state">
+      <h3 class="c-empty-state__title">{% trans "Nothing here yet" %}</h3>
+      <p class="c-empty-state__text">{% trans "Empty states explain what to do next." %}</p>
+      <button class="c-button c-button--primary">{% trans "Take action" %}</button>
+    </div>
+    <div class="o-stack o-stack--sm">
+      <div class="c-skeleton c-skeleton--title"></div>
+      <div class="c-skeleton c-skeleton--text"></div>
+      <div class="c-skeleton c-skeleton--block"></div>
+    </div>
+  </section>
+
+  <!-- Toasts -->
+  <section class="c-card o-stack">
+    <h2 class="text-2xl">{% trans "Toasts" %}</h2>
+    <div class="o-stack o-stack--sm">
+      {% for kind, title in toasts %}
+        <div class="c-toast c-toast--{{ kind }} c-toast--static">
+          <span class="c-toast__icon"></span>
+          <div><div class="c-toast__title">{{ title }}</div><div class="c-toast__message">{% trans "Example message." %}</div></div>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Modal -->
+  <section class="c-card o-stack">
+    <h2 class="text-2xl">{% trans "Modal" %}</h2>
+    <p class="text-muted">{% trans "Rendered inline here; in use it overlays the page." %}</p>
+    <div class="c-modal c-modal--static">
+      <div class="c-modal__dialog">
+        <h3 class="c-modal__title">{% trans "Delete notebook?" %}</h3>
+        <p class="c-modal__body">{% trans "This action cannot be undone." %}</p>
+        <div class="c-modal__actions">
+          <button class="c-button c-button--secondary">{% trans "Cancel" %}</button>
+          <button class="c-button c-button--danger">{% trans "Delete" %}</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Settings panel -->
+  <section class="c-card o-stack">
+    <h2 class="text-2xl">{% trans "Settings panel" %}</h2>
+    <div class="c-settings-panel">
+      <div class="o-stack o-stack--sm">
+        <h3 class="c-settings-panel__title">{% trans "Notebook settings" %}</h3>
+        <p class="c-settings-panel__hint">{% trans "Provider, model and answer style apply per notebook." %}</p>
+      </div>
+      <div class="c-field">
+        <label class="c-field__label">{% trans "Provider" %}</label>
+        <div class="c-select">
+          <select class="c-field__control c-select__control">
+            <option>OpenAI</option><option>Gemini</option><option>Claude</option>
+          </select>
+        </div>
+      </div>
+      <div class="c-field">
+        <label class="c-field__label">{% trans "Answer style" %}</label>
+        <div class="c-select">
+          <select class="c-field__control c-select__control">
+            <option>{% trans "Didactic" %}</option><option>{% trans "Analytical" %}</option><option>{% trans "Concise" %}</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RAG placeholders -->
+  <section class="c-card o-stack">
+    <h2 class="text-2xl">{% trans "RAG components (preview)" %}</h2>
+    <div class="o-stack o-stack--sm">
+      <div class="c-message c-message--user">{% trans "What does the source say about X?" %}</div>
+      <div class="c-message c-message--assistant">{% trans "According to the sources, X means… " %}<span class="c-citation">1</span></div>
+    </div>
+    <div class="c-source-item"><span class="c-source-item__title">document.pdf</span><span class="c-source-item__status c-source-item__status--ready">ready</span></div>
+    <div class="c-source-item"><span class="c-source-item__title">notes.txt</span><span class="c-source-item__status c-source-item__status--processing">processing</span></div>
+    <div class="c-source-item"><span class="c-source-item__title">broken.pdf</span><span class="c-source-item__status c-source-item__status--failed">failed</span></div>
+  </section>
+</div>
+{% endblock %}

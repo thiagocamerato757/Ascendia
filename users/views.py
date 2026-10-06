@@ -10,6 +10,7 @@ from django.core.files.base import ContentFile
 from django.http import HttpRequest, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse_lazy
+from django.utils.translation import gettext as _
 from django.views.generic import CreateView
 
 from .forms import ProfileUpdateForm, SignUpForm, UserUpdateForm
@@ -31,7 +32,7 @@ class SignUpView(CreateView):
         login(self.request, user)
         messages.success(
             self.request,
-            f'Welcome to Ascendia, {user.username}!',
+            _('Welcome to Ascendia, %(name)s!') % {'name': user.username},
             extra_tags='success'
         )
         return redirect(self.success_url)
@@ -57,7 +58,7 @@ def profile_view(request: HttpRequest) -> HttpResponse:
             profile.save()
             messages.success(
                 request,
-                'Your profile has been updated.',
+                _('Your profile has been updated.'),
                 extra_tags='success'
             )
             return redirect('profile')

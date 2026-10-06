@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse, reverse_lazy
+from django.utils.translation import gettext as _
 from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
 
 from .forms import NotebookForm
@@ -42,11 +43,11 @@ class NotebookCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.user = self.request.user
         response = super().form_valid(form)
-        messages.success(self.request, f'Notebook "{self.object.title}" created.')
+        messages.success(self.request, _('Notebook "%(title)s" created.') % {'title': self.object.title})
         return response
 
     def form_invalid(self, form):
-        messages.error(self.request, 'Please correct the errors below.')
+        messages.error(self.request, _('Please correct the errors below.'))
         return super().form_invalid(form)
 
     def get_success_url(self):
@@ -69,11 +70,11 @@ class NotebookUpdateView(LoginRequiredMixin, UpdateView):
 
     def form_valid(self, form):
         response = super().form_valid(form)
-        messages.success(self.request, f'Notebook "{self.object.title}" updated.')
+        messages.success(self.request, _('Notebook "%(title)s" updated.') % {'title': self.object.title})
         return response
 
     def form_invalid(self, form):
-        messages.error(self.request, 'Please correct the errors below.')
+        messages.error(self.request, _('Please correct the errors below.'))
         return super().form_invalid(form)
 
     def get_success_url(self):
@@ -92,7 +93,7 @@ class NotebookDeleteView(LoginRequiredMixin, DeleteView):
     def form_valid(self, form):
         title = self.object.title
         response = super().form_valid(form)
-        messages.success(self.request, f'Notebook "{title}" deleted.')
+        messages.success(self.request, _('Notebook "%(title)s" deleted.') % {'title': title})
         return response
 
 
@@ -108,6 +109,8 @@ class NotebookToggleFavoriteView(LoginRequiredMixin, View):
                 'is_favorite': notebook.is_favorite
             })
 
-        status = 'added to' if notebook.is_favorite else 'removed from'
-        messages.success(request, f'Notebook {status} favorites.')
+        if notebook.is_favorite:
+            messages.success(request, _('Notebook added to favorites.'))
+        else:
+            messages.success(request, _('Notebook removed from favorites.'))
         return redirect('workspace:notebook_detail', notebook_id=notebook.id)

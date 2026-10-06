@@ -1,20 +1,15 @@
-/* Styles for the user profile page. */
+/*
+ * Profile page module. Loaded only on the profile page (extra_css).
+ * The avatar classes are referenced by the cropper JS, so their names are
+ * kept stable. All values reference design tokens.
+ */
 
-/* Profile container */
-.profile-container {
-  max-width: 56rem;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-}
-
-/* Avatar section */
-.avatar-section {
+.profile-avatar-section {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  margin-bottom: 1.5rem;
+  gap: var(--space-5);
+  padding-bottom: var(--space-5);
+  border-bottom: 1px solid var(--border);
 }
 
 .avatar-preview {
@@ -24,137 +19,60 @@
 .avatar-img {
   width: 6rem;
   height: 6rem;
-  border-radius: 50%;
+  border-radius: var(--radius-full);
   object-fit: cover;
-  border: 4px solid var(--aurora-cyan);
-  box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+  border: 4px solid var(--accent);
+  box-shadow: var(--shadow-md);
 }
 
 .avatar-placeholder {
   width: 6rem;
   height: 6rem;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--aurora-mint), var(--aurora-cyan));
+  border-radius: var(--radius-full);
+  background: var(--accent-gradient);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 4px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+  border: 4px solid var(--border);
+  box-shadow: var(--shadow-md);
 }
 
 .avatar-placeholder span {
-  color: white;
-  font-weight: bold;
-  font-size: 2rem;
-}
-
-.avatar-upload {
-  flex: 1;
-}
-
-/* Form fields */
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-@media (min-width: 768px) {
-  .form-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-.form-field {
-  display: flex;
-  flex-direction: column;
-}
-
-.form-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: white;
-  margin-bottom: 0.5rem;
-}
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 1.5rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.error-message {
-  margin-top: 0.25rem;
-  font-size: 0.875rem;
-  color: #f87171;
-}
-
-.help-text {
-  margin-top: 0.5rem;
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-/* avatar info */
-.avatar-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.avatar-info-text {
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.7);
-  line-height: 1.5;
-}
-
-.avatar-info-highlight {
-  display: inline-block;
-  padding: 0.25rem 0.5rem;
-  background: rgba(16, 185, 129, 0.1);
-  border-radius: 0.25rem;
-  color: var(--aurora-mint);
-  font-weight: 600;
-  font-size: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-/* Better spacing for help text in avatar section */
-.avatar-upload .help-text {
-  margin-top: 0.75rem;
-  line-height: 1.6;
-}
-
-/* Avatar actions */
-.avatar-actions {
-  margin-top: 0.75rem;
+  color: var(--text-on-accent);
+  font-weight: var(--weight-bold);
+  font-size: var(--text-2xl);
 }
 
 .avatar-info-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-4);
   flex-wrap: wrap;
+  margin-top: var(--space-3);
 }
-
-.avatar-info-row .help-text {
-  margin: 0;
+.avatar-info-row .c-field__help {
   flex: 1;
-  min-width: 200px;
+  min-width: 12rem;
 }
 
-/* Responsive: stack on small screens */
-@media (max-width: 640px) {
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+@media (min-width: 48rem) {
+  .profile-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 40rem) {
+  .profile-avatar-section {
+    flex-direction: column;
+    align-items: flex-start;
+  }
   .avatar-info-row {
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.75rem;
-  }
-  
-  .avatar-info-row .help-text {
-    min-width: unset;
   }
 }

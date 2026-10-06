@@ -18,7 +18,7 @@ class SignUpForm(UserCreationForm):
         required=True,
         widget=forms.EmailInput(attrs={
             'placeholder': 'Enter your email',
-            'class': 'input-aurora'
+            'class': 'c-field__input'
         }),
         help_text='Required. Enter a valid email address.',
         label='Email'
@@ -30,7 +30,7 @@ class SignUpForm(UserCreationForm):
         widgets = {
             'username': forms.TextInput(attrs={
                 'placeholder': 'Choose a username',
-                'class': 'input-aurora'
+                'class': 'c-field__input'
             }),
         }
 
@@ -38,11 +38,11 @@ class SignUpForm(UserCreationForm):
         super(SignUpForm, self).__init__(*args, **kwargs)
         self.fields['password1'].widget.attrs.update({
             'placeholder': 'Create a password',
-            'class': 'input-aurora'
+            'class': 'c-field__input'
         })
         self.fields['password2'].widget.attrs.update({
             'placeholder': 'Confirm your password',
-            'class': 'input-aurora'
+            'class': 'c-field__input'
         })
 
     def save(self, commit: bool = True) -> User:
@@ -60,11 +60,11 @@ class LoginForm(AuthenticationForm):
         super().__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update({
             'placeholder': 'Enter your username',
-            'class': 'input-aurora'
+            'class': 'c-field__input'
         })
         self.fields['password'].widget.attrs.update({
             'placeholder': 'Enter your password',
-            'class': 'input-aurora'
+            'class': 'c-field__input'
         })
 
 
@@ -73,7 +73,7 @@ class StyledPasswordResetForm(PasswordResetForm):
         super().__init__(*args, **kwargs)
         self.fields['email'].widget.attrs.update({
             'placeholder': 'Enter your email',
-            'class': 'input-aurora'
+            'class': 'c-field__input'
         })
 
 
@@ -82,11 +82,11 @@ class StyledSetPasswordForm(SetPasswordForm):
         super().__init__(*args, **kwargs)
         self.fields['new_password1'].widget.attrs.update({
             'placeholder': 'New password',
-            'class': 'input-aurora'
+            'class': 'c-field__input'
         })
         self.fields['new_password2'].widget.attrs.update({
             'placeholder': 'Confirm new password',
-            'class': 'input-aurora'
+            'class': 'c-field__input'
         })
 
 
@@ -95,7 +95,7 @@ class UserUpdateForm(forms.ModelForm):
         required=True,
         widget=forms.EmailInput(attrs={
             'placeholder': 'Enter your email',
-            'class': 'input-aurora'
+            'class': 'c-field__input'
         }),
         label='Email'
     )
@@ -106,15 +106,15 @@ class UserUpdateForm(forms.ModelForm):
         widgets = {
             'username': forms.TextInput(attrs={
                 'placeholder': 'Username',
-                'class': 'input-aurora'
+                'class': 'c-field__input'
             }),
             'first_name': forms.TextInput(attrs={
                 'placeholder': 'First name',
-                'class': 'input-aurora'
+                'class': 'c-field__input'
             }),
             'last_name': forms.TextInput(attrs={
                 'placeholder': 'Last name',
-                'class': 'input-aurora'
+                'class': 'c-field__input'
             }),
         }
         labels = {
@@ -130,7 +130,7 @@ class ProfileUpdateForm(forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={
             'placeholder': '+55 11 98765-4321',
-            'class': 'input-aurora'
+            'class': 'c-field__input'
         }),
         label='WhatsApp',
         help_text='Enter your WhatsApp number with country code'
@@ -141,7 +141,7 @@ class ProfileUpdateForm(forms.ModelForm):
         fields = ['avatar', 'whatsapp']
         widgets = {
             'avatar': forms.FileInput(attrs={
-                'class': 'file-input-aurora',
+                'class': 'file-c-field__input',
                 'accept': 'image/*'
             })
         }

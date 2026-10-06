@@ -9,7 +9,7 @@ class NoteForm(forms.ModelForm):
     title = forms.CharField(
         max_length=200,
         widget=forms.TextInput(attrs={
-            'class': 'input-aurora',
+            'class': 'c-field__input',
             'placeholder': 'Note title',
             'autofocus': True,
         })
@@ -18,7 +18,7 @@ class NoteForm(forms.ModelForm):
     content = forms.CharField(
         required=False,
         widget=forms.Textarea(attrs={
-            'class': 'input-aurora',
+            'class': 'c-field__input',
             'placeholder': 'Write your note here... (optional)',
             'rows': 12,
         })
@@ -33,7 +33,7 @@ class TagForm(forms.ModelForm):
     name = forms.CharField(
         max_length=50,
         widget=forms.TextInput(attrs={
-            'class': 'input-aurora',
+            'class': 'c-field__input',
             'placeholder': 'Tag name',
             'autofocus': True,
         })

@@ -1,81 +1,59 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load i18n %}
 
-{% block title %}New Tag - Workspace{% endblock %}
+{% block title %}{% trans "New tag" %} - {% trans "Workspace" %}{% endblock %}
 
 {% block nav_links %}
-  <a href="{% url 'home' %}" class="text-white hover:text-aurora-cyan transition-colors font-medium">Home</a>
-  <a href="{% url 'workspace:home' %}" class="text-white hover:text-aurora-cyan transition-colors font-medium">Workspace</a>
-  <span class="text-white/40">•</span>
-  <a href="{% url 'notes:tag_list' %}" class="text-white hover:text-aurora-cyan transition-colors font-medium">Tags</a>
-  <span class="text-white/40">•</span>
-  <span class="text-aurora-cyan font-medium">New Tag</span>
+  <a href="{% url 'home' %}" class="c-nav__link">{% trans "Home" %}</a>
+  <a href="{% url 'workspace:home' %}" class="c-nav__link">{% trans "Workspace" %}</a>
+  <span class="c-nav__sep"></span>
+  <a href="{% url 'notes:tag_list' %}" class="c-nav__link">{% trans "Tags" %}</a>
+  <span class="c-nav__sep"></span>
+  <span class="c-nav__link is-active">{% trans "New tag" %}</span>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-4xl mx-auto px-6 py-8">
-  <!-- Header -->
-  <div class="text-center mb-8">
-    <svg class="w-14 h-14 mx-auto mb-4 text-aurora-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-    </svg>
-    <h1 class="text-4xl font-bold text-white mb-3 title-font">
-      New <span class="text-aurora">Tag</span>
-    </h1>
-    <p class="text-white/70 text-lg">Name it and pick a color</p>
+<div class="o-container o-container--narrow o-section o-stack o-stack--lg">
+  <div class="o-center o-stack o-stack--sm">
+    <h1 class="text-4xl">{% trans "New" %} <span class="text-brand">{% trans "tag" %}</span></h1>
+    <p class="text-muted text-lg">{% trans "Name it and pick a color" %}</p>
   </div>
 
-  <!-- Form -->
-  <form method="post" class="space-y-8">
+  <form method="post" class="o-stack o-stack--lg">
     {% csrf_token %}
 
-    <!-- Name -->
-    <div class="card-aurora">
-      <label class="block text-white text-lg font-semibold mb-3">
-        Name <span class="text-red-400">*</span>
+    <div class="c-card c-field">
+      <label class="c-field__label" for="{{ form.name.id_for_label }}">
+        {% trans "Name" %} <span class="c-field__required" aria-hidden="true">*</span>
       </label>
       {{ form.name }}
-      {% if form.name.errors %}
-        <p class="text-red-400 text-sm mt-2">{{ form.name.errors.0 }}</p>
-      {% endif %}
+      {% for error in form.name.errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
     </div>
 
-    <!-- Color Picker -->
-    <div class="card-aurora">
-      <label class="block text-white text-lg font-semibold mb-4">
-        Choose a Color
-      </label>
-      <div class="color-picker-container">
+    <div class="c-card o-stack">
+      <span class="c-field__label">{% trans "Choose a color" %}</span>
+      <div class="c-color-picker">
         {% for value, label in form.fields.color.choices %}
-          <div class="color-option">
-            <input type="radio" id="color_{{ forloop.counter }}" name="color" value="{{ value }}"
-                   {% if forloop.first %}checked{% endif %}>
-            <label for="color_{{ forloop.counter }}">
-              <div class="color-swatch" style="background-color: {{ value }};"></div>
-              <span class="color-name">{{ label }}</span>
+          <div class="c-color-picker__option">
+            <input type="radio" id="color_{{ forloop.counter }}" name="color" value="{{ value }}" {% if forloop.first %}checked{% endif %}>
+            <label class="c-color-picker__label" for="color_{{ forloop.counter }}">
+              <span class="c-color-picker__swatch" style="background-color: {{ value }};"></span>
+              <span class="c-color-picker__name">{{ label }}</span>
             </label>
           </div>
         {% endfor %}
       </div>
-      {% if form.color.errors %}
-        <p class="text-red-400 text-sm mt-3">{{ form.color.errors.0 }}</p>
-      {% endif %}
+      {% for error in form.color.errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
     </div>
 
-    <!-- Actions -->
-    <div class="flex items-center justify-between gap-4">
-      <a href="{% url 'notes:tag_list' %}" class="btn-secondary inline-flex items-center space-x-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-        </svg>
-        <span>Cancel</span>
+    <div class="o-cluster o-cluster--between">
+      <a href="{% url 'notes:tag_list' %}" class="c-button c-button--secondary">
+        <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        <span>{% trans "Cancel" %}</span>
       </a>
-
-      <button type="submit" class="btn-primary btn-lg inline-flex items-center space-x-2">
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-        </svg>
-        <span>Create Tag</span>
+      <button type="submit" class="c-button c-button--primary c-button--lg">
+        <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+        <span>{% trans "Create tag" %}</span>
       </button>
     </div>
   </form>

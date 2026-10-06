@@ -1,0 +1,176 @@
+/*
+ * Ascendia — design tokens.
+ * Single source of truth for color, spacing, radius, shadow and typography.
+ * Components NEVER hardcode values: they reference these tokens.
+ *
+ * Theme model:
+ *   :root                                  -> light theme (default)
+ *   @media (prefers-color-scheme: dark)    -> dark when the OS asks for it
+ *   :root[data-theme="dark"] / ["light"]   -> manual override (persisted in localStorage)
+ * Only the semantic tokens change between themes; the raw palette and the
+ * scales (space/radius/shadow/type) are theme-independent.
+ */
+
+:root {
+  /* ---- Raw palette (aurora) — theme-independent ---- */
+  --aurora-mint: #10b981;
+  --aurora-mint-light: #34d399;
+  --aurora-mint-dark: #059669;
+  --aurora-cyan: #06b6d4;
+  --aurora-cyan-light: #22d3ee;
+  --aurora-cyan-dark: #0891b2;
+  --aurora-blue: #3b82f6;
+  --aurora-purple: #8b5cf6;
+
+  /* Neutrals */
+  --neutral-0: #ffffff;
+  --neutral-50: #f8fafc;
+  --neutral-100: #f1f5f9;
+  --neutral-200: #e2e8f0;
+  --neutral-300: #cbd5e1;
+  --neutral-400: #94a3b8;
+  --neutral-500: #64748b;
+  --neutral-600: #475569;
+  --neutral-700: #334155;
+  --neutral-800: #1e293b;
+  --neutral-900: #0f172a;
+  --neutral-950: #0b1120;
+
+  /* Fixed status hues */
+  --red-500: #dc2626;
+  --red-400: #f87171;
+  --amber-400: #fbbf24;
+  --green-500: #22c55e;
+
+  /* ---- Spacing scale (fixed) ---- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* ---- Radii ---- */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-full: 9999px;
+
+  /* ---- Typography ---- */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-display: 'Space Grotesk', 'Inter', sans-serif;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-6xl: 3.75rem;
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+
+  /* ---- Layout ---- */
+  --container-max: 80rem;
+  --container-narrow: 48rem;
+
+  /* ---- Accent (shared by both themes) ---- */
+  --accent: var(--aurora-cyan);
+  --accent-strong: var(--aurora-cyan-dark);
+  --accent-contrast: #ffffff;
+  --accent-gradient: linear-gradient(to right, var(--aurora-mint), var(--aurora-cyan));
+  --brand-gradient: linear-gradient(to right, var(--aurora-mint), var(--aurora-cyan), var(--aurora-blue));
+
+  /* ================= Light theme (default) ================= */
+  --surface: var(--neutral-50);
+  --surface-raised: var(--neutral-0);
+  --surface-sunken: var(--neutral-100);
+  --surface-overlay: rgba(15, 23, 42, 0.55);
+  --surface-hover: var(--neutral-100);
+  --text: var(--neutral-900);
+  --text-muted: var(--neutral-500);
+  --text-subtle: var(--neutral-400);
+  --text-on-accent: #ffffff;
+  --border: var(--neutral-200);
+  --border-strong: var(--neutral-300);
+  --field-bg: var(--neutral-0);
+  --field-border: var(--neutral-300);
+  --focus-ring: rgba(6, 182, 212, 0.35);
+
+  --danger: var(--red-500);
+  --danger-text: #ffffff;
+  --success: var(--green-500);
+  --warning: var(--amber-400);
+
+  /* Page background: subtle aurora glow on a light base */
+  --page-bg:
+    radial-gradient(ellipse 80% 60% at 25% 40%, rgba(16, 185, 129, 0.10) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 75% 60%, rgba(6, 182, 212, 0.10) 0%, transparent 60%),
+    linear-gradient(135deg, #eef2f7 0%, #e6edf5 50%, #e3effa 100%);
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.10);
+  --shadow-lg: 0 8px 24px rgba(15, 23, 42, 0.14);
+}
+
+/* ================= Dark theme ================= */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --surface: var(--neutral-900);
+    --surface-raised: rgba(255, 255, 255, 0.06);
+    --surface-sunken: var(--neutral-950);
+    --surface-overlay: rgba(0, 0, 0, 0.6);
+    --surface-hover: rgba(255, 255, 255, 0.10);
+    --text: #f8fafc;
+    --text-muted: rgba(248, 250, 252, 0.65);
+    --text-subtle: rgba(248, 250, 252, 0.40);
+    --border: rgba(255, 255, 255, 0.12);
+    --border-strong: rgba(255, 255, 255, 0.22);
+    --field-bg: rgba(255, 255, 255, 0.06);
+    --field-border: rgba(255, 255, 255, 0.14);
+    --focus-ring: rgba(6, 182, 212, 0.45);
+
+    --page-bg:
+      radial-gradient(ellipse 80% 60% at 25% 40%, rgba(16, 185, 129, 0.22) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 60% at 75% 60%, rgba(6, 182, 212, 0.18) 0%, transparent 60%),
+      linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45);
+  }
+}
+
+/* Manual dark override — same values, regardless of OS preference. */
+:root[data-theme="dark"] {
+  --surface: var(--neutral-900);
+  --surface-raised: rgba(255, 255, 255, 0.06);
+  --surface-sunken: var(--neutral-950);
+  --surface-overlay: rgba(0, 0, 0, 0.6);
+  --surface-hover: rgba(255, 255, 255, 0.10);
+  --text: #f8fafc;
+  --text-muted: rgba(248, 250, 252, 0.65);
+  --text-subtle: rgba(248, 250, 252, 0.40);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.22);
+  --field-bg: rgba(255, 255, 255, 0.06);
+  --field-border: rgba(255, 255, 255, 0.14);
+  --focus-ring: rgba(6, 182, 212, 0.45);
+
+  --page-bg:
+    radial-gradient(ellipse 80% 60% at 25% 40%, rgba(16, 185, 129, 0.22) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 60% at 75% 60%, rgba(6, 182, 212, 0.18) 0%, transparent 60%),
+    linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.45);
+}

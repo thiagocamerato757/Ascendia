@@ -1,250 +1,147 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load i18n %}
 
-{% block title %}{{ notebook.title }} - Workspace{% endblock %}
+{% block title %}{{ notebook.title }} - {% trans "Workspace" %}{% endblock %}
 
 {% block nav_links %}
-  <a href="{% url 'home' %}" class="text-white hover:text-aurora-cyan transition-colors font-medium">Home</a>
-  <a href="{% url 'workspace:home' %}" class="text-white hover:text-aurora-cyan transition-colors font-medium">Workspace</a>
-  <span class="text-white/40">•</span>
-  <span class="text-aurora-cyan font-medium">{{ notebook.title|truncatechars:20 }}</span>
+  <a href="{% url 'home' %}" class="c-nav__link">{% trans "Home" %}</a>
+  <a href="{% url 'workspace:home' %}" class="c-nav__link">{% trans "Workspace" %}</a>
+  <span class="c-nav__sep"></span>
+  <span class="c-nav__link is-active">{{ notebook.title|truncatechars:20 }}</span>
 {% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-6 py-8">
-  <!-- Notebook Header -->
-  <div class="card-aurora mb-8">
-    <!-- Color Bar -->
-    <div class="h-3 -mx-8 -mt-8 mb-6 rounded-t-xl" style="background: {{ notebook.color }}"></div>
-    
-    <div class="flex items-start justify-between">
-      <div class="flex-1">
-        <div class="flex items-center space-x-3 mb-3">
-          <svg class="w-12 h-12 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color: {{ notebook.color }}">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-          </svg>
-          <div>
-            <h1 class="text-4xl font-bold text-white title-font">{{ notebook.title }}</h1>
-            <p class="text-white/60 text-sm mt-1">
-              Created {{ notebook.created_at|date:"F d, Y" }} • Last updated {{ notebook.updated_at|timesince }} ago
-            </p>
-          </div>
+<div class="o-container o-section o-stack o-stack--lg">
+  <!-- Notebook header -->
+  <div class="c-card o-stack">
+    <span class="c-card__accent-bar" style="background: {{ notebook.color }};"></span>
+    <div class="o-cluster o-cluster--between o-cluster--top">
+      <div class="o-cluster o-cluster--sm o-cluster--nowrap o-min0">
+        <svg class="c-icon c-icon--xl" style="color: {{ notebook.color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+        </svg>
+        <div class="o-min0">
+          <h1 class="text-4xl">{{ notebook.title }}</h1>
+          <p class="c-field__help">{% blocktrans with created=notebook.created_at|date:"d/m/Y" updated=notebook.updated_at|timesince %}Created {{ created }} • Updated {{ updated }} ago{% endblocktrans %}</p>
         </div>
-        
-        {% if notebook.description %}
-          <p class="text-white/80 mt-4 text-lg">
-            {{ notebook.description }}
-          </p>
-        {% endif %}
       </div>
-      
-      <div class="flex items-center space-x-3">
-        <form method="post" action="{% url 'workspace:notebook_toggle_favorite' notebook.id %}" class="inline">
+      <div class="o-cluster o-cluster--sm">
+        <form method="post" action="{% url 'workspace:notebook_toggle_favorite' notebook.id %}">
           {% csrf_token %}
-          <button type="submit" class="btn-secondary btn-sm inline-flex items-center space-x-2">
+          <button type="submit" class="c-button c-button--secondary c-button--sm">
             {% if notebook.is_favorite %}
-              <svg class="w-4 h-4 text-yellow-400" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-              </svg>
-              <span>Starred</span>
+              <svg class="c-button__icon text-warning" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+              <span>{% trans "Starred" %}</span>
             {% else %}
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
-              </svg>
-              <span>Star</span>
+              <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/></svg>
+              <span>{% trans "Star" %}</span>
             {% endif %}
           </button>
         </form>
-        <a href="{% url 'workspace:notebook_edit' notebook.id %}" class="btn-secondary btn-sm inline-flex items-center space-x-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
-          </svg>
-          <span>Edit</span>
+        <a href="{% url 'workspace:notebook_edit' notebook.id %}" class="c-button c-button--secondary c-button--sm">
+          <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          <span>{% trans "Edit" %}</span>
         </a>
-        <a href="{% url 'workspace:notebook_delete' notebook.id %}" class="btn-secondary btn-sm inline-flex items-center space-x-2 hover:bg-red-500/20 hover:border-red-500/50">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-          </svg>
-          <span>Delete</span>
+        <a href="{% url 'workspace:notebook_delete' notebook.id %}" class="c-button c-button--secondary c-button--sm">
+          <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          <span>{% trans "Delete" %}</span>
         </a>
       </div>
     </div>
+    {% if notebook.description %}
+      <p class="text-muted text-lg">{{ notebook.description }}</p>
+    {% endif %}
   </div>
 
-  <!-- Content Area -->
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Main Content -->
-    <div class="lg:col-span-2 space-y-6">
-      <!-- Notes Header -->
-      <div class="flex items-center justify-between">
-        <h2 class="text-2xl font-bold text-white">Notes</h2>
-        <a href="{% url 'notes:note_create' notebook.id %}" class="btn-primary btn-sm inline-flex items-center space-x-2">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
-          <span>New Note</span>
+  <!-- Content area -->
+  <div class="l-two-col">
+    <!-- Main: notes -->
+    <div class="o-stack">
+      <div class="o-cluster o-cluster--between">
+        <h2 class="text-2xl">{% trans "Notes" %}</h2>
+        <a href="{% url 'notes:note_create' notebook.id %}" class="c-button c-button--primary c-button--sm">
+          <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span>{% trans "New note" %}</span>
         </a>
       </div>
 
       {% if notes %}
-        <!-- Notes List -->
-        <div class="space-y-4">
+        <div class="o-stack">
           {% for note in notes %}
-            <div class="card-aurora cursor-pointer hover:border-aurora-cyan/30 transition-all" onclick="window.location.href='{% url 'notes:note_detail' note.id %}'">
-              <div class="flex items-start justify-between mb-3">
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center space-x-2 mb-1">
-                    {% if note.is_pinned %}
-                      <svg class="w-4 h-4 text-yellow-400 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
-                      </svg>
-                    {% endif %}
-                    <h3 class="text-xl font-bold text-white truncate">{{ note.title }}</h3>
-                  </div>
-                  <p class="text-sm text-white/60">
-                    Updated {{ note.updated_at|timesince }} ago
-                  </p>
+            <a class="c-card c-card--interactive o-stack o-stack--sm" href="{% url 'notes:note_detail' note.id %}">
+              <div class="o-cluster o-cluster--between o-cluster--top">
+                <div class="o-cluster o-cluster--sm o-cluster--nowrap o-min0">
+                  {% if note.is_pinned %}
+                    <svg class="c-button__icon text-warning" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
+                  {% endif %}
+                  <h3 class="c-card__title text-truncate">{{ note.title }}</h3>
                 </div>
-                <svg class="w-6 h-6 text-white/40 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                </svg>
+                <span class="c-field__help">{% blocktrans with when=note.updated_at|timesince %}Updated {{ when }} ago{% endblocktrans %}</span>
               </div>
-              
               {% if note.content %}
-                <p class="text-white/70 text-sm line-clamp-3 mb-3">
-                  {{ note.content|truncatewords:30 }}
-                </p>
+                <p class="text-muted text-sm">{{ note.content|truncatewords:30 }}</p>
               {% else %}
-                <p class="text-white/40 text-sm italic mb-3">
-                  No content yet
-                </p>
+                <p class="text-subtle text-sm text-italic">{% trans "No content yet" %}</p>
               {% endif %}
-
-              <!-- Tags -->
               {% if note.note_tags.exists %}
-                <div class="flex flex-wrap gap-2 mt-3">
+                <div class="o-cluster o-cluster--sm">
                   {% for note_tag in note.note_tags.all|slice:":3" %}
-                    <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium text-white" style="background-color: {{ note_tag.tag.color }}30; border: 1px solid {{ note_tag.tag.color }};">
-                      {{ note_tag.tag.name }}
-                    </span>
+                    <span class="c-tag" style="background-color: {{ note_tag.tag.color }}30; border: 1px solid {{ note_tag.tag.color }};">{{ note_tag.tag.name }}</span>
                   {% endfor %}
                   {% if note.note_tags.count > 3 %}
-                    <span class="text-white/60 text-xs">+{{ note.note_tags.count|add:"-3" }} more</span>
+                    <span class="c-field__help">+{{ note.note_tags.count|add:"-3" }} {% trans "more" %}</span>
                   {% endif %}
                 </div>
               {% endif %}
-            </div>
+            </a>
           {% endfor %}
         </div>
       {% else %}
-        <!-- Empty State -->
-        <div class="card-aurora text-center py-20">
-          <svg class="w-16 h-16 mx-auto mb-6 text-white/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-          </svg>
-          <h2 class="text-3xl font-bold text-white mb-4">No notes yet</h2>
-          <p class="text-white/70 mb-8 max-w-md mx-auto">
-            Create your first note to start capturing ideas, insights, and knowledge in this notebook.
-          </p>
-          <a href="{% url 'notes:note_create' notebook.id %}" class="btn-primary inline-flex items-center space-x-2">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-            </svg>
-            <span>Create First Note</span>
-          </a>
+        <div class="c-card">
+          <div class="c-empty-state">
+            <svg class="c-empty-state__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <h2 class="c-empty-state__title">{% trans "No notes yet" %}</h2>
+            <p class="c-empty-state__text">{% trans "Create your first note to start capturing ideas, insights and knowledge in this notebook." %}</p>
+            <a href="{% url 'notes:note_create' notebook.id %}" class="c-button c-button--primary">
+              <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+              <span>{% trans "Create first note" %}</span>
+            </a>
+          </div>
         </div>
       {% endif %}
     </div>
 
     <!-- Sidebar -->
-    <div class="space-y-6">
-      <!-- Quick Actions -->
-      <div class="card-aurora">
-        <h3 class="text-xl font-bold text-white mb-4 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-aurora-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-          </svg>
-          Quick Actions
-        </h3>
-        <div class="space-y-2">
-          <a href="{% url 'notes:note_create' notebook.id %}" class="w-full btn-secondary btn-sm text-left flex items-center space-x-2">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
-            <span>Add Note</span>
-          </a>
-          <button class="w-full btn-secondary btn-sm text-left flex items-center space-x-2" onclick="alert('Upload file coming soon')">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
-            </svg>
-            <span>Upload File</span>
-          </button>
-          <button class="w-full btn-secondary btn-sm text-left flex items-center space-x-2" onclick="alert('Add link coming soon')">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
-            </svg>
-            <span>Add Link</span>
-          </button>
-          <button class="w-full btn-secondary btn-sm text-left flex items-center space-x-2" onclick="alert('Create folder coming soon')">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>
-            </svg>
-            <span>New Folder</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Stats -->
-      <div class="card-aurora">
-        <h3 class="text-xl font-bold text-white mb-4 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-aurora-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-          </svg>
-          Statistics
-        </h3>
-        <div class="space-y-3 text-sm">
-          <div class="flex justify-between items-center">
-            <span class="text-white/70">Total Items</span>
-            <span class="font-bold text-white">{{ notes_count }}</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-white/70">Notes</span>
-            <span class="font-bold text-white">{{ notes_count }}</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-white/70">Files</span>
-            <span class="font-bold text-white">0</span>
-          </div>
-          <div class="flex justify-between items-center">
-            <span class="text-white/70">Links</span>
-            <span class="font-bold text-white">0</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Tags -->
-      <div class="card-aurora">
-        <h3 class="text-xl font-bold text-white mb-4 flex items-center">
-          <svg class="w-5 h-5 mr-2 text-aurora-cyan" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
-          </svg>
-          Tags
-        </h3>
-        <p class="text-white/60 text-sm italic">No tags yet</p>
-        <a href="{% url 'notes:tag_create' %}" class="btn-secondary btn-sm w-full mt-3 inline-block text-center">
-          + Add Tag
+    <div class="o-stack">
+      <div class="c-card o-stack o-stack--sm">
+        <h3 class="text-xl">{% trans "Quick actions" %}</h3>
+        <a href="{% url 'notes:note_create' notebook.id %}" class="c-button c-button--secondary c-button--sm c-button--block">
+          <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          <span>{% trans "Add note" %}</span>
         </a>
+        <button type="button" class="c-button c-button--secondary c-button--sm c-button--block" disabled title="{% trans 'Coming soon' %}">{% trans "Upload file" %}</button>
+        <button type="button" class="c-button c-button--secondary c-button--sm c-button--block" disabled title="{% trans 'Coming soon' %}">{% trans "Add link" %}</button>
+      </div>
+
+      <div class="c-card o-stack o-stack--sm">
+        <h3 class="text-xl">{% trans "Statistics" %}</h3>
+        <div class="o-cluster o-cluster--between"><span class="text-muted">{% trans "Notes" %}</span><strong>{{ notes_count }}</strong></div>
+        <div class="o-cluster o-cluster--between"><span class="text-muted">{% trans "Files" %}</span><strong>0</strong></div>
+        <div class="o-cluster o-cluster--between"><span class="text-muted">{% trans "Links" %}</span><strong>0</strong></div>
+      </div>
+
+      <div class="c-card o-stack o-stack--sm">
+        <h3 class="text-xl">{% trans "Tags" %}</h3>
+        <p class="text-muted text-sm text-italic">{% trans "No tags yet" %}</p>
+        <a href="{% url 'notes:tag_create' %}" class="c-button c-button--secondary c-button--sm c-button--block">{% trans "+ Add tag" %}</a>
       </div>
     </div>
   </div>
 
-  <!-- Back Button -->
-  <div class="mt-8">
-    <a href="{% url 'workspace:home' %}" class="btn-secondary inline-flex items-center space-x-2">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
-      </svg>
-      <span>Back to Workspace</span>
+  <div>
+    <a href="{% url 'workspace:home' %}" class="c-button c-button--secondary">
+      <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+      <span>{% trans "Back to workspace" %}</span>
     </a>
   </div>
 </div>
