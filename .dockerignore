@@ -1,0 +1,16 @@
+.git
+.gitignore
+.venv
+__pycache__/
+*.py[cod]
+*.egg-info/
+.env
+db.sqlite3
+db.sqlite3-journal
+media/
+docs/
+.specify/
+.claude/
+*.log
+.ruff_cache/
+.pytest_cache/

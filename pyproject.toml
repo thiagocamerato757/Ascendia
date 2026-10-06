@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Django app for organizing notebooks, notes and study materials"
 
 readme = "README.md"
-requires-python = ">=3.14"
+requires-python = ">=3.11"
 dependencies = [
     # Core framework
     "django>=5.0",
@@ -12,4 +12,21 @@ dependencies = [
     "gunicorn>=21.2",
     "python-dotenv>=1.0",
     "pillow>=12.0.0",
+    # Database (Postgres + pgvector)
+    "psycopg[binary]>=3.2",
+    # Static file serving under gunicorn/uvicorn
+    "whitenoise>=6.0",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.6",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+extend-exclude = ["*/migrations/*"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

@@ -9,6 +9,15 @@ else
     exit 1
 fi
 
+# The project uses Postgres and reads configuration from .env (loaded by Django via
+# python-dotenv). A .env must exist and Postgres must be reachable, e.g.:
+#   cp .env.example .env   # fill DJANGO_SECRET_KEY, set POSTGRES_HOST=localhost
+#   docker compose up db   # or any local Postgres on POSTGRES_HOST:POSTGRES_PORT
+if [ ! -f .env ]; then
+    echo "No .env found. Copy .env.example to .env and fill it in. Aborting."
+    exit 1
+fi
+
 echo "Running test suite..."
 
 python manage.py test --verbosity=1

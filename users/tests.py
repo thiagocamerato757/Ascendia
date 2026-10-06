@@ -1,15 +1,15 @@
-from django.test import TestCase, Client, override_settings
-from django.contrib.auth.models import User
-from django.urls import reverse
-from django.core.files.uploadedfile import SimpleUploadedFile
-from django.core.files.base import ContentFile
-from .models import Profile
-from .forms import SignUpForm, UserUpdateForm, ProfileUpdateForm
-import json
 import base64
-import tempfile
+import json
 import shutil
+import tempfile
 
+from django.contrib.auth.models import User
+from django.core.files.uploadedfile import SimpleUploadedFile
+from django.test import Client, TestCase, override_settings
+from django.urls import reverse
+
+from .forms import ProfileUpdateForm, SignUpForm, UserUpdateForm
+from .models import Profile
 
 # Create a temporary directory for test media files
 TEMP_MEDIA_ROOT = tempfile.mkdtemp()
@@ -69,8 +69,8 @@ class ProfileModelTests(TestCase):
         self.assertEqual(self.profile.whatsapp_link, expected_url)
     
     def test_profile_ordering(self):
-        user2 = User.objects.create_user(username='auser', password='pass123')
-        user3 = User.objects.create_user(username='zuser', password='pass123')
+        User.objects.create_user(username='auser', password='pass123')
+        User.objects.create_user(username='zuser', password='pass123')
         
         profiles = list(Profile.objects.all())
         usernames = [p.user.username for p in profiles]
@@ -256,7 +256,7 @@ class SignUpViewTests(TestCase):
                            'Enter a valid email address.')
     
     def test_signup_view_redirects_authenticated_user(self):
-        user = User.objects.create_user(
+        User.objects.create_user(
             username='existinguser',
             password='testpass123'
         )
@@ -528,7 +528,7 @@ class HomeViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
     
     def test_home_view_accessible_with_login(self):
-        user = User.objects.create_user(
+        User.objects.create_user(
             username='testuser',
             password='testpass123'
         )
@@ -593,7 +593,7 @@ class CSRFProtectionTests(TestCase):
         self.client.force_login(self.user)
         
         response = self.client.post(self.update_avatar_url, {
-            'avatar_cropped': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='
+            'avatar_cropped': 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=='  # noqa: E501
         })
         
         # Should be rejected due to missing CSRF token
@@ -680,8 +680,8 @@ class SQLInjectionTests(TestCase):
             'whatsapp': "+55'; DELETE FROM auth_user; --"
         }
         
-        response = self.client.post(self.profile_url, malicious_data)
-        
+        self.client.post(self.profile_url, malicious_data)
+
         # Verify database is intact
         self.assertTrue(User.objects.filter(username='sqltest').exists())
         
@@ -708,7 +708,7 @@ class XSSProtectionTests(TestCase):
     def test_xss_in_signup_username(self):
         xss_username = '<script>alert("XSS")</script>'
         
-        response = self.client.post(self.signup_url, {
+        self.client.post(self.signup_url, {
             'username': xss_username,
             'email': 'xsstest@example.com',
             'password1': 'SecurePass123!',
@@ -880,10 +880,10 @@ class PasswordResetTests(TestCase):
     def test_password_reset_email_sent(self):
         from django.core import mail
         
-        response = self.client.post(self.password_reset_url, {
+        self.client.post(self.password_reset_url, {
             'email': 'reset@example.com'
         })
-        
+
         # Should send one email
         self.assertEqual(len(mail.outbox), 1)
         
@@ -902,8 +902,8 @@ class PasswordResetTests(TestCase):
     
     def test_password_reset_confirm_valid_token(self):
         from django.contrib.auth.tokens import default_token_generator
-        from django.utils.http import urlsafe_base64_encode
         from django.utils.encoding import force_bytes
+        from django.utils.http import urlsafe_base64_encode
         
         token = default_token_generator.make_token(self.user)
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))
@@ -920,8 +920,8 @@ class PasswordResetTests(TestCase):
     
     def test_password_reset_complete_flow(self):
         from django.contrib.auth.tokens import default_token_generator
-        from django.utils.http import urlsafe_base64_encode
         from django.utils.encoding import force_bytes
+        from django.utils.http import urlsafe_base64_encode
         
         token = default_token_generator.make_token(self.user)
         uid = urlsafe_base64_encode(force_bytes(self.user.pk))

@@ -1,5 +1,7 @@
 from django import forms
+
 from workspace.forms import COLOR_CHOICES
+
 from .models import Note, Tag
 
 

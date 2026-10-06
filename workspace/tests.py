@@ -1,6 +1,7 @@
-from django.test import TestCase, Client
 from django.contrib.auth.models import User
+from django.test import Client, TestCase
 from django.urls import reverse
+
 from .models import Notebook
 
 
@@ -78,7 +79,7 @@ class WorkspaceViewsTest(TestCase):
         self.assertContains(response, 'Test Notebook')
     
     def test_workspace_home_shows_only_user_notebooks(self):
-        other_notebook = Notebook.objects.create(
+        Notebook.objects.create(
             user=self.other_user,
             title='Other User Notebook'
         )

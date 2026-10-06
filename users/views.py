@@ -1,16 +1,18 @@
 import base64
 import uuid
 from typing import Any
-from django.shortcuts import redirect, render
-from django.contrib.auth import login
-from django.contrib.auth.models import User
+
 from django.contrib import messages
+from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
-from django.views.generic import CreateView
-from django.urls import reverse_lazy
 from django.http import HttpRequest, HttpResponse, JsonResponse
-from .forms import SignUpForm, UserUpdateForm, ProfileUpdateForm
+from django.shortcuts import redirect, render
+from django.urls import reverse_lazy
+from django.views.generic import CreateView
+
+from .forms import ProfileUpdateForm, SignUpForm, UserUpdateForm
 from .models import Profile
 
 

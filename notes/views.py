@@ -1,12 +1,14 @@
-from django.shortcuts import redirect, get_object_or_404
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
-from django.urls import reverse_lazy, reverse
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import JsonResponse
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse, reverse_lazy
+from django.views.generic import CreateView, DeleteView, DetailView, ListView, UpdateView, View
+
 from workspace.models import Notebook
+
 from .forms import NoteForm, TagForm
-from .models import Note, Tag, NoteTag
+from .models import Note, NoteTag, Tag
 
 
 class NoteCreateView(LoginRequiredMixin, CreateView):
