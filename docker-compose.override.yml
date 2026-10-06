@@ -1,0 +1,20 @@
+# Development overrides — applied automatically by `docker compose up`
+# (Compose merges docker-compose.override.yml on top of docker-compose.yml).
+#
+# It bind-mounts the project into the container so edits to Python, templates,
+# CSS and JS take effect live, with no image rebuild. The app runs under
+# Django's runserver: StatReloader restarts workers on code changes, and with
+# DJANGO_DEBUG=True it serves static files straight from source (no
+# collectstatic in dev). Dependencies live in /usr/local, not /app, so the
+# mount does not shadow them.
+#
+# Production / CI must use the base file only:
+#   docker compose -f docker-compose.yml up --build
+services:
+  web:
+    volumes:
+      - .:/app
+    command:
+      - sh
+      - -c
+      - python manage.py migrate --noinput && exec python manage.py runserver 0.0.0.0:8000

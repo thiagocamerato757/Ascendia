@@ -46,6 +46,24 @@ docker compose up --build
 
 O app fica em http://localhost:8000/.
 
+### Desenvolvimento (recarga automática)
+
+O `docker-compose.override.yml` é aplicado automaticamente pelo `docker compose up`
+e monta o código-fonte no contêiner, rodando o `runserver` do Django. Assim,
+edições em Python, templates, CSS e JS valem **na hora**, sem reconstruir a imagem
+(o Python recarrega sozinho; os estáticos são servidos direto da fonte com
+`DJANGO_DEBUG=True`). Reconstrua a imagem só quando mudar dependências
+(`pyproject.toml`/`uv.lock`).
+
+### Produção / CI
+
+Use apenas o arquivo base (sem o override), que serve via gunicorn + uvicorn e
+roda `collectstatic`:
+
+```bash
+docker compose -f docker-compose.yml up --build
+```
+
 Para criar um superusuário:
 
 ```bash
