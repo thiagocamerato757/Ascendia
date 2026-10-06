@@ -11,16 +11,7 @@ fi
 
 echo "Running test suite..."
 
-# Run all tests, including notes model tests (skip view tests that need templates)
-python manage.py test \
-    users \
-    workspace \
-    notes.tests.NoteModelTest \
-    notes.tests.TagModelTest \
-    notes.tests.NoteTagModelTest \
-    notes.tests.NotePermissionsTest \
-    notes.tests.NoteTagRelationshipTest \
-    --verbosity=1
+python manage.py test --verbosity=1
 
 exit_code=$?
 
