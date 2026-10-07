@@ -105,8 +105,9 @@ class BaseProvider:
         raise NotImplementedError
 
 
-#: Dimension of the fake hashing embedder.
-FAKE_EMBEDDING_DIM = 64
+#: Dimension of the fake hashing embedder: large enough that word hashes rarely
+#: collide (at 64, unrelated texts outranked related ones in retrieval tests).
+FAKE_EMBEDDING_DIM = 512
 
 
 def hashing_embedding(text: str, dim: int = FAKE_EMBEDDING_DIM) -> list[float]:
