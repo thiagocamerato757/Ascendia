@@ -28,6 +28,7 @@ urlpatterns = [
     path('workspace/', include('workspace.urls')),
     path('notes/', include('notes.urls')),
     path('llm/', include('llm.urls')),
+    path('sources/', include('sources.urls')),
 ]
 
 if settings.DEBUG:

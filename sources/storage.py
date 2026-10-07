@@ -10,7 +10,9 @@ import uuid
 
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
-from django.utils.functional import LazyObject
+from django.core.signals import setting_changed
+from django.dispatch import receiver
+from django.utils.functional import LazyObject, empty
 
 
 class _SourceStorage(LazyObject):
@@ -19,6 +21,13 @@ class _SourceStorage(LazyObject):
 
 
 source_storage = _SourceStorage()
+
+
+@receiver(setting_changed)
+def _reset_storage(*, setting, **kwargs) -> None:
+    """Follow ASCENDIA_SOURCES_ROOT overrides (tests use a temporary directory)."""
+    if setting == 'ASCENDIA_SOURCES_ROOT':
+        source_storage._wrapped = empty
 
 
 def get_source_storage():

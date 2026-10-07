@@ -1,0 +1,76 @@
+{% load i18n %}
+{% comment %}
+  Sources panel (left column of the notebook page). Swapped in place by HTMX
+  after every action; while a source is pending/processing, only the list
+  polls (hx-select), so forms being filled are never reset.
+{% endcomment %}
+<section id="sources-panel" class="c-panel o-stack" aria-labelledby="sources-heading">
+  <header class="c-panel__head">
+    <h2 id="sources-heading" class="c-panel__title">{% trans "Sources" %}</h2>
+    <span class="c-panel__count">{{ sources|length }}</span>
+  </header>
+
+  {% if notice %}{% include 'components/notice.html' with variant=notice.variant title=notice.title message=notice.message %}{% endif %}
+
+  {% if stale_count %}
+    <div class="o-stack o-stack--sm">
+      {% blocktrans count n=stale_count asvar stale_msg %}{{ n }} source was indexed with another embedding model and is left out of answers until it is reindexed.{% plural %}{{ n }} sources were indexed with another embedding model and are left out of answers until they are reindexed.{% endblocktrans %}
+      {% include 'components/notice.html' with variant='warning' title=_("Reindex needed") message=stale_msg %}
+      <form hx-post="{% url 'sources:reindex' notebook.id %}" hx-target="#sources-panel" hx-swap="outerHTML">{% csrf_token %}
+        <button type="submit" class="c-button c-button--secondary c-button--sm c-button--block">{% trans "Reindex sources" %}</button>
+      </form>
+    </div>
+  {% endif %}
+
+  <div id="sources-list" class="o-stack o-stack--sm"
+       {% if any_active %}hx-get="{% url 'sources:panel' notebook.id %}" hx-trigger="every 3s" hx-select="#sources-list" hx-target="this" hx-swap="outerHTML"{% endif %}>
+    {% for source in sources %}
+      <div class="c-source-item c-source-item--stacked" id="source-{{ source.id }}" data-source-id="{{ source.id }}">
+        <div class="c-source-item__row">
+          {% if source.status == 'ready' %}
+            <input type="checkbox" class="c-checkbox__input c-checkbox__input--sm" name="source" value="{{ source.id }}"
+                   form="ask-form" checked aria-label="{% blocktrans with title=source.title %}Use {{ title }} in answers{% endblocktrans %}">
+          {% endif %}
+          <span class="c-source-item__title" title="{{ source.title }}">{{ source.title }}</span>
+          <span class="c-source-item__status c-source-item__status--{{ source.status }}">{{ source.get_status_display }}</span>
+        </div>
+        <div class="c-source-item__meta">
+          {% if source.kind == 'pdf' and source.page_count %}{% blocktrans count n=source.page_count %}{{ n }} page{% plural %}{{ n }} pages{% endblocktrans %}{% else %}{{ source.get_kind_display }}{% endif %}
+          <span class="c-source-item__actions">
+            {% if source.status == 'failed' %}
+              <button type="button" class="c-link-button" hx-post="{% url 'sources:retry' source.id %}" hx-target="#sources-panel" hx-swap="outerHTML">{% trans "Try again" %}</button>
+            {% endif %}
+            <button type="button" class="c-link-button c-link-button--danger" hx-post="{% url 'sources:delete' source.id %}"
+                    hx-target="#sources-panel" hx-swap="outerHTML"
+                    hx-confirm="{% blocktrans with title=source.title %}Remove “{{ title }}” from this notebook?{% endblocktrans %}">{% trans "Remove" %}</button>
+          </span>
+        </div>
+        {% if source.status == 'failed' and source.error %}<p class="c-source-item__error">{{ source.error }}</p>{% endif %}
+      </div>
+    {% empty %}
+      <div class="c-empty-state c-empty-state--compact">
+        <p class="c-empty-state__title">{% trans "No sources yet" %}</p>
+        <p class="c-empty-state__text">{% trans "Add a PDF or paste text. Answers in this notebook come only from its sources." %}</p>
+      </div>
+    {% endfor %}
+  </div>
+
+  <form class="o-stack o-stack--sm" hx-post="{% url 'sources:upload' notebook.id %}" hx-encoding="multipart/form-data"
+        hx-target="#sources-panel" hx-swap="outerHTML">
+    {% csrf_token %}
+    <label class="c-field__label" for="source-file-{{ notebook.id }}">{% trans "Add a PDF" %}</label>
+    <input type="file" id="source-file-{{ notebook.id }}" name="file" accept="application/pdf,.pdf" class="c-field__input" required>
+    <button type="submit" class="c-button c-button--primary c-button--sm c-button--block">{% trans "Upload PDF" %}</button>
+  </form>
+
+  <details class="c-disclosure" {% if text_form.errors %}open{% endif %}>
+    <summary class="c-disclosure__summary">{% trans "Paste text instead" %}</summary>
+    <form class="o-stack o-stack--sm c-disclosure__body" hx-post="{% url 'sources:add_text' notebook.id %}"
+          hx-target="#sources-panel" hx-swap="outerHTML">
+      {% csrf_token %}
+      {% include 'components/field.html' with field=text_form.title %}
+      {% include 'components/field.html' with field=text_form.text %}
+      <button type="submit" class="c-button c-button--secondary c-button--sm c-button--block">{% trans "Add text" %}</button>
+    </form>
+  </details>
+</section>
