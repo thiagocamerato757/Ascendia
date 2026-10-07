@@ -24,9 +24,13 @@ services:
       # Local model servers (Ollama, LM Studio, llama.cpp) run on the host
       # machine, not in this container.
       ASCENDIA_LOCAL_LLM_HOST: host.docker.internal
+      ASCENDIA_SOURCES_ROOT: /data/sources
     extra_hosts:
       # Makes host.docker.internal resolve on Linux too (Docker Desktop has it).
       - "host.docker.internal:host-gateway"
+    volumes:
+      # Uploaded source files (private, never served); shared with the worker.
+      - sources:/data/sources
     depends_on:
       db:
         condition: service_healthy
@@ -35,7 +39,27 @@ services:
     command:
       - sh
       - -c
-      - python manage.py migrate --noinput && python manage.py collectstatic --noinput && exec gunicorn core.asgi:application --bind 0.0.0.0:8000 --workers 3 --worker-class uvicorn.workers.UvicornWorker
+      - python manage.py migrate --noinput && python manage.py createcachetable && python manage.py collectstatic --noinput && exec gunicorn core.asgi:application --bind 0.0.0.0:8000 --workers 3 --worker-class uvicorn.workers.UvicornWorker
+
+  # Background tasks (source ingestion, reindexing) from the Postgres queue.
+  worker:
+    build: .
+    env_file: .env
+    environment:
+      POSTGRES_HOST: db
+      ASCENDIA_LOCAL_LLM_HOST: host.docker.internal
+      ASCENDIA_SOURCES_ROOT: /data/sources
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - sources:/data/sources
+    depends_on:
+      db:
+        condition: service_healthy
+      web:
+        condition: service_started
+    command: ["python", "manage.py", "db_worker"]
 
 volumes:
   pgdata:
+  sources:

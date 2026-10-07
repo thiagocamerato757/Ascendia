@@ -17,4 +17,8 @@ services:
     command:
       - sh
       - -c
-      - python manage.py migrate --noinput && exec python manage.py runserver 0.0.0.0:8000
+      - python manage.py migrate --noinput && python manage.py createcachetable && exec python manage.py runserver 0.0.0.0:8000
+  worker:
+    volumes:
+      - .:/app
+      - sources:/data/sources

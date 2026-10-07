@@ -75,10 +75,16 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.humanize',
+    'django.contrib.postgres',
     'users',
     'workspace',
     'notes',
     'llm',
+    'sources',
+    'rag',
+    # Background tasks (ingestion): Postgres-backed queue + `manage.py db_worker`.
+    'django_tasks',
+    'django_tasks_db',
 ]
 
 MIDDLEWARE = [
@@ -223,3 +229,49 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 SESSION_COOKIE_AGE = 1209600
 # Session cookie name
 SESSION_COOKIE_NAME = 'ascendia_sessionid'
+
+# --- Background tasks (spec §7.1) -------------------------------------------
+# Source ingestion runs outside the request, on a Postgres-backed queue (no
+# broker). The `worker` service runs `python manage.py db_worker`.
+TASKS = {
+    'default': {
+        'BACKEND': 'django_tasks_db.DatabaseBackend',
+        'QUEUES': ['default'],
+    },
+}
+
+# Shared cache (rate limiting): Postgres-backed so every gunicorn worker sees the
+# same counters. Table created by `manage.py createcachetable`.
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'ascendia_cache',
+    },
+}
+
+
+def _env_int(name: str, default: int) -> int:
+    try:
+        return int(os.environ.get(name, default))
+    except (TypeError, ValueError):
+        return default
+
+
+# --- Sources and RAG (spec §7) ------------------------------------------------
+# Uploaded source files live OUTSIDE MEDIA_ROOT and are never served by URL
+# (spec §11). In Docker this path is a volume shared by `web` and `worker`.
+ASCENDIA_SOURCES_ROOT = os.environ.get('ASCENDIA_SOURCES_ROOT', os.path.join(BASE_DIR, 'private', 'sources'))
+ASCENDIA_SOURCE_MAX_MB = _env_int('ASCENDIA_SOURCE_MAX_MB', 25)
+ASCENDIA_SOURCE_MAX_PAGES = _env_int('ASCENDIA_SOURCE_MAX_PAGES', 1000)
+ASCENDIA_TEXT_SOURCE_MAX_CHARS = _env_int('ASCENDIA_TEXT_SOURCE_MAX_CHARS', 200_000)
+# Chunking (characters): paragraph-aware windows with overlap.
+ASCENDIA_CHUNK_SIZE = _env_int('ASCENDIA_CHUNK_SIZE', 1200)
+ASCENDIA_CHUNK_OVERLAP = _env_int('ASCENDIA_CHUNK_OVERLAP', 200)
+ASCENDIA_EMBED_BATCH_SIZE = _env_int('ASCENDIA_EMBED_BATCH_SIZE', 64)
+# Hybrid retrieval: candidates per method, Reciprocal Rank Fusion constant, final top-k.
+ASCENDIA_RAG_CANDIDATES = _env_int('ASCENDIA_RAG_CANDIDATES', 40)
+ASCENDIA_RAG_RRF_K = _env_int('ASCENDIA_RAG_RRF_K', 60)
+ASCENDIA_RAG_TOP_K = _env_int('ASCENDIA_RAG_TOP_K', 8)
+# Rate limits per user per minute (spec §11).
+ASCENDIA_RATE_ASK_PER_MIN = _env_int('ASCENDIA_RATE_ASK_PER_MIN', 20)
+ASCENDIA_RATE_UPLOAD_PER_MIN = _env_int('ASCENDIA_RATE_UPLOAD_PER_MIN', 10)

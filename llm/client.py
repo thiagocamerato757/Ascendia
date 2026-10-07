@@ -20,7 +20,15 @@ from . import model_catalog
 from . import providers as _providers
 from .crypto import DecryptionError
 from .local_urls import LocalURLError, validate_local_url
-from .providers import BaseProvider, ChatResult, EmbedResult, FakeProvider, LiteLLMProvider, ProviderError
+from .providers import (
+    BaseProvider,
+    ChatResult,
+    ChatStream,
+    EmbedResult,
+    FakeProvider,
+    LiteLLMProvider,
+    ProviderError,
+)
 
 logger = logging.getLogger('ascendia.llm')
 
@@ -75,28 +83,87 @@ def _with_retry(call, *, what: str):
     raise last_error
 
 
-def _run_chat(provider_name, model, api_key, messages, timeout) -> ChatResult:
+def _run_chat(provider_name, model, api_key, messages, timeout, api_base=None) -> ChatResult:
     provider = build_provider(provider_name)
     return _with_retry(
-        lambda: provider.chat(model, messages, api_key=api_key, timeout=timeout),
+        lambda: provider.chat(model, messages, api_key=api_key, timeout=timeout, api_base=api_base),
         what='chat',
     )
 
 
+def _connection(settings, provider_name: str) -> tuple[str | None, str | None]:
+    """``(api_key, api_base)`` for a notebook's provider.
+
+    Cloud providers use the owner's key and LiteLLM's default endpoint. Local
+    servers use no key and the owner's saved, allowlisted server URL.
+    """
+    user = settings.notebook.user
+    if provider_name in c.LOCAL_PROVIDERS:
+        return None, _provider_base_url(user, provider_name)
+    return _decrypt(settings.credential_for(provider_name)), None
+
+
 def chat(settings, messages: list[dict], *, timeout: float = DEFAULT_TIMEOUT) -> ChatResult:
     """Chat completion using the notebook's configured chat provider/model."""
-    api_key = _decrypt(settings.credential_for(settings.chat_provider))
-    return _run_chat(settings.chat_provider, settings.chat_model, api_key, messages, timeout)
+    api_key, api_base = _connection(settings, settings.chat_provider)
+    return _run_chat(settings.chat_provider, settings.chat_model, api_key, messages, timeout, api_base)
 
 
-def embed(settings, texts: list[str], *, timeout: float = DEFAULT_TIMEOUT) -> EmbedResult:
-    """Embeddings using the notebook's configured embedding provider/model."""
-    provider = build_provider(settings.embedding_provider)
-    api_key = _decrypt(settings.credential_for(settings.embedding_provider))
+def stream_chat(settings, messages: list[dict], *, timeout: float = DEFAULT_TIMEOUT) -> ChatStream:
+    """Streamed chat completion with the notebook's chat provider/model.
+
+    Opening the stream is retried like :func:`chat`; once tokens are flowing a
+    failure is raised to the caller (a half-written answer is never retried).
+    """
+    api_key, api_base = _connection(settings, settings.chat_provider)
+    provider = build_provider(settings.chat_provider)
     return _with_retry(
-        lambda: provider.embed(settings.embedding_model, texts, api_key=api_key, timeout=timeout),
-        what='embed',
+        lambda: provider.stream_chat(
+            settings.chat_model, messages, api_key=api_key, timeout=timeout, api_base=api_base,
+        ),
+        what='stream',
     )
+
+
+#: Providers whose embedding models may be asymmetric and need ``input_type``
+#: (passage when indexing, query when searching). See docs/decisions.md.
+INPUT_TYPE_PROVIDERS = {c.PROVIDER_NVIDIA}
+EMBED_PURPOSES = ('passage', 'query')
+
+
+def embed(settings, texts: list[str], *, purpose: str = 'passage',
+          timeout: float = DEFAULT_TIMEOUT) -> EmbedResult:
+    """Embeddings with the notebook's embedding provider/model, sent in batches.
+
+    ``purpose`` is ``'passage'`` for indexing sources and ``'query'`` for
+    searching; it reaches the provider only where it matters.
+    """
+    from django.conf import settings as django_settings
+
+    if purpose not in EMBED_PURPOSES:
+        raise ValueError(f'purpose must be one of {EMBED_PURPOSES}')
+    provider_name = settings.embedding_provider
+    provider = build_provider(provider_name)
+    api_key, api_base = _connection(settings, provider_name)
+    input_type = purpose if provider_name in INPUT_TYPE_PROVIDERS else None
+    batch_size = max(1, int(getattr(django_settings, 'ASCENDIA_EMBED_BATCH_SIZE', 64)))
+
+    total = EmbedResult(model=settings.embedding_model)
+    for start in range(0, len(texts), batch_size):
+        batch = texts[start:start + batch_size]
+        part = _with_retry(
+            lambda batch=batch: provider.embed(
+                settings.embedding_model, batch, api_key=api_key, timeout=timeout,
+                api_base=api_base, input_type=input_type,
+            ),
+            what='embed',
+        )
+        total.vectors.extend(part.vectors)
+        total.input_tokens += part.input_tokens
+        total.latency_ms += part.latency_ms
+        if part.cost_usd is not None:
+            total.cost_usd = (total.cost_usd or 0.0) + part.cost_usd
+    return total
 
 
 def available_models(user, provider_name: str, kind: str = 'chat') -> list[str]:

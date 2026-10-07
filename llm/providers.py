@@ -7,7 +7,11 @@ whole layer without spending API credits.
 """
 from __future__ import annotations
 
+import math
+import re
 import time
+import zlib
+from collections.abc import Iterable, Iterator
 from dataclasses import dataclass, field
 
 from django.utils.translation import gettext as _
@@ -55,18 +59,67 @@ class EmbedResult:
     cost_usd: float | None = None
 
 
+class ChatStream:
+    """A streamed chat answer.
+
+    Iterate it to receive text deltas as they arrive; once the iteration ends,
+    :attr:`result` holds the full :class:`ChatResult` (text, tokens, latency,
+    cost). Provider errors raised mid-stream are :class:`ProviderError`.
+    """
+
+    def __init__(self, deltas: Iterable[str], finish):
+        self._deltas = deltas
+        self._finish = finish  # callable(full_text) -> ChatResult
+        self.result: ChatResult | None = None
+
+    def __iter__(self) -> Iterator[str]:
+        parts: list[str] = []
+        for delta in self._deltas:
+            if delta:
+                parts.append(delta)
+                yield delta
+        self.result = self._finish(''.join(parts))
+
+
 class BaseProvider:
-    """Interface implemented by every provider."""
+    """Interface implemented by every provider.
+
+    ``api_base`` overrides the provider endpoint (local servers); ``input_type``
+    tells asymmetric embedding models whether texts are passages (indexing) or
+    queries (search).
+    """
 
     name: str = ''
 
     def chat(self, model: str, messages: list[dict], *, api_key: str | None = None,
-             timeout: float = 30.0) -> ChatResult:
+             timeout: float = 30.0, api_base: str | None = None) -> ChatResult:
+        raise NotImplementedError
+
+    def stream_chat(self, model: str, messages: list[dict], *, api_key: str | None = None,
+                    timeout: float = 30.0, api_base: str | None = None) -> ChatStream:
         raise NotImplementedError
 
     def embed(self, model: str, texts: list[str], *, api_key: str | None = None,
-              timeout: float = 30.0) -> EmbedResult:
+              timeout: float = 30.0, api_base: str | None = None,
+              input_type: str | None = None) -> EmbedResult:
         raise NotImplementedError
+
+
+#: Dimension of the fake hashing embedder.
+FAKE_EMBEDDING_DIM = 64
+
+
+def hashing_embedding(text: str, dim: int = FAKE_EMBEDDING_DIM) -> list[float]:
+    """Deterministic bag-of-words vector (crc32 of each word), L2-normalized.
+
+    Texts sharing words get similar vectors, so retrieval tests are meaningful
+    without a real model.
+    """
+    vec = [0.0] * dim
+    for word in re.findall(r'\w+', text.lower()):
+        vec[zlib.crc32(word.encode()) % dim] += 1.0
+    norm = math.sqrt(sum(v * v for v in vec)) or 1.0
+    return [v / norm for v in vec]
 
 
 class FakeProvider(BaseProvider):
@@ -78,31 +131,56 @@ class FakeProvider(BaseProvider):
 
     name = 'fake'
 
-    def __init__(self, reply: str = 'resposta simulada', fail_with: str | None = None):
+    def __init__(self, reply: str = 'resposta simulada', fail_with: str | None = None,
+                 fail_after_tokens: int | None = None):
         self.reply = reply
         self.fail_with = fail_with
+        #: When set, stream_chat raises ``fail_with`` after this many deltas.
+        self.fail_after_tokens = fail_after_tokens
         self.last_chat_call: dict | None = None
         self.last_embed_call: dict | None = None
+        self.embed_calls: list[dict] = []
 
-    def chat(self, model, messages, *, api_key=None, timeout=30.0) -> ChatResult:
-        self.last_chat_call = {'model': model, 'messages': messages, 'api_key': api_key, 'timeout': timeout}
-        if self.fail_with:
-            raise ProviderError(self.fail_with)
+    def _result(self, model, messages, text) -> ChatResult:
         return ChatResult(
-            text=self.reply,
+            text=text,
             model=model,
-            input_tokens=sum(len(m.get('content', '').split()) for m in messages),
-            output_tokens=len(self.reply.split()),
+            input_tokens=sum(len(str(m.get('content', '')).split()) for m in messages),
+            output_tokens=len(text.split()),
             latency_ms=1,
             cost_usd=0.0,
         )
 
-    def embed(self, model, texts, *, api_key=None, timeout=30.0) -> EmbedResult:
-        self.last_embed_call = {'model': model, 'texts': texts, 'api_key': api_key, 'timeout': timeout}
+    def chat(self, model, messages, *, api_key=None, timeout=30.0, api_base=None) -> ChatResult:
+        self.last_chat_call = {'model': model, 'messages': messages, 'api_key': api_key,
+                               'timeout': timeout, 'api_base': api_base}
+        if self.fail_with and self.fail_after_tokens is None:
+            raise ProviderError(self.fail_with)
+        return self._result(model, messages, self.reply)
+
+    def stream_chat(self, model, messages, *, api_key=None, timeout=30.0, api_base=None) -> ChatStream:
+        self.last_chat_call = {'model': model, 'messages': messages, 'api_key': api_key,
+                               'timeout': timeout, 'api_base': api_base, 'stream': True}
+        if self.fail_with and self.fail_after_tokens is None:
+            raise ProviderError(self.fail_with)
+        words = re.findall(r'\S+\s*', self.reply)
+
+        def deltas():
+            for i, word in enumerate(words):
+                if self.fail_after_tokens is not None and i >= self.fail_after_tokens:
+                    raise ProviderError(self.fail_with or 'stream failed')
+                yield word
+
+        return ChatStream(deltas(), lambda text: self._result(model, messages, text))
+
+    def embed(self, model, texts, *, api_key=None, timeout=30.0, api_base=None, input_type=None) -> EmbedResult:
+        call = {'model': model, 'texts': texts, 'api_key': api_key, 'timeout': timeout,
+                'api_base': api_base, 'input_type': input_type}
+        self.last_embed_call = call
+        self.embed_calls.append(call)
         if self.fail_with:
             raise ProviderError(self.fail_with)
-        # Tiny deterministic pseudo-embedding so tests can assert shape/length.
-        vectors = [[float(len(t)), float(sum(ord(ch) for ch in t) % 97)] for t in texts]
+        vectors = [hashing_embedding(t) for t in texts]
         return EmbedResult(vectors=vectors, model=model, input_tokens=sum(len(t.split()) for t in texts), latency_ms=1)
 
 
@@ -240,35 +318,89 @@ class LiteLLMProvider(BaseProvider):
             )
         return ProviderError(_('Failed to reach the LLM provider. Try again.'))
 
-    def chat(self, model, messages, *, api_key=None, timeout=30.0) -> ChatResult:
+    @staticmethod
+    def _cost(litellm, resp) -> float | None:
+        try:
+            return litellm.completion_cost(completion_response=resp)
+        except Exception:  # noqa: BLE001 - cost estimation is best-effort
+            return None
+
+    def chat(self, model, messages, *, api_key=None, timeout=30.0, api_base=None) -> ChatResult:
         import litellm
 
         started = time.monotonic()
         try:
-            resp = litellm.completion(model=model, messages=messages, api_key=api_key, timeout=timeout)
+            resp = litellm.completion(
+                model=model, messages=messages, api_key=api_key, timeout=timeout, api_base=api_base,
+            )
         except Exception as exc:  # noqa: BLE001 - mapped to a safe message below
             raise self._map_error(exc) from exc
         latency_ms = int((time.monotonic() - started) * 1000)
         usage = getattr(resp, 'usage', None)
-        try:
-            cost = litellm.completion_cost(completion_response=resp)
-        except Exception:  # noqa: BLE001 - cost estimation is best-effort
-            cost = None
         return ChatResult(
             text=resp.choices[0].message.content or '',
             model=model,
             input_tokens=getattr(usage, 'prompt_tokens', 0) or 0,
             output_tokens=getattr(usage, 'completion_tokens', 0) or 0,
             latency_ms=latency_ms,
-            cost_usd=cost,
+            cost_usd=self._cost(litellm, resp),
         )
 
-    def embed(self, model, texts, *, api_key=None, timeout=30.0) -> EmbedResult:
+    def stream_chat(self, model, messages, *, api_key=None, timeout=30.0, api_base=None) -> ChatStream:
         import litellm
 
         started = time.monotonic()
         try:
-            resp = litellm.embedding(model=model, input=texts, api_key=api_key, timeout=timeout)
+            stream = litellm.completion(
+                model=model, messages=messages, api_key=api_key, timeout=timeout, api_base=api_base,
+                stream=True, stream_options={'include_usage': True},
+            )
+        except Exception as exc:  # noqa: BLE001 - mapped to a safe message below
+            raise self._map_error(exc) from exc
+        chunks: list = []
+
+        def deltas():
+            try:
+                for chunk in stream:
+                    chunks.append(chunk)
+                    choices = getattr(chunk, 'choices', None) or []
+                    delta = getattr(choices[0], 'delta', None) if choices else None
+                    content = getattr(delta, 'content', None) if delta else None
+                    if content:
+                        yield content
+            except ProviderError:
+                raise
+            except Exception as exc:  # noqa: BLE001 - mid-stream failure, mapped to a safe message
+                raise self._map_error(exc) from exc
+
+        def finish(text: str) -> ChatResult:
+            latency_ms = int((time.monotonic() - started) * 1000)
+            built = None
+            try:
+                built = litellm.stream_chunk_builder(chunks, messages=messages)
+            except Exception:  # noqa: BLE001 - usage/cost are best-effort for streams
+                built = None
+            usage = getattr(built, 'usage', None) if built is not None else None
+            return ChatResult(
+                text=text,
+                model=model,
+                input_tokens=getattr(usage, 'prompt_tokens', 0) or 0,
+                output_tokens=getattr(usage, 'completion_tokens', 0) or 0,
+                latency_ms=latency_ms,
+                cost_usd=self._cost(litellm, built) if built is not None else None,
+            )
+
+        return ChatStream(deltas(), finish)
+
+    def embed(self, model, texts, *, api_key=None, timeout=30.0, api_base=None, input_type=None) -> EmbedResult:
+        import litellm
+
+        started = time.monotonic()
+        extra = {'input_type': input_type} if input_type else {}
+        try:
+            resp = litellm.embedding(
+                model=model, input=texts, api_key=api_key, timeout=timeout, api_base=api_base, **extra,
+            )
         except Exception as exc:  # noqa: BLE001 - mapped to a safe message below
             raise self._map_error(exc) from exc
         latency_ms = int((time.monotonic() - started) * 1000)
