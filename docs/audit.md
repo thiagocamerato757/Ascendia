@@ -1,5 +1,7 @@
 # Auditoria do repositório — Ascendia
 
+> **Retrato da Fase 0 (2026-10-06).** Descreve o repositório *antes* das mudanças; Tailwind, `/admin` e outros itens citados aqui já foram substituídos ou removidos. O estado atual está no README e em `docs/decisions.md`.
+
 > Fase 0 da `ASCENDIA_SPEC.md` (seção 0, item 1). Levantamento do estado **antes** de implementar. Nenhum código foi alterado *no momento da auditoria*.
 > Data: 2026-10-06.
 

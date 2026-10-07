@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 from . import client
 from . import constants as c
+from .local_urls import LocalURLError, validate_local_url
 from .models import NotebookSettings, ProviderCredential
 
 _STYLE_FIELDS = ['preset', 'tone', 'length', 'language', 'answer_format', 'detail_level']
@@ -164,7 +165,7 @@ class BaseUrlForm(forms.Form):
         return provider
 
     def clean_base_url(self) -> str:
-        url = (self.cleaned_data.get('base_url') or '').strip()
-        if not (url.startswith('http://') or url.startswith('https://')):
-            raise forms.ValidationError(_('Enter a URL starting with http:// or https://.'))
-        return url.rstrip('/')
+        try:
+            return validate_local_url(self.cleaned_data.get('base_url') or '')
+        except LocalURLError as exc:
+            raise forms.ValidationError(str(exc)) from exc

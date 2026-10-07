@@ -143,6 +143,13 @@ def _openai_style_entry(m: dict) -> dict:
     return {'id': m['id'], 'kind': hint}
 
 
+def _refuse_redirect(resp) -> None:
+    if resp.is_redirect:
+        raise ProviderError(_(
+            'The server answered with a redirect. Enter its final address as the server URL.'
+        ), retryable=False)
+
+
 def list_models(provider: str, *, api_key: str | None, base_url: str, timeout: float = 10.0) -> list:
     """Fetch the models a provider exposes, as ``{"id", "kind"}`` entries.
 
@@ -157,9 +164,13 @@ def list_models(provider: str, *, api_key: str | None, base_url: str, timeout: f
     import requests
 
     base = base_url.rstrip('/')
+    # Never follow redirects from a user-supplied local server: a redirect could
+    # send the request to a host the allowlist forbids (llm/local_urls.py).
+    follow = provider not in c.LOCAL_PROVIDERS
     try:
         if provider == c.PROVIDER_OLLAMA:
-            resp = requests.get(f'{base}/api/tags', timeout=timeout)
+            resp = requests.get(f'{base}/api/tags', timeout=timeout, allow_redirects=follow)
+            _refuse_redirect(resp)
             resp.raise_for_status()
             return [{'id': m['name'], 'kind': None} for m in resp.json().get('models', [])]
         if provider == c.PROVIDER_GEMINI:
@@ -176,11 +187,14 @@ def list_models(provider: str, *, api_key: str | None, base_url: str, timeout: f
         # OpenAI-compatible: GET /models with a Bearer token. Together returns a
         # bare JSON array instead of {"data": [...]}.
         headers = {'Authorization': f'Bearer {api_key}'} if api_key else {}
-        resp = requests.get(f'{base}/models', headers=headers, timeout=timeout)
+        resp = requests.get(f'{base}/models', headers=headers, timeout=timeout, allow_redirects=follow)
+        _refuse_redirect(resp)
         resp.raise_for_status()
         payload = resp.json()
         items = payload if isinstance(payload, list) else payload.get('data', [])
         return [_openai_style_entry(m) for m in items]
+    except ProviderError:
+        raise  # already a safe, specific message (e.g. a refused redirect)
     except requests.exceptions.Timeout as exc:
         raise ProviderError(_('The provider took too long to list its models.')) from exc
     except requests.exceptions.ConnectionError as exc:

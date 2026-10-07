@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Ascendia\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-07 20:48+0000\n"
+"POT-Creation-Date: 2026-10-07 21:33+0000\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -26,149 +26,170 @@ msgstr "Aviso"
 msgid "Information"
 msgstr "Informação"
 
-#: llm/client.py:56
+#: llm/client.py:57
 msgid "The stored API key could not be read. Save the key again."
 msgstr "A chave de API armazenada não pôde ser lida. Salve a chave novamente."
 
-#: llm/client.py:142
+#: llm/client.py:150
 msgid "Save the server URL first."
 msgstr "Salve a URL do servidor primeiro."
 
-#: llm/client.py:143 templates/styleguide.html:143
+#: llm/client.py:151 templates/styleguide.html:143
 msgid "Save an API key for this provider first."
 msgstr "Salve uma chave de API para este provedor primeiro."
 
-#: llm/client.py:192
+#: llm/client.py:200
 #, python-format
 msgid "endpoint reachable — %(n)s model available"
 msgid_plural "endpoint reachable — %(n)s models available"
 msgstr[0] "endpoint acessível — %(n)s modelo disponível"
 msgstr[1] "endpoint acessível — %(n)s modelos disponíveis"
 
-#: llm/client.py:199
+#: llm/client.py:207
 msgid "No API key saved for this provider."
 msgstr "Nenhuma chave de API salva para este provedor."
 
-#: llm/client.py:203
+#: llm/client.py:211
 msgid "There is no model to test with yet. Refresh the models first."
 msgstr "Ainda não há modelo para testar. Atualize os modelos primeiro."
 
-#: llm/client.py:212
+#: llm/client.py:220
 #, python-format
 msgid "%(model)s answered in %(ms)s ms"
 msgstr "%(model)s respondeu em %(ms)s ms"
 
-#: llm/client.py:214
+#: llm/client.py:222
 msgid "The key works, but none of the test models is available to this account. Pick a model in a notebook's settings."
 msgstr "A chave funciona, mas nenhum dos modelos de teste está disponível para esta conta. Escolha um modelo nas configurações de um caderno."
 
-#: llm/constants.py:249 templates/styleguide.html:191
+#: llm/constants.py:198 templates/styleguide.html:191
 msgid "Didactic"
 msgstr "Didático"
 
-#: llm/constants.py:250
+#: llm/constants.py:199
 msgid "Analytic"
 msgstr "Analítico"
 
-#: llm/constants.py:251 templates/styleguide.html:191
+#: llm/constants.py:200 templates/styleguide.html:191
 msgid "Concise"
 msgstr "Conciso"
 
-#: llm/constants.py:252
+#: llm/constants.py:201
 msgid "Custom"
 msgstr "Personalizado"
 
-#: llm/constants.py:260
+#: llm/constants.py:209
 msgid "Formal"
 msgstr "Formal"
 
-#: llm/constants.py:261
+#: llm/constants.py:210
 msgid "Neutral"
 msgstr "Neutro"
 
-#: llm/constants.py:262
+#: llm/constants.py:211
 msgid "Informal"
 msgstr "Informal"
 
-#: llm/constants.py:270
+#: llm/constants.py:219
 msgid "Short"
 msgstr "Curto"
 
-#: llm/constants.py:271
+#: llm/constants.py:220
 msgid "Medium"
 msgstr "Médio"
 
-#: llm/constants.py:272
+#: llm/constants.py:221
 msgid "Long"
 msgstr "Longo"
 
-#: llm/constants.py:280
+#: llm/constants.py:229
 msgid "Portuguese (Brazil)"
 msgstr "Português (Brasil)"
 
-#: llm/constants.py:281
+#: llm/constants.py:230
 msgid "English"
 msgstr "Inglês"
 
-#: llm/constants.py:282
+#: llm/constants.py:231
 msgid "Spanish"
 msgstr "Espanhol"
 
-#: llm/constants.py:290
+#: llm/constants.py:239
 msgid "Prose"
 msgstr "Prosa"
 
-#: llm/constants.py:291
+#: llm/constants.py:240
 msgid "Bullet points"
 msgstr "Tópicos"
 
-#: llm/constants.py:292
+#: llm/constants.py:241
 msgid "Step by step"
 msgstr "Passo a passo"
 
-#: llm/constants.py:300
+#: llm/constants.py:249
 msgid "Beginner"
 msgstr "Iniciante"
 
-#: llm/constants.py:301
+#: llm/constants.py:250
 msgid "Intermediate"
 msgstr "Intermediário"
 
-#: llm/constants.py:302
+#: llm/constants.py:251
 msgid "Advanced"
 msgstr "Avançado"
 
-#: llm/forms.py:41
+#: llm/forms.py:42
 msgid "Optional preferences (kept subordinate to the safety rules)."
 msgstr "Preferências opcionais (subordinadas às regras de segurança)."
 
-#: llm/forms.py:91
+#: llm/forms.py:92
 msgid "Enter the model name."
 msgstr "Informe o nome do modelo."
 
-#: llm/forms.py:98
+#: llm/forms.py:99
 msgid "Choose a model available for the selected provider."
 msgstr "Escolha um modelo disponível para o provedor selecionado."
 
-#: llm/forms.py:119 llm/templates/llm/_provider_card.html:29
+#: llm/forms.py:120 llm/templates/llm/_provider_card.html:29
 msgid "API key"
 msgstr "Chave de API"
 
-#: llm/forms.py:134
+#: llm/forms.py:135
 msgid "Local providers do not use an API key."
 msgstr "Provedores locais não usam chave de API."
 
-#: llm/forms.py:140
+#: llm/forms.py:141
 msgid "Enter the API key."
 msgstr "Informe a chave de API."
 
-#: llm/forms.py:163
+#: llm/forms.py:164
 msgid "Base URL applies only to local providers."
 msgstr "A Base URL vale apenas para provedores locais."
 
-#: llm/forms.py:169
+#: llm/local_urls.py:63 llm/local_urls.py:72
+msgid "Enter a valid server URL, such as http://localhost:11434."
+msgstr "Informe uma URL de servidor válida, como http://localhost:11434."
+
+#: llm/local_urls.py:66
 msgid "Enter a URL starting with http:// or https://."
 msgstr "Informe uma URL começando com http:// ou https://."
+
+#: llm/local_urls.py:68
+msgid "Don't put a username or password in the server URL."
+msgstr "Não coloque usuário nem senha na URL do servidor."
+
+#: llm/local_urls.py:70
+msgid "The server URL cannot have a query string or fragment."
+msgstr "A URL do servidor não pode ter parâmetros de consulta (?) nem fragmento (#)."
+
+#: llm/local_urls.py:80 llm/local_urls.py:90
+msgid "This address cannot be used for a model server."
+msgstr "Este endereço não pode ser usado como servidor de modelos."
+
+#: llm/local_urls.py:86
+#, python-format
+msgid "This server is not on the list of allowed hosts (%(hosts)s). Ask whoever runs Ascendia to add it to ASCENDIA_LOCAL_LLM_ALLOWED_HOSTS."
+msgstr "Este servidor não está na lista de hosts permitidos (%(hosts)s). Peça a quem administra o Ascendia para adicioná-lo em ASCENDIA_LOCAL_LLM_ALLOWED_HOSTS."
 
 #: llm/models.py:29
 msgid "provider credential"
@@ -234,47 +255,51 @@ msgstr "Instruções extras"
 msgid "notebook settings"
 msgstr "configurações do caderno"
 
-#: llm/providers.py:185
+#: llm/providers.py:149 llm/tests/test_local_urls.py:108
+msgid "The server answered with a redirect. Enter its final address as the server URL."
+msgstr "O servidor respondeu com um redirecionamento. Informe o endereço final como URL do servidor."
+
+#: llm/providers.py:199
 msgid "The provider took too long to list its models."
 msgstr "O provedor demorou demais para listar os modelos."
 
-#: llm/providers.py:187
+#: llm/providers.py:201
 msgid "Could not connect to the provider. Check the URL/endpoint."
 msgstr "Não foi possível conectar ao provedor. Verifique a URL/endpoint."
 
-#: llm/providers.py:191 llm/providers.py:212 templates/styleguide.html:144
+#: llm/providers.py:205 llm/providers.py:226 templates/styleguide.html:144
 msgid "The provider API key is invalid or was rejected."
 msgstr "A chave de API do provedor é inválida ou foi recusada."
 
-#: llm/providers.py:194
+#: llm/providers.py:208
 msgid "This provider doesn't publish a model list. Notebooks keep using the built-in list."
 msgstr "Este provedor não publica uma lista de modelos. Os cadernos continuam usando a lista embutida."
 
-#: llm/providers.py:196
+#: llm/providers.py:210
 msgid "The provider refused to list its models."
 msgstr "O provedor recusou a listagem de modelos."
 
-#: llm/providers.py:198
+#: llm/providers.py:212
 msgid "Unexpected response from the provider while listing models."
 msgstr "Resposta inesperada do provedor ao listar modelos."
 
-#: llm/providers.py:200
+#: llm/providers.py:214
 msgid "Failed to list the provider models."
 msgstr "Falha ao listar os modelos do provedor."
 
-#: llm/providers.py:214
+#: llm/providers.py:228
 msgid "The provider took too long to respond. Try again."
 msgstr "O provedor demorou demais para responder. Tente novamente."
 
-#: llm/providers.py:216
+#: llm/providers.py:230
 msgid "The provider usage limit was reached. Try again shortly."
 msgstr "O limite de uso do provedor foi atingido. Tente novamente em instantes."
 
-#: llm/providers.py:224
+#: llm/providers.py:238
 msgid "The configured model is not available for this provider."
 msgstr "O modelo configurado não está disponível para este provedor."
 
-#: llm/providers.py:227
+#: llm/providers.py:241
 msgid "Failed to reach the LLM provider. Try again."
 msgstr "Falha ao falar com o provedor de LLM. Tente novamente."
 
@@ -627,7 +652,7 @@ msgstr "Instrução de sistema compilada"
 msgid "Key for %(provider)s saved."
 msgstr "Chave de %(provider)s salva."
 
-#: llm/views.py:77 llm/views.py:102 llm/views.py:201 workspace/views.py:50
+#: llm/views.py:77 llm/views.py:104 llm/views.py:203 workspace/views.py:50
 #: workspace/views.py:77
 msgid "Please correct the errors below."
 msgstr "Corrija os erros abaixo."
@@ -638,14 +663,15 @@ msgid "Key for %(provider)s removed."
 msgstr "Chave de %(provider)s removida."
 
 #: llm/views.py:100
-msgid "Base URL saved."
-msgstr "Base URL salva."
+#| msgid "Base URL saved."
+msgid "Server URL saved."
+msgstr "URL do servidor salva."
 
-#: llm/views.py:194
+#: llm/views.py:196
 msgid "Notebook settings saved."
 msgstr "Configurações do caderno salvas."
 
-#: llm/views.py:197
+#: llm/views.py:199
 msgid "The embedding model changed. The sources in this notebook must be re-indexed before they can be searched again."
 msgstr "O modelo de embedding foi alterado. As fontes deste caderno precisam ser reindexadas antes de poderem ser pesquisadas novamente."
 
@@ -1556,30 +1582,34 @@ msgstr "Criar conta"
 msgid "Already have an account?"
 msgstr "Já tem uma conta?"
 
-#: users/views.py:35
+#: users/views.py:38
 #, python-format
 msgid "Welcome to Ascendia, %(name)s!"
 msgstr "Bem-vindo ao Ascendia, %(name)s!"
 
-#: users/views.py:61
+#: users/views.py:64
 msgid "Your profile has been updated."
 msgstr "Seu perfil foi atualizado."
 
-#: users/views.py:81
+#: users/views.py:84
 msgid "Invalid method"
 msgstr "Método inválido"
 
-#: users/views.py:94
+#: users/views.py:97
 msgid "Avatar removed"
 msgstr "Avatar removido"
 
-#: users/views.py:112
+#: users/views.py:115
 msgid "Avatar updated"
 msgstr "Avatar atualizado"
 
-#: users/views.py:116
+#: users/views.py:119
 msgid "No avatar data provided"
 msgstr "Nenhum dado de avatar foi enviado"
+
+#: users/views.py:124
+msgid "The avatar could not be saved. Try another image."
+msgstr "Não foi possível salvar o avatar. Tente outra imagem."
 
 #: users/views_auth.py:30
 #, python-format

@@ -48,6 +48,20 @@ ASCENDIA_FERNET_KEY = os.environ.get('ASCENDIA_FERNET_KEY', '')
 # host.docker.internal so the default URLs reach the machine running Docker.
 ASCENDIA_LOCAL_LLM_HOST = os.environ.get('ASCENDIA_LOCAL_LLM_HOST', 'localhost')
 
+# Hosts that local server URLs may point to (comma-separated; '*' allows any).
+# The app fetches these URLs server-side, so on a shared instance this keeps
+# users from probing the internal network. Add a LAN model server explicitly,
+# e.g. 'localhost,host.docker.internal,192.168.0.10'. Link-local addresses
+# (cloud metadata) are refused even with '*'. See llm/local_urls.py.
+ASCENDIA_LOCAL_LLM_ALLOWED_HOSTS = [
+    h.strip()
+    for h in os.environ.get(
+        'ASCENDIA_LOCAL_LLM_ALLOWED_HOSTS',
+        f'localhost,127.0.0.1,::1,host.docker.internal,{ASCENDIA_LOCAL_LLM_HOST}',
+    ).split(',')
+    if h.strip()
+]
+
 
 # Application definition
 

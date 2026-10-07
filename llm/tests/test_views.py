@@ -50,10 +50,10 @@ class ApiKeysViewTests(FernetTestCase):
     def test_set_base_url_for_local(self):
         self.client.login(username='owner', password='pw')
         self.client.post(reverse('llm:base_url_set'), {
-            'provider': c.PROVIDER_OLLAMA, 'base_url': 'http://host:12345/',
+            'provider': c.PROVIDER_OLLAMA, 'base_url': 'http://localhost:12345/',
         })
         config = ProviderConfig.objects.get(user=self.owner, provider=c.PROVIDER_OLLAMA)
-        self.assertEqual(config.base_url, 'http://host:12345')  # trailing slash stripped
+        self.assertEqual(config.base_url, 'http://localhost:12345')  # trailing slash stripped
 
     def test_base_url_rejected_for_cloud(self):
         self.client.login(username='owner', password='pw')
@@ -83,7 +83,7 @@ class RefreshModelsViewTests(FernetTestCase):
     def setUp(self):
         super().setUp()
         self.owner = User.objects.create_user('owner', password='pw')
-        ProviderConfig.objects.create(user=self.owner, provider=c.PROVIDER_OLLAMA, base_url='http://h:11434')
+        ProviderConfig.objects.create(user=self.owner, provider=c.PROVIDER_OLLAMA, base_url='http://localhost:11434')
 
     def tearDown(self):
         providers.set_model_lister(None)
@@ -135,7 +135,7 @@ class TestProviderViewTests(FernetTestCase):
         self.assertContains(resp, 'respondeu')
 
     def test_local_reports_reachable(self):
-        ProviderConfig.objects.create(user=self.owner, provider=c.PROVIDER_OLLAMA, base_url='http://h:11434')
+        ProviderConfig.objects.create(user=self.owner, provider=c.PROVIDER_OLLAMA, base_url='http://localhost:11434')
         providers.set_model_lister(lambda p, *, api_key, base_url: ['a', 'b'])
         self.client.login(username='owner', password='pw')
         resp = self.client.post(reverse('llm:test_provider', kwargs={'provider': c.PROVIDER_OLLAMA}))

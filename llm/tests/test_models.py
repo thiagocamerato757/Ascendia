@@ -50,8 +50,8 @@ class NotebookSettingsTests(FernetTestCase):
 
     def test_credential_for_chat(self):
         settings = NotebookSettings.objects.create(notebook=self.notebook, chat_provider=c.PROVIDER_OPENAI)
-        self.assertIsNone(settings.credential_for_chat())
+        self.assertIsNone(settings.credential_for(settings.chat_provider))
         cred = ProviderCredential(user=self.user, provider=c.PROVIDER_OPENAI)
         cred.set_key('sk-1234')
         cred.save()
-        self.assertEqual(settings.credential_for_chat(), cred)
+        self.assertEqual(settings.credential_for(settings.chat_provider), cred)

@@ -84,13 +84,6 @@ PROVIDER_API_BASE = {
     PROVIDER_GEMINI: 'https://generativelanguage.googleapis.com/v1beta',
 }
 
-#: Providers that expose an OpenAI-style ``GET /models`` (Bearer-authenticated).
-OPENAI_COMPATIBLE_PROVIDERS = {
-    PROVIDER_OPENAI, PROVIDER_OPENROUTER, PROVIDER_GROQ, PROVIDER_TOGETHER,
-    PROVIDER_PERPLEXITY, PROVIDER_DEEPSEEK, PROVIDER_XAI, PROVIDER_MISTRAL,
-    PROVIDER_NVIDIA,
-    PROVIDER_LMSTUDIO, PROVIDER_LLAMACPP,
-}
 
 def base_url_for(provider: str, configured: str = '') -> str:
     """Effective Base URL: the user's value, else the local default, else the API base."""
@@ -192,34 +185,6 @@ PROVIDER_EMBEDDING_MODELS = {
     PROVIDER_LMSTUDIO: [],    # free text / refreshed from the endpoint
     PROVIDER_LLAMACPP: [],    # free text / refreshed from the endpoint
 }
-
-
-def chat_model_choices(provider: str) -> list[tuple[str, str]]:
-    """(value, label) choices for the chat model select of a given provider."""
-    return [(m, m) for m in PROVIDER_CHAT_MODELS.get(provider, [])]
-
-
-def embedding_model_choices(provider: str) -> list[tuple[str, str]]:
-    """(value, label) choices for the embedding model select of a given provider."""
-    return [(m, m) for m in PROVIDER_EMBEDDING_MODELS.get(provider, [])]
-
-
-def representative_chat_model(provider: str) -> str | None:
-    """First curated chat model of a provider, used for a connectivity test.
-
-    None for free-text providers (local, OpenRouter): there is no default model
-    to test with, so the provider is tested from a notebook instead.
-    """
-    models = PROVIDER_CHAT_MODELS.get(provider, [])
-    return models[0] if models else None
-
-
-def all_chat_models() -> list[str]:
-    return [m for models in PROVIDER_CHAT_MODELS.values() for m in models]
-
-
-def all_embedding_models() -> list[str]:
-    return [m for models in PROVIDER_EMBEDDING_MODELS.values() for m in models]
 
 
 # --- Answer style (spec §6) ------------------------------------------------

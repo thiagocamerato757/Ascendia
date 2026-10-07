@@ -138,6 +138,3 @@ class NotebookSettings(models.Model):
 
     def credential_for(self, provider: str) -> ProviderCredential | None:
         return ProviderCredential.objects.filter(user=self.notebook.user, provider=provider).first()
-
-    def credential_for_chat(self) -> ProviderCredential | None:
-        return self.credential_for(self.chat_provider)

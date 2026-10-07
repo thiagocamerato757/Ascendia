@@ -1,4 +1,5 @@
 import base64
+import logging
 import uuid
 from typing import Any
 
@@ -15,6 +16,8 @@ from django.views.generic import CreateView
 
 from .forms import ProfileUpdateForm, SignUpForm, UserUpdateForm
 from .models import Profile
+
+logger = logging.getLogger(__name__)
 
 
 class SignUpView(CreateView):
@@ -115,5 +118,8 @@ def update_avatar(request: HttpRequest) -> HttpResponse:
 
         return JsonResponse({'success': False, 'error': _('No avatar data provided')}, status=400)
 
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    except Exception:
+        # Never send internal details to the browser (spec §10.5); keep them in the log.
+        logger.exception('Avatar update failed for user %s', request.user.pk)
+        message = _('The avatar could not be saved. Try another image.')
+        return JsonResponse({'success': False, 'error': message}, status=500)

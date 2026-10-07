@@ -97,9 +97,11 @@ class BaseUrlSetView(LoginRequiredMixin, View):
             config, _created = ProviderConfig.objects.get_or_create(user=request.user, provider=provider)
             config.base_url = form.cleaned_data['base_url']
             config.save(update_fields=['base_url'])
-            messages.success(request, _('Base URL saved.'))
+            messages.success(request, _('Server URL saved.'))
         else:
-            messages.error(request, _('Please correct the errors below.'))
+            # The page redirects, so the field error has to travel in the toast.
+            errors = form.errors.get('base_url') or form.errors.get('provider') or []
+            messages.error(request, errors[0] if errors else _('Please correct the errors below.'))
         return redirect(reverse('llm:api_keys'))
 
 

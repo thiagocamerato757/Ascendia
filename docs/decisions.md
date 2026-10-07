@@ -169,3 +169,37 @@ Bug relatado pelo autor: o teste da NVIDIA NIM falhava com uma chave válida.
 ## Hugging Face removido (2026-10-07)
 
 Decisão do autor, após análise: o roteador da HF repassa as chamadas para parceiros (Together, Groq, Fireworks…) cujos modelos abertos já estão acessíveis pelo OpenRouter, pelo Together e pelo Groq. Além disso, o caminho de chat e embedding nunca foi verificado com um token real, e cada provedor traz uma lista embutida que envelhece (ver o caso da NVIDIA). Removido de `constants`, `model_catalog`, testes e README. Migração `llm/0006` (só choices). Não havia chaves, listas nem cadernos com HF no banco, então não foi preciso limpar dados. A migração `0004` mantém o nome `nvidia_huggingface` por histórico. Readicionar exige: verificar chat/embedding com token real e preencher prefixo, URL e listas embutidas (o `ProviderRegistryTests` cobra isso).
+
+## Auditoria pós-Fase 2 (2026-10-07)
+
+Validação do commit `1d62795` antes da Fase 3: 211 testes, ruff, `makemigrations --check` e `manage.py check` limpos; CI no GitHub verde (lint, testes em Postgres+pgvector, build da imagem) a partir de um checkout limpo.
+
+Corrigido na auditoria:
+- `users/views.update_avatar` devolvia `str(e)` ao navegador (viola §10.5). Agora loga a exceção e devolve uma mensagem genérica traduzida.
+- Código morto removido de `llm` (`representative_chat_model`, `chat_model_choices`, `embedding_model_choices`, `all_*_models`, `OPENAI_COMPATIBLE_PROVIDERS`, `NotebookSettings.credential_for_chat`).
+- README (seção de provedores) atualizado; `docs/audit.md` e `docs/frontend.md` marcados como retrato da Fase 0.
+
+Pendências registradas (não bloqueiam a Fase 3, mas precisam de decisão):
+- ~~**Python**~~: resolvido abaixo (CI na versão de produção).
+- ~~**SSRF**~~: resolvido abaixo (allowlist de hosts locais).
+- **HTTPS em produção**: `check --deploy` aponta HSTS, `SECURE_SSL_REDIRECT` e cookies `Secure` não configurados.
+
+## CI na versão de Python de produção (2026-10-07)
+
+- O CI lê a versão do `FROM python:X.Y-slim` do **Dockerfile** (fonte única de verdade) e define `UV_PYTHON`, que tem prioridade sobre o `.python-version` (3.14, que segue como padrão local). Um passo confere que o interpretador em uso é mesmo essa versão. Trocar a versão de produção = editar só o Dockerfile.
+- Verificado: simulação dos passos do CI numa cópia isolada (uv escolhe 3.12 apesar do `.python-version`) e a suíte inteira rodando em 3.12 dentro do container de produção.
+
+## URLs de servidores locais: allowlist (2026-10-07)
+
+O app faz GET na URL que o usuário salva para um servidor local. Numa instância compartilhada, isso permitiria sondar a rede interna (SSRF). Regras (`llm/local_urls.py`):
+
+- Só `http`/`https` com host e porta válidos; sem usuário/senha, query ou fragmento. A URL é normalizada.
+- O host precisa estar em **`ASCENDIA_LOCAL_LLM_ALLOWED_HOSTS`** (env, separado por vírgula), controlado por quem administra o servidor. Padrão: `localhost`, `127.0.0.1`, `::1`, `host.docker.internal` e o valor de `ASCENDIA_LOCAL_LLM_HOST`. Isso cobre o caso comum sem configuração e bloqueia por padrão `db`, `web` e IPs da rede. Um servidor na LAN é adicionado explicitamente; `*` libera qualquer host.
+- **Sempre recusados**, mesmo com `*` e após resolução DNS: link-local (169.254.0.0/16, `fe80::/10`, o que inclui o metadata de nuvem), multicast, não especificado e reservados. Loopback é explicitamente permitido: o Python classifica `::1` como "reservado", e os testes pegaram esse bug.
+- A validação roda **ao salvar** (a mensagem chega ao usuário no aviso, já que a página redireciona) e **antes de cada uso**, porque a allowlist pode mudar depois de salva.
+- **Sem seguir redirecionamentos** nos servidores locais (um 3xx poderia levar a um host proibido); a resposta 3xx vira uma mensagem clara.
+- Testes: `llm/tests/test_local_urls.py`.
+
+## HTTPS em produção (2026-10-07) — em aberto
+
+Os avisos do `check --deploy` (HSTS, `SECURE_SSL_REDIRECT`, cookies `Secure`) dependem de como cada pessoa hospeda: atrás de proxy com TLS, só na rede de casa por HTTP, ou só em `localhost`. Ativar fixo quebraria o uso por HTTP. **Pendente de decisão do autor**; a opção proposta é uma flag de ambiente opt-in (`DJANGO_SECURE_HTTPS`), desligada por padrão.

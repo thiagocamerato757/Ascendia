@@ -1,5 +1,7 @@
 # Auditoria de front-end — Ascendia
 
+> **Retrato da Fase 0 (2026-10-06).** Descreve o repositório *antes* das mudanças; Tailwind, `/admin` e outros itens citados aqui já foram substituídos ou removidos. O estado atual está no README e em `docs/decisions.md`.
+
 > Fase 0 da `ASCENDIA_SPEC.md` (§10: "Primeiro audite o front-end atual"). Documenta o que existe hoje em `templates/` e `static/` e compara com as regras da seção 10. Nenhum código foi alterado.
 > Data: 2026-10-06.
 

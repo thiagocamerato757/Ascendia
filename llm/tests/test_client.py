@@ -77,7 +77,7 @@ class ClientTests(FernetTestCase):
     def test_cloud_test_provider_returns_message(self):
         client.set_provider_override(FakeProvider(reply='pong'))
         message = client.test_provider(self.user, c.PROVIDER_OPENAI)
-        self.assertIn(c.representative_chat_model(c.PROVIDER_OPENAI), message)
+        self.assertIn(c.PROVIDER_CHAT_MODELS[c.PROVIDER_OPENAI][0], message)
 
     def test_test_provider_without_key_raises(self):
         client.set_provider_override(FakeProvider())
@@ -117,15 +117,15 @@ class ClientTests(FernetTestCase):
 
     def test_refresh_models_uses_configured_base_url(self):
         ProviderConfig.objects.create(
-            user=self.user, provider=c.PROVIDER_OLLAMA, base_url='http://host:9999',
+            user=self.user, provider=c.PROVIDER_OLLAMA, base_url='http://localhost:9999',
         )
         seen = {}
         providers.set_model_lister(lambda p, *, api_key, base_url: seen.setdefault('u', base_url) or ['m'])
         client.refresh_models(self.user, c.PROVIDER_OLLAMA)
-        self.assertEqual(seen['u'], 'http://host:9999')
+        self.assertEqual(seen['u'], 'http://localhost:9999')
 
     def test_local_test_provider_pings_endpoint(self):
-        ProviderConfig.objects.create(user=self.user, provider=c.PROVIDER_LMSTUDIO, base_url='http://h:1234/v1')
+        ProviderConfig.objects.create(user=self.user, provider=c.PROVIDER_LMSTUDIO, base_url='http://localhost:1234/v1')
         providers.set_model_lister(lambda p, *, api_key, base_url: ['a', 'b', 'c'])
         message = client.test_provider(self.user, c.PROVIDER_LMSTUDIO)
         self.assertIn('3', message)

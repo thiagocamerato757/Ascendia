@@ -98,20 +98,27 @@ uv run ruff check .
 As **chaves de API** são do usuário (criptografadas em repouso — Fernet, via
 `ASCENDIA_FERNET_KEY`); o **provedor, o modelo e o estilo de resposta** são **por caderno**.
 
-1. **Provedores** (`/llm/api-keys/`, link "Providers" no topo): um grid com todos os
-   provedores. Em cada card você **cola a chave** (nuvem) ou define a **Base URL** (endpoints
-   locais), clica **Atualizar modelos** para listar os modelos do provedor ao vivo e **Testar**
-   (nuvem: chamada mínima; local: reachability do endpoint). A chave é somente escrita: fica
-   criptografada e nunca volta a ser exibida. Provedores de nuvem: OpenAI, Anthropic (Claude),
-   Google Gemini, DeepSeek, Mistral, Groq, xAI (Grok), Perplexity, Together AI, NVIDIA NIM e **OpenRouter**
-   (gateway para 200+ modelos). Endpoints locais (com Base URL própria): **Ollama**, **LM
-   Studio** e **llama.cpp**.
-2. **Configurações do caderno** (botão **Settings** na página do caderno): selecione o
-   **provedor** e os **modelos** (de chat e de embedding; a lista mostra os modelos
-   carregados via "Atualizar modelos", senão a lista curada, ou texto livre para
-   OpenRouter/endpoints locais sem lista) e ajuste o **estilo** (preset, tom, tamanho,
-   idioma, formato, nível de detalhe e instruções extras). A página mostra a **instrução de
-   sistema compilada** a partir desse estilo.
+1. **Provedores** (`/llm/api-keys/`, link "Provedores" no topo), em duas seções:
+   - **Na nuvem**: OpenAI, Anthropic (Claude), Google Gemini, DeepSeek, Mistral, Groq,
+     xAI (Grok), Perplexity, Together AI, NVIDIA NIM e **OpenRouter** (gateway). Cole a
+     **chave de API** e salve. A chave fica criptografada e nunca volta a ser exibida,
+     nem parcialmente.
+   - **Servidores locais**: **Ollama**, **LM Studio** e **llama.cpp**. Salve a **URL do
+     servidor**. O campo já vem com o padrão; no Docker o padrão aponta para a sua máquina
+     (`host.docker.internal`, via `ASCENDIA_LOCAL_LLM_HOST`). Por segurança, só são aceitos
+     os hosts de `ASCENDIA_LOCAL_LLM_ALLOWED_HOSTS` (padrão: `localhost`, `127.0.0.1`, `::1`,
+     `host.docker.internal`). Para um servidor de modelos em outra máquina da rede,
+     adicione o endereço dela nessa variável (ver `.env.example`).
+
+   Depois de salvar a chave ou a URL, ficam liberados **Atualizar modelos** (busca a lista
+   ao vivo e separa modelos de chat e de embedding) e **Testar conexão** (nuvem: chamada
+   mínima, pulando modelos que o provedor lista mas não atende; local: alcance do servidor).
+2. **Configurações do caderno** (botão **Configurações** na página do caderno): selecione o
+   **provedor** e os **modelos** de chat e de embedding. A lista mostra os modelos carregados
+   pelo "Atualizar modelos"; se não houver, a lista embutida, ou texto livre quando não há
+   nenhuma. Ajuste também o **estilo** (predefinição, tom, tamanho, idioma, formato, nível de
+   detalhe e instruções extras). A página mostra a **instrução de sistema compilada**, no
+   idioma da interface.
 
 As regras de segurança (responder só pelas fontes, citar, admitir quando não encontrou)
 são fixas e nunca são sobrescritas pelo estilo ou pelas instruções extras.

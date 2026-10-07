@@ -69,6 +69,7 @@ def _response(payload, status=200):
 
     resp = mock.Mock()
     resp.status_code = status
+    resp.is_redirect = False
     resp.json.return_value = payload
     if status >= 400:
         resp.raise_for_status.side_effect = requests.exceptions.HTTPError(response=resp)
@@ -168,9 +169,9 @@ class RefreshFlowTests(FernetTestCase):
             client.refresh_models(self.user, c.PROVIDER_OLLAMA)
         self.assertEqual(ctx.exception.level, 'warning')
         self.assertEqual(calls, [])  # nothing was called
-        ProviderConfig.objects.create(user=self.user, provider=c.PROVIDER_OLLAMA, base_url='http://h:11434')
+        ProviderConfig.objects.create(user=self.user, provider=c.PROVIDER_OLLAMA, base_url='http://localhost:11434')
         client.refresh_models(self.user, c.PROVIDER_OLLAMA)
-        self.assertEqual(calls, ['http://h:11434'])
+        self.assertEqual(calls, ['http://localhost:11434'])
 
     def test_buttons_disabled_until_key_or_url_saved(self):
         self.client.force_login(self.user)
@@ -184,7 +185,7 @@ class RefreshFlowTests(FernetTestCase):
         cred = ProviderCredential(user=self.user, provider=c.PROVIDER_OPENAI)
         cred.set_key('sk-test-1234')
         cred.save()
-        ProviderConfig.objects.create(user=self.user, provider=c.PROVIDER_OLLAMA, base_url='http://h:11434')
+        ProviderConfig.objects.create(user=self.user, provider=c.PROVIDER_OLLAMA, base_url='http://localhost:11434')
         resp = self.client.get(reverse('llm:api_keys'))
         self.assertNotContains(resp, 'id="setup-openai"')
         self.assertNotContains(resp, 'id="setup-ollama"')
@@ -215,7 +216,7 @@ class RefreshFlowTests(FernetTestCase):
 
     def test_failed_refresh_keeps_previous_list(self):
         ProviderConfig.objects.create(
-            user=self.user, provider=c.PROVIDER_OLLAMA, base_url='http://h:11434',
+            user=self.user, provider=c.PROVIDER_OLLAMA, base_url='http://localhost:11434',
             model_list=[{'id': 'ollama/llama3.1', 'kind': 'chat'}],
         )
 

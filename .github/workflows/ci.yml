@@ -40,11 +40,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Test on the Python that ships in production: read it from the Dockerfile
+      # (single source of truth) instead of .python-version, which is only the
+      # local default. UV_PYTHON makes every uv command below use it.
+      - name: Use the production Python version (from the Dockerfile)
+        run: |
+          version=$(sed -nE 's/^FROM python:([0-9]+\.[0-9]+)[^ ]*.*/\1/p' Dockerfile | head -1)
+          test -n "$version" || { echo "Could not read the Python version from the Dockerfile"; exit 1; }
+          echo "Production Python: $version"
+          echo "UV_PYTHON=$version" >> "$GITHUB_ENV"
+
       - name: Install uv
         uses: astral-sh/setup-uv@v5
 
       - name: Install dependencies
         run: uv sync --frozen
+
+      - name: Confirm the interpreter in use
+        run: uv run python -c "import os, sys; v = '%d.%d' % sys.version_info[:2]; print(v); assert v == os.environ['UV_PYTHON'], v"
 
       - name: Lint (ruff)
         run: uv run ruff check .

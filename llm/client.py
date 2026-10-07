@@ -19,6 +19,7 @@ from . import constants as c
 from . import model_catalog
 from . import providers as _providers
 from .crypto import DecryptionError
+from .local_urls import LocalURLError, validate_local_url
 from .providers import BaseProvider, ChatResult, EmbedResult, FakeProvider, LiteLLMProvider, ProviderError
 
 logger = logging.getLogger('ascendia.llm')
@@ -119,7 +120,14 @@ def _provider_base_url(user, provider_name: str) -> str:
     from .models import ProviderConfig
 
     config = ProviderConfig.objects.filter(user=user, provider=provider_name).first()
-    return c.base_url_for(provider_name, config.base_url if config else '')
+    url = c.base_url_for(provider_name, config.base_url if config else '')
+    if provider_name in c.LOCAL_PROVIDERS:
+        # Re-checked on every use: the allowlist may have changed since saving.
+        try:
+            url = validate_local_url(url)
+        except LocalURLError as exc:
+            raise ProviderError(str(exc), retryable=False, level='warning') from exc
+    return url
 
 
 def _provider_api_key(user, provider_name: str) -> str | None:
