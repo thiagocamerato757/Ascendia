@@ -29,6 +29,7 @@ urlpatterns = [
     path('notes/', include('notes.urls')),
     path('llm/', include('llm.urls')),
     path('sources/', include('sources.urls')),
+    path('rag/', include('rag.urls')),
 ]
 
 if settings.DEBUG:

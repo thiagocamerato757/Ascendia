@@ -1,0 +1,15 @@
+{% load i18n %}
+<div class="c-citation-card" data-source-id="{{ citation.source_id|default:'' }}">
+  <div class="c-citation-card__head">
+    <p class="c-citation-card__title">
+      <span class="c-citation c-citation--static">{{ citation.n }}</span>
+      {{ citation.source_title }}
+    </p>
+    <button type="button" class="c-link-button" data-close-citation aria-label="{% trans 'Close passage' %}">{% trans "Close" %}</button>
+  </div>
+  <p class="c-citation-card__meta">
+    {% if citation.page %}{% blocktrans with page=citation.page %}Page {{ page }}{% endblocktrans %}{% endif %}
+    {% if citation.page and citation.section %}, {% endif %}{{ citation.section }}
+  </p>
+  <blockquote class="c-citation-card__text">{{ citation.text|linebreaksbr }}</blockquote>
+</div>

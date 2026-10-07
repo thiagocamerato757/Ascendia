@@ -1,0 +1,12 @@
+{% load i18n %}
+<article class="c-message c-message--assistant" id="message-{{ message.id }}"
+         {% if message.is_open %}data-stream-url="{% url 'rag:stream' message.id %}" data-stop-url="{% url 'rag:stop' message.id %}"{% endif %}>
+  <div class="c-message__body">
+    {% if message.is_open %}
+      <span class="c-typing" role="status"><span class="is-visually-hidden">{% trans "Writing the answer…" %}</span><span class="c-typing__dot"></span><span class="c-typing__dot"></span><span class="c-typing__dot"></span></span>
+    {% else %}{{ message.html|safe }}{% endif %}
+  </div>
+  {% if message.status == 'stopped' %}<p class="c-message__meta">{% trans "Stopped before the end." %}</p>{% endif %}
+  {% if message.status == 'error' %}{% include 'components/notice.html' with variant='danger' title=_("The answer failed") message=message.error %}{% endif %}
+  {% if message.is_open %}<button type="button" class="c-link-button c-message__stop" data-stop>{% trans "Stop" %}</button>{% endif %}
+</article>

@@ -33,8 +33,11 @@ def hit(scope: str, user_id: int, limit: int) -> bool:
     return count <= limit
 
 
-def rate_limited(scope: str, setting_name: str):
-    """View decorator: answer 429 with a short, translated message over the limit."""
+def rate_limited(scope: str, setting_name: str, *, htmx_target: str | None = None):
+    """View decorator: answer 429 with a short, translated message over the limit.
+
+    ``htmx_target``: CSS selector where HTMX should show the notice (HX-Retarget).
+    """
     def decorator(view):
         @wraps(view)
         def wrapper(request, *args, **kwargs):
@@ -46,6 +49,9 @@ def rate_limited(scope: str, setting_name: str):
                     response = render(request, 'components/notice.html', {
                         'variant': 'warning', 'title': _('Slow down'), 'message': message,
                     })
+                    if htmx_target:
+                        response['HX-Retarget'] = htmx_target
+                        response['HX-Reswap'] = 'innerHTML'
                 else:
                     response = HttpResponse(message, status=429, content_type='text/plain; charset=utf-8')
                 response['Retry-After'] = str(WINDOW_SECONDS)

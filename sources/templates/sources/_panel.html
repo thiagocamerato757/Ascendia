@@ -22,6 +22,10 @@
     </div>
   {% endif %}
 
+  {% if has_ready %}
+    {# Tells the chat that the selection below applies (unchecking all is then an error, not "search all"). #}
+    <input type="hidden" name="source_selection" value="1" form="ask-form">
+  {% endif %}
   <div id="sources-list" class="o-stack o-stack--sm"
        {% if any_active %}hx-get="{% url 'sources:panel' notebook.id %}" hx-trigger="every 3s" hx-select="#sources-list" hx-target="this" hx-swap="outerHTML"{% endif %}>
     {% for source in sources %}

@@ -179,7 +179,7 @@ class FakeProvider(BaseProvider):
                 'api_base': api_base, 'input_type': input_type}
         self.last_embed_call = call
         self.embed_calls.append(call)
-        if self.fail_with:
+        if self.fail_with and self.fail_after_tokens is None:  # a mid-stream failure leaves embeddings working
             raise ProviderError(self.fail_with)
         vectors = [hashing_embedding(t) for t in texts]
         return EmbedResult(vectors=vectors, model=model, input_tokens=sum(len(t.split()) for t in texts), latency_ms=1)

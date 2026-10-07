@@ -881,7 +881,12 @@ a:hover > .c-avatar {
   border-radius: var(--radius-sm);
   cursor: pointer;
   vertical-align: super;
+  font-family: inherit;
+  line-height: 1;
 }
+.c-citation:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+/* Number badge inside the citation card (not clickable). */
+.c-citation--static { vertical-align: baseline; cursor: default; }
 .c-citation:hover {
   color: var(--text-on-accent);
   background: var(--accent);
@@ -1088,4 +1093,106 @@ a:hover > .c-avatar {
 }
 .c-disclosure__summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .c-disclosure__body { margin-top: var(--space-3); }
+
+/* ============================ Chat ============================ */
+.c-chat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.c-chat__log {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-height: 16rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding-right: var(--space-1);
+}
+.c-chat__composer {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-2);
+}
+.c-chat__input {
+  flex: 1;
+  min-height: 3rem;
+  resize: vertical;
+}
+.c-chat__hint {
+  margin-top: calc(var(--space-3) * -1);
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+}
+.c-message__body { overflow-wrap: anywhere; }
+.c-message__body > * + * { margin-top: var(--space-2); }
+.c-message__body ul,
+.c-message__body ol { padding-left: var(--space-5); }
+.c-message__body pre {
+  overflow-x: auto;
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+}
+.c-message__meta {
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+.c-message__stop { margin-top: var(--space-2); font-size: var(--text-sm); }
+
+/* Typing indicator */
+.c-typing { display: inline-flex; gap: var(--space-1); padding-block: var(--space-1); }
+.c-typing__dot {
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: var(--radius-full);
+  background: var(--text-muted);
+  animation: c-typing 1.2s ease-in-out infinite;
+}
+.c-typing__dot:nth-child(3) { animation-delay: 0.15s; }
+.c-typing__dot:nth-child(4) { animation-delay: 0.3s; }
+@keyframes c-typing {
+  0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-3px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .c-typing__dot { animation: none; opacity: 0.6; }
+}
+
+/* Passage opened from a citation chip */
+.c-citation-viewer:empty { display: none; }
+.c-citation-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+.c-citation-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.c-citation-card__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  font-weight: var(--weight-semibold);
+  overflow-wrap: anywhere;
+}
+.c-citation-card__meta { font-size: var(--text-xs); color: var(--text-muted); }
+.c-citation-card__text {
+  max-height: 14rem;
+  overflow-y: auto;
+  padding-left: var(--space-3);
+  border-left: 3px solid var(--accent);
+  font-size: var(--text-sm);
+  color: var(--text);
+}
 

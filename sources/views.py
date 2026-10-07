@@ -40,6 +40,7 @@ def panel_context(notebook: Notebook, *, notice: dict | None = None, text_form=N
         'notebook': notebook,
         'sources': sources,
         'any_active': any(s.is_active for s in sources),
+        'has_ready': any(s.status == Source.STATUS_READY for s in sources),
         'stale_count': len(stale),
         'notice': notice,
         'text_form': text_form or TextSourceForm(),

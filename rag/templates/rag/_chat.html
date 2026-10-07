@@ -1,0 +1,45 @@
+{% load i18n %}
+{% comment %}Chat panel (center column). The answer streams into the last bubble via static/js/chat.js.{% endcomment %}
+<section id="chat-panel" class="c-panel c-chat" aria-labelledby="chat-heading"
+         data-connection-lost="{% trans 'The connection was lost. Reload the page to see the answer.' %}">
+  <header class="c-panel__head">
+    <h2 id="chat-heading" class="c-panel__title">{% trans "Conversation" %}</h2>
+    {% if messages %}
+      <button type="button" class="c-link-button" hx-post="{% url 'rag:clear' notebook.id %}" hx-target="#chat-panel"
+              hx-swap="outerHTML" hx-confirm="{% trans 'Clear the whole conversation?' %}">{% trans "Clear conversation" %}</button>
+    {% endif %}
+  </header>
+
+  <div id="chat-log" class="c-chat__log" aria-live="polite" aria-busy="false">
+    {% for message in messages %}
+      {% if message.role == 'user' %}
+        {% include 'rag/_user_message.html' with message=message %}
+      {% else %}
+        {% include 'rag/_assistant_message.html' with message=message %}
+      {% endif %}
+    {% empty %}
+      <div class="c-empty-state c-empty-state--compact" data-chat-empty>
+        {% if has_ready_sources %}
+          <p class="c-empty-state__title">{% trans "Ask about your sources" %}</p>
+          <p class="c-empty-state__text">{% trans "Answers come only from this notebook's sources, with numbered citations you can open." %}</p>
+        {% else %}
+          <p class="c-empty-state__title">{% trans "Add a source to start" %}</p>
+          <p class="c-empty-state__text">{% trans "Upload a PDF or paste text in the Sources panel. Once it is ready, ask anything about it here." %}</p>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+
+  <div id="citation-viewer" class="c-citation-viewer" aria-live="polite"></div>
+  <div id="ask-error"></div>
+
+  <form id="ask-form" class="c-chat__composer" hx-post="{% url 'rag:ask' notebook.id %}" hx-target="#chat-log"
+        hx-swap="beforeend" data-chat-form>
+    {% csrf_token %}
+    <label class="is-visually-hidden" for="ask-question">{% trans "Your question" %}</label>
+    <textarea id="ask-question" name="question" class="c-field__input c-chat__input" rows="2" required
+              maxlength="{{ max_question_chars }}" placeholder="{% trans 'Ask something about your sources…' %}"></textarea>
+    <button type="submit" class="c-button c-button--primary">{% trans "Ask" %}</button>
+  </form>
+  <p class="c-chat__hint">{% trans "Enter sends, Shift+Enter adds a line." %}</p>
+</section>
