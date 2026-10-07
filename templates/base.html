@@ -1,6 +1,7 @@
-{% load static i18n %}
+{% load static i18n assets %}
+{% get_current_language as CURRENT_LANGUAGE %}
 <!DOCTYPE html>
-<html lang="{{ LANGUAGE_CODE|default:'pt-br' }}">
+<html lang="{{ CURRENT_LANGUAGE }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,10 +16,10 @@
       } catch (e) {}
     })();
   </script>
-  <link rel="stylesheet" href="{% static 'css/tokens.css' %}">
-  <link rel="stylesheet" href="{% static 'css/base.css' %}">
-  <link rel="stylesheet" href="{% static 'css/components.css' %}">
-  <script src="{% static 'js/htmx.min.js' %}" defer></script>
+  <link rel="stylesheet" href="{% asset 'css/tokens.css' %}">
+  <link rel="stylesheet" href="{% asset 'css/base.css' %}">
+  <link rel="stylesheet" href="{% asset 'css/components.css' %}">
+  <script src="{% asset 'js/htmx.min.js' %}" defer></script>
   {% block extra_css %}{% endblock %}
   <title>{% block title %}Ascendia{% endblock %}</title>
 </head>
@@ -57,6 +58,7 @@
 
           {% if user.is_authenticated %}
             <span class="c-nav__sep"></span>
+            <a href="{% url 'llm:api_keys' %}" class="c-nav__link" title="{% trans 'Providers' %}">{% trans "Providers" %}</a>
             <a href="{% url 'profile' %}" title="{{ user.username }}">
               {% if user.profile and user.profile.avatar %}
                 <img src="{{ user.profile.avatar.url }}" alt="{{ user.username }}" class="c-avatar">

@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils.translation import gettext_lazy as _
 
 
 class Profile(models.Model):
@@ -12,24 +13,24 @@ class Profile(models.Model):
         User,
         on_delete=models.CASCADE,
         related_name='profile',
-        help_text="User associated with this profile"
+        help_text=_("User associated with this profile")
     )
     avatar = models.ImageField(
         upload_to='avatars/',
         null=True,
         blank=True,
-        help_text="User's profile picture"
+        help_text=_("User's profile picture")
     )
     whatsapp = models.CharField(
         max_length=20,
         null=True,
         blank=True,
-        help_text="User's WhatsApp number with country code (e.g., +55 11 98765-4321)"
+        help_text=_("User's WhatsApp number with country code (e.g., +55 11 98765-4321)")
     )
 
     class Meta:
-        verbose_name = "Profile"
-        verbose_name_plural = "Profiles"
+        verbose_name = _("Profile")
+        verbose_name_plural = _("Profiles")
         ordering = ['user__username']
 
     def __str__(self) -> str:

@@ -1,0 +1,12 @@
+{% comment %}
+  Inline status message (success / warning / danger / info). Usage:
+    {% include 'components/notice.html' with variant='danger' title=_("Connection failed") message=error_text %}
+  Full width; long messages wrap instead of stretching the layout.
+{% endcomment %}
+<div class="c-notice c-notice--{{ variant|default:'info' }}" role="{% if variant == 'danger' %}alert{% else %}status{% endif %}">
+  <span class="c-notice__icon" aria-hidden="true"></span>
+  <div class="c-notice__body">
+    {% if title %}<p class="c-notice__title">{{ title }}</p>{% endif %}
+    {% if message %}<p class="c-notice__message">{{ message }}</p>{% endif %}
+  </div>
+</div>

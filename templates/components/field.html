@@ -11,7 +11,11 @@
       {% if field.field.required %}<span class="c-field__required" aria-hidden="true">*</span>{% endif %}
     </label>
   {% endif %}
-  {{ field }}
+  {% if field.field.widget.input_type == 'select' %}
+    <div class="c-select">{{ field }}</div>
+  {% else %}
+    {{ field }}
+  {% endif %}
   {% if field.help_text %}
     <p class="c-field__help">{{ field.help_text }}</p>
   {% endif %}

@@ -1,0 +1,10 @@
+{% load i18n %}
+{% if error %}
+  {% if error.level == 'warning' %}
+    {% include 'components/notice.html' with variant='warning' title=_("Action needed") message=error.user_message %}
+  {% else %}
+    {% include 'components/notice.html' with variant='danger' title=_("Connection failed") message=error.user_message %}
+  {% endif %}
+{% elif message %}
+  {% include 'components/notice.html' with variant='success' title=_("Connection works") message=message %}
+{% endif %}

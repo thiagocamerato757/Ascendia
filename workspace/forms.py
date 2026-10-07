@@ -1,16 +1,17 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from .models import Notebook
 
 COLOR_CHOICES = [
-    ('#06b6d4', 'Cyan'),
-    ('#10b981', 'Mint'),
-    ('#3b82f6', 'Blue'),
-    ('#8b5cf6', 'Purple'),
-    ('#ec4899', 'Pink'),
-    ('#f59e0b', 'Amber'),
-    ('#ef4444', 'Red'),
-    ('#14b8a6', 'Teal'),
+    ('#06b6d4', _('Cyan')),
+    ('#10b981', _('Mint')),
+    ('#3b82f6', _('Blue')),
+    ('#8b5cf6', _('Purple')),
+    ('#ec4899', _('Pink')),
+    ('#f59e0b', _('Amber')),
+    ('#ef4444', _('Red')),
+    ('#14b8a6', _('Teal')),
 ]
 
 
@@ -23,7 +24,7 @@ class NotebookForm(forms.ModelForm):
         max_length=200,
         widget=forms.TextInput(attrs={
             'class': 'c-field__input',
-            'placeholder': 'My Learning Notebook',
+            'placeholder': _('My Learning Notebook'),
             'autofocus': True,
         })
     )
@@ -32,7 +33,7 @@ class NotebookForm(forms.ModelForm):
         required=False,
         widget=forms.Textarea(attrs={
             'class': 'c-field__input',
-            'placeholder': 'What will you learn in this notebook? (optional)',
+            'placeholder': _('What will you learn in this notebook? (optional)'),
             'rows': 4,
         })
     )

@@ -19,7 +19,7 @@
 
 - **SQLite → Postgres + pgvector** (D1): migração planejada para a Fase 0/3. Motivo: vetores + full-text no mesmo banco. **✅ Postgres implementado na Fase 0** (campos vetoriais/`CREATE EXTENSION vector` ficam para a Fase 3).
 - **Segredos fora do código**: `settings.py` tinha `SECRET_KEY`/`DEBUG` hardcoded e não lia o `.env`. Decisão: ligar `settings.py` ao ambiente e criar `.env.example`. Motivo: D6. **✅ implementado na Fase 0.**
-- **Idioma padrão pt-BR** (§6/§10.6): hoje `en-us`. Decisão: migrar para pt-BR com i18n na Fase 1. **Pendente (Fase 1).**
+- **Idioma padrão pt-BR** (§6/§10.6): hoje `en-us`. Decisão: migrar para pt-BR com i18n na Fase 1. **✅ implementado na Fase 1.**
 
 ## Implementadas na Fase 0 (2026-10-06)
 
@@ -44,3 +44,128 @@ Decisões de infra tomadas durante a implementação (não estavam na spec):
 - **i18n pt-BR completo:** `LANGUAGE_CODE='pt-br'`, `LocaleMiddleware`, `LANGUAGES`, `LOCALE_PATHS`; textos em `{% trans %}`/`{% blocktrans %}` e `gettext` nas views. Catálogo em `locale/pt_BR/LC_MESSAGES/`. **O `.mo` é commitado** (exceção no `.gitignore`) para servir pt-BR sem exigir GNU gettext em build/runtime; regerar com `makemessages`/`compilemessages` precisa de gettext instalado.
 - **`/styleguide/`** só com `DEBUG` (`StyleguideView` → 404 fora de DEBUG), renderizando todos os componentes e estados; verificado nos dois temas.
 - Cards clicáveis viraram `<a>` (acessibilidade; removido `onclick`/`window.location`); botões placeholder ("Upload file"/"Add link") viraram `c-button` desabilitados (sem `alert`).
+
+## Planejadas para a Fase 2 (2026-10-07)
+
+Decisões tomadas no planejamento da Fase 2 (camada de provedores, credenciais e estilo), confirmadas pelo autor:
+
+- **App `llm` novo** (spec §3): concentra provedores, credenciais, estilo e chamadas. `ProviderCredential` e `NotebookSettings` moram nele.
+- **`NotebookSettings` no app `llm`** (não em `workspace`): `OneToOne` cross-app para `workspace.Notebook`. Motivo: manter provedor/estilo/credenciais sob uma só responsabilidade (§3 lista "estilo" em `llm`).
+- **Nome de modelo = lista fixa por provedor** (choices curados), em vez de texto livre. Motivo: experiência mais guiada. Exceção: provedor **local/Ollama** usa campo de texto (nomes de modelos locais são arbitrários). A lista curada será mantida em `llm/constants.py` e revisada quando necessário.
+- **Demonstração de "muda o comportamento" = preview da instrução compilada + botão "Testar conexão"**: a tela de settings mostra o system prompt gerado por `compile_style` (read-only, atualiza ao trocar estilo) e um botão que faz uma chamada mínima ao provedor configurado (fake na suíte, real com a chave do usuário). Motivo: prova a camada ponta-a-ponta sem depender do chat da Fase 3.
+- **Chave mestra de criptografia em `ASCENDIA_FERNET_KEY`** (novo no `.env.example`/`settings.py`), sem default inseguro; erro claro se faltar. Fernet (lib `cryptography`), D6.
+- **Dependências novas**: `litellm` (D3, import lazy no provedor real) e `cryptography` (Fernet).
+
+## Implementadas na Fase 2 (2026-10-07)
+
+- **App `llm` criado** com: `constants.py` (choices de provedor/modelo/estilo), `crypto.py` (Fernet), `style.py` (`compile_style` puro + `StyleSpec`), `providers.py` (`BaseProvider`, `FakeProvider`, `LiteLLMProvider` com import lazy), `client.py` (`chat`/`embed`/`test_connection`, seleção por `NotebookSettings`, retry limitado + timeout, erros mapeados), `models.py`, `forms.py`, `views.py`, `urls.py`, `admin.py`.
+- **`NotebookSettings`** (OneToOne → `workspace.Notebook`) com chat/embedding **provider+model separados** (embeddings podem usar outro provedor; D5 — trocar embedding exige reindexar, avisado na UI — aviso dinâmico ao trocar, ver ajustes abaixo). Criado sob demanda (`get_or_create`).
+- **`ProviderCredential`** (`unique_together = user, provider`): guarda só `ciphertext` (Fernet) + `last_four`; `set_key`/`get_key`; nunca loga nem renderiza o plaintext. Admin exclui `ciphertext`/`last_four` e mostra só o mascarado.
+- **`compile_style`** anexa as 3 regras fixas **por último**, declaradas com prioridade; `extra_instructions` entram antes, marcadas como subordinadas e como dado não confiável (defesa a injection, §8/§11). Testes cobrem cada preset/tom/tamanho/idioma/formato/detalhe e a inviolabilidade das regras.
+- **Seleção de modelo**: lista curada por provedor em `constants.py`; provedor **local** usa campo de texto. Selects dependentes (provedor → modelos) via **HTMX** (`ModelOptionsView` → parcial `_model_field.html`), com fallback server-rendered correto no POST.
+- **Demonstração de comportamento**: a tela de settings mostra a **instrução compilada** (atualiza ao salvar) e tem **"Testar conexão"** (`test_connection`), que usa `FakeProvider` nos testes e o provedor real com a chave do usuário fora deles.
+- **`ASCENDIA_FERNET_KEY`** adicionada a `settings.py`/`.env.example`/`.env` e ao **CI** (chave descartável, só de teste). `UV_HTTP_TIMEOUT=300` no Dockerfile — o wheel do `litellm` (~35 MB) estourava o timeout padrão de 30 s do `uv` no build.
+- **UI** reaproveitou os componentes da Fase 1 (`c-settings-panel`, `c-select`, `c-field`, `c-toast`, `c-source-item`, `c-empty-state`) — nenhum componente novo, styleguide não precisou mudar. Link **Settings** adicionado ao `notebook_detail`.
+- **i18n pt-BR**: 64 strings novas traduzidas no catálogo; `.po`/`.mo` regenerados (gettext roda num container, ausente no host). Os testes de view afetados passaram a asseverar as strings em pt-BR (idioma padrão).
+- **Testes**: 40 novos (crypto, style, models, client com fake, views com isolamento por dono §11). Suíte total: **154 testes** na entrega (**172** após os ajustes de 2026-10-07, abaixo), verdes.
+- **Divisão final tela de APIs × caderno** (ajuste do autor em 2026-10-07, após iterar): separação por **responsabilidade**, não por entidade.
+  - **Tela de APIs** (`/llm/api-keys/`, link "API keys" no navbar): uma **lista de todos os provedores**, cada um com campo de chave (write-only, mostra só os 4 últimos) e botão **Testar** por provedor. O teste usa um modelo curado representativo do provedor (`constants.representative_chat_model`); para os de texto livre (local/OpenRouter) não há modelo padrão, então o teste é feito a partir de um caderno.
+  - **Configurações do caderno** (`/llm/notebook/<id>/settings/`): o usuário **seleciona o provedor + os modelos** (carregados conforme o provedor, via HTMX) **e** o estilo de resposta, com o preview da instrução compilada.
+  - Isso **mantém a D4** (provedor/modelo por caderno) — o `UserLLMSettings` criado numa iteração anterior foi **removido**; provedor/modelo voltaram para `NotebookSettings`. O `client.chat/embed` recebe `NotebookSettings`; o teste por provedor usa `client.test_provider(user, provider)`. O tema claro/escuro ("estilo do site") segue global no navbar.
+  - **Visual da tela de APIs** inspirado no OpenClaude (ref. do autor): **grid de cards** (`o-grid`), um por provedor, com **badge de status** (Configurado/Chave faltando/Sem chave necessária) + campo de chave + botões Salvar/Testar/Remover por card. Adicionadas as variantes `c-badge--success`/`c-badge--warning` (cor do token + `--surface-hover`, como `c-source-item__status`) e incluídas no styleguide. Seção Runtime/proxy/rate-limit do OpenClaude ficou de fora (não pedida).
+- **Endpoints locais separados + "Refresh models" dinâmico** (pedido do autor em 2026-10-07):
+  - O provedor genérico `local` foi substituído por três endpoints — **Ollama, LM Studio, llama.cpp** — cada um com **Base URL** configurável (padrões `localhost:11434` / `:1234/v1` / `:8080/v1`). `LOCAL_PROVIDERS`/`DEFAULT_BASE_URLS` em `constants.py`.
+  - Novo modelo **`ProviderConfig`** (único por `user`+`provider`): guarda `base_url` e a lista de modelos (`model_list`) carregada da API, com `models_updated_at`.
+  - **"Refresh models"** por provedor: `providers.list_models(provider, api_key, base_url)` consulta a API ao vivo — Ollama `/api/tags`, Gemini `/models?key=`, Anthropic `/v1/models`, demais `GET /models` estilo OpenAI (Bearer). Usa `requests` (dep. explícita agora); `providers.set_model_lister` injeta um fake nos testes. Os modelos carregados aparecem nos selects do caderno (`client.available_models`: lista carregada ∪ curada; cai para texto livre só quando não há lista).
+  - **Teste por provedor**: nuvem = chat mínimo com modelo representativo; local = reachability via `list_models`. `client.test_provider` retorna uma mensagem curta.
+  - Base URLs resolvidas por `constants.base_url_for`; `PROVIDER_API_BASE`/`OPENAI_COMPATIBLE_PROVIDERS` mapeiam os endpoints de nuvem. **A rota de chat/embedding com modelos locais (prefixo LiteLLM + `api_base`) é da Fase 3** — aqui o caminho local exercitado é só a listagem/reachability.
+- **Mais provedores de LLM** (pedido do autor em 2026-10-07, "como o openclaude tem"): além de OpenAI/Anthropic/Gemini/DeepSeek/local (spec §5), adicionados **Mistral, Groq, xAI (Grok), Perplexity, Together AI** (listas curadas em `constants.py`) e **OpenRouter** como *gateway* de texto livre (200+ modelos), junto do local. Todos suportados pelo LiteLLM; a chave por provedor e o roteamento por prefixo de modelo já eram genéricos, então não exigiu mudança na camada de client/credenciais. `FREE_TEXT_MODEL_PROVIDERS = {local, openrouter}`.
+- **Django admin removido por completo** (não está na spec; decisão do autor em 2026-10-07): `django.contrib.admin` saiu de `INSTALLED_APPS`, a rota `/admin/` saiu de `core/urls.py` e os `admin.py` (`llm`, `users`) foram apagados. Motivo: o Ascendia é auto-hospedável e **toda configuração é do usuário final**, feita na própria UI (perfil, cadernos, notas, chaves de API em `/llm/credentials/`, settings por caderno). Admin não fica disponível nem em produção nem em dev. `createsuperuser` deixou de ser parte do fluxo (removido do README).
+
+## Ajustes pós-auditoria da Fase 2 (2026-10-07)
+
+Correções do que a auditoria da Fase 2 apontou como faltante ou divergente da spec:
+
+- **Aviso de reindexação ao trocar o modelo de embedding** (spec §5, D5): ao salvar as configurações do caderno com `embedding_provider`/`embedding_model` diferentes dos salvos, a tela mostra um aviso (`messages.warning`). O texto estático de ajuda já existia; agora há o aviso no momento da troca. **O botão de reindexar fica para a Fase 3**, quando existirem fontes para reindexar.
+- **Retry só em falhas transitórias**: `ProviderError` ganhou `retryable` (padrão `True`). Chave inválida (`AuthenticationError`) e modelo inexistente (`BadRequest`/`NotFound`) são marcados como `retryable=False` e não são repetidos. Motivo: repetir um erro que o retry não resolve só dobra a espera do usuário.
+- **Dropdowns no tema escuro**: o popup nativo do `<select>` usava fundo branco, com o texto claro do tema, o que deixava as opções ilegíveis. Correção: `color-scheme` por tema em `tokens.css` (popup nativo escuro no escuro) e o token sólido `--surface-menu` para o fundo das opções (`--surface-raised` é translúcido, então não serve).
+- **i18n consistente**: todo texto de interface passa por `{% trans %}` nos templates e por `gettext`/`gettext_lazy` no Python (labels, placeholders, `help_text`, nomes de cores, mensagens de view e de JSON de avatar, `alt` do avatar no JS). Não são traduzidos: nomes de marca (OpenAI, Ascendia, WhatsApp, provedores), exemplos de formato (`+55 11 98765-4321`, `sk-...`, `llama3.1, mistral, ...`) e URLs.
+- **Catálogo pt_BR**: 58 traduções novas ou corrigidas (inclusive 17 entradas `fuzzy`, cujas sugestões automáticas estavam erradas, ex.: "Enter your username" → "Informe o nome do modelo."). Entradas obsoletas removidas. `.po` e `.mo` regenerados. `gettext` foi instalado temporariamente no container `web` para isso, sem alterar a imagem.
+- **Testes** (primeira rodada): 172 passando (eram 168). Novos: retry de erro não transitório e transitório, aviso de reindexação (troca e não troca). O teste de avatar passou a asseverar a mensagem em pt-BR.
+
+## Ajustes de front-end após teste do autor (2026-10-07)
+
+- **Cache-busting dos estáticos**: o ajuste de cor dos dropdowns não aparecia porque o navegador reaproveitava o `tokens.css` antigo do cache (a URL `/static/css/tokens.css` nunca mudava, nem após rebuild). Criada a tag `{% asset %}` (`core/templatetags/assets.py`), que anexa `?v=<hash do conteúdo>` às URLs de CSS/JS. Em DEBUG o hash é recalculado a cada render; fora dele, uma vez por processo. Registrada em `TEMPLATES['OPTIONS']['libraries']`, porque `core` não é app instalado. Preferida ao `ManifestStaticFilesStorage`, que exige `collectstatic` nos testes e não versiona URLs em DEBUG.
+- **Dropdown temático com `appearance: base-select`** (select customizável do Chromium 135+), dentro de `@supports`: o popup usa `--surface-menu`, borda, raio e sombra do tema, e a opção selecionada usa `--accent-strong`. Sem isso, a linha em foco usava o azul-claro fixo do Windows, com texto claro e pouco contraste. Navegadores sem suporte ficam com o popup nativo escurecido via `color-scheme`. O texto selecionado fica numa linha com reticências, como no nativo.
+- **`components/field.html` envolve selects em `.c-select`** (detecta `widget.input_type == 'select'`): os campos de estilo do caderno não tinham a seta do componente.
+- **Rótulos dos campos de `NotebookSettings`** via `verbose_name` traduzível (migração `llm/0002_field_labels`, só metadados, sem mudança no banco). Antes "Preset", "Tone", "Length", "Language", "Answer format" e "Detail level" apareciam em inglês. Também traduzidos: "Base URL" → "URL base", rótulos das notificações e título do guia de estilo.
+- **"Workspace" → "Espaço de Trabalho"** em pt-BR (decisão do autor). No meio de frase fica em minúsculas ("Voltar para o espaço de trabalho").
+- **Testes**: 175 passando (novos: tag `{% asset %}`).
+
+## Idioma da interface segue o navegador (2026-10-07)
+
+Regra do autor: **todo texto de interface é traduzido conforme o idioma do navegador**.
+
+- **Mecanismo**: o `LocaleMiddleware` (já ativo desde a Fase 1) escolhe o idioma pelo `Accept-Language`, entre `LANGUAGES` (`pt-br`, `en`). Variantes caem no idioma-base (`pt-PT` → `pt-br`, `en-GB` → `en`). Idioma não suportado cai no `LANGUAGE_CODE` (`pt-br`). Os textos-fonte são em inglês e o catálogo `pt_BR` traz as traduções.
+- **Regra para código novo**: nenhum texto visível escrito direto em português ou inglês. Nos templates use `{% trans %}`/`{% blocktrans %}`; no Python use `gettext`/`gettext_lazy`, com o texto-fonte em inglês. Depois, rode `makemessages` e traduza no `.po`.
+- **Corrigido**: as mensagens de erro e status dos provedores (`llm/client.py`, `llm/providers.py`) estavam fixas em português e passaram para `gettext`. O `<html lang>` estava sempre `pt-br`, porque usava `LANGUAGE_CODE` sem o context processor de i18n. Agora usa `{% get_current_language %}`.
+- **A instrução compilada (`compile_style`) também segue o idioma da interface** (decisão do autor, revendo a exceção inicial). Os textos são `gettext_lazy` com fonte em inglês. O português no catálogo é idêntico ao texto anterior, então a saída em pt-BR não mudou. A prévia continua mostrando exatamente o que o modelo recebe: a instrução sai no idioma de quem usa o app, e o **idioma da resposta** continua sendo a configuração "Idioma" do caderno, numa linha explícita (ex.: interface em inglês com "Answer in Brazilian Portuguese."). `compile_style(settings, ui_language=None)` usa o idioma ativo por padrão. **Na Fase 3**, se a instrução for compilada fora de uma requisição (tarefa em segundo plano), passe `ui_language` explicitamente; senão ela cai no `LANGUAGE_CODE`. `FIXED_RULES` virou tupla lazy; use `fixed_rules(ui_language)` para obter as regras como `str`.
+- **Testes**: 185 passando. `core/tests.py::BrowserLanguageTests` cobre UI em inglês e em português, `<html lang>`, fallback de idioma não suportado e mensagens de provedor nos dois idiomas. `llm/tests/test_style.py` cobre a instrução em inglês e em português, a independência entre idioma da interface e idioma da resposta, e as regras fixas em inglês.
+
+## Tela de provedores e refresh de modelos (2026-10-07)
+
+O refresh é o que alimenta os dropdowns de modelo das configurações do caderno. Na revisão apareceram estes defeitos, agora corrigidos:
+
+- **Ids sem prefixo do LiteLLM**: o refresh gravava `llama-3.3-70b`, mas o LiteLLM precisa de `groq/llama-3.3-70b` para rotear, e a lista curada já usava prefixo. Agora `llm/model_catalog.py` normaliza tudo para o id do LiteLLM (`LITELLM_PREFIX` por provedor; llama.cpp vira `openai/<modelo>`, por ser compatível com a API da OpenAI).
+- **Chat e embedding misturados**: a mesma lista ia para os dois dropdowns, inclusive modelos de áudio e imagem. Agora cada modelo é gravado como `{"id", "kind"}`. O tipo vem dos metadados da API quando existem (Gemini `supportedGenerationMethods`, Together `type`, Mistral `capabilities`) e, se não, do nome. Áudio, imagem e moderação são descartados. Listas antigas (só strings) continuam sendo lidas.
+- **Formato e paginação por provedor**: o Together devolve um array puro (antes caía no erro genérico). Anthropic (`limit=1000`) e Gemini (`pageSize=1000`) eram truncados na primeira página. Um 404 (provedor sem endpoint de listagem, como Perplexity) gera mensagem clara, e a lista embutida continua valendo.
+- **Refresh e teste só depois da configuração** (decisão do autor): "Atualizar modelos" e "Testar conexão" ficam desabilitados, com uma linha explicando o que falta, até haver **chave salva** (nuvem, inclusive OpenRouter) ou **URL do servidor salva** (locais; a URL padrão vem pré-preenchida, basta salvar). O servidor aplica a mesma regra (`client.provider_ready`): chamar o endpoint direto devolve um aviso sem consultar o provedor.
+- **Fallback por tipo**: se o refresh não trouxe modelos de um tipo, o dropdown daquele tipo usa a lista curada. Refresh com falha mantém a lista anterior.
+- **Modelo já salvo continua válido**: se um refresh não lista mais o modelo salvo no caderno (renomeado, descontinuado), salvar o caderno não falha por isso.
+- **Servidores locais dentro do Docker**: `localhost` no container é o próprio container, então o Ollama da máquina nunca era encontrado. Novo `ASCENDIA_LOCAL_LLM_HOST` (padrão `localhost`). O `docker-compose.yml` define `host.docker.internal` + `extra_hosts: host-gateway`, para funcionar também no Linux. URLs já salvas manualmente não mudam.
+- **Erros com nível**: `ProviderError.level` é `'warning'` quando falta uma ação do usuário (salvar a chave) e `'error'` quando a chamada falhou. A UI mostra aviso amarelo ou erro vermelho conforme o nível.
+
+Visual e textos:
+
+- **Página em duas seções**: "Provedores na nuvem" (chave) e "Servidores locais" (URL), cada uma com uma linha explicando o que é preciso.
+- **Card `c-provider`**: nome + selo ("Chave salva" / "Sem chave" / "Local"), campo **com rótulo visível** ("Chave de API" / "URL do servidor") e ajuda ("A chave salva termina em ••••abcd" / "Padrão: …"), linha de modelos ("12 modelos de chat, 2 de embedding. Atualizado em …" ou "Lista embutida: 5 modelos de chat."), grade de ações e área de resultado.
+- **Objeto `o-button-grid`**: 2 colunas de largura igual. Os botões preenchem a célula e quebram o texto dentro dela, então as fileiras se alinham entre cards independentemente do tamanho do rótulo. Formulários HTMX dentro dele usam `display: contents`. "Remover chave" aparece desabilitado quando não há chave, para todos os cards de nuvem terem o mesmo desenho. Nova variante `c-button--danger-outline`.
+- **Componente `c-notice`** (`templates/components/notice.html`): mensagem em linha, de largura total, com título e texto que quebra linha. Variantes success/warning/danger/info, mesma linguagem de cor dos toasts. Usado pelo refresh e pelo teste. Substitui o selo apertado e o toast estático. Está no guia de estilo.
+- **Cards com altura própria** (`align-self: start`): um aviso num card não abre vão nos vizinhos. Como os cards têm a mesma estrutura, os botões já se alinham.
+- **Grade mais larga** (`o-grid--wide`, mínimo 21rem): 3 colunas em telas comuns, sem quebrar nomes de provedor nem rótulos de botão.
+- **Carregando**: botão que dispara HTMX mostra spinner enquanto a requisição roda.
+- **Vocabulário único**: a página, o link do menu e o botão nas configurações do caderno se chamam "Provedores" (antes "Chaves de API" num lugar e "Provedores" em outro). Botões dizem a ação: "Salvar chave", "Remover chave", "Atualizar modelos", "Testar conexão". O rótulo do OpenRouter virou só "OpenRouter" (migração `llm/0003`, só metadados).
+- **Testes**: 205 passando. `llm/tests/test_model_catalog.py` cobre o bloqueio de refresh/teste antes de chave/URL, prefixo, classificação, normalização, formatos de Together/Gemini/Anthropic, 404, refresh sem chave, OpenRouter sem chave, separação chat/embedding, fallback, refresh com falha mantendo a lista, modelo salvo continuando válido e agrupamento da página.
+
+## Provedores NVIDIA NIM e Hugging Face (2026-10-07)
+
+Pedido do autor.
+
+- **NVIDIA NIM** (`nvidia_nim`): API do catálogo da NVIDIA (`https://integrate.api.nvidia.com/v1`), compatível com OpenAI, com o prefixo LiteLLM `nvidia_nim/`. A listagem mistura chat, embedding e rerank; a classificação por nome separa os tipos (em 2026-10-07: 80 modelos, que viram 69 de chat e 7 de embedding). NIM auto-hospedado (container local) não foi incluído; dá para usar via llama.cpp/LM Studio ou como provedor novo, se for pedido.
+- **Hugging Face** (`huggingface`): Inference Providers via router (`https://router.huggingface.co/v1`), com o prefixo `huggingface/`. O `/models` do router lista **só modelos de chat** (134). Os de embedding (`BAAI/bge-m3`, `all-MiniLM-L6-v2`, via HF Inference) ficam **na lista embutida**, e o dropdown de embedding usa essa lista mesmo depois do refresh.
+- Listas embutidas escolhidas entre ids que existiam na listagem real na data. Migração `llm/0004` (só choices).
+- **Invariante testada** (`ProviderRegistryTests`): todo provedor precisa ter prefixo LiteLLM, URL de listagem/padrão e entrada nas listas embutidas, e todo id embutido já precisa estar com prefixo. Um provedor novo incompleto quebra a suíte.
+
+## Chave de API nunca exibida, nem parcialmente (2026-10-07)
+
+**Diverge da spec §5** ("na interface, mostrar só os quatro últimos caracteres"), por decisão do autor: nenhum caractere da chave aparece depois de salva.
+
+- O campo `ProviderCredential.last_four` foi **removido** (migração `llm/0005`, que apaga os valores já guardados) e `crypto.last_four` deixou de existir. Como o dado não é exibido, também não é guardado: o banco fica só com o ciphertext.
+- O card mostra "Há uma chave salva e criptografada." e o selo "Chave salva". A mensagem ao salvar diz só "Chave de <provedor> salva." `__str__` não inclui nada da chave.
+- Isso substitui as menções a `last_four`/"4 últimos caracteres" nas seções anteriores deste arquivo.
+- Testes garantem que a página não mostra nem os últimos caracteres depois de salvar.
+
+## Teste de conexão resistente a modelos indisponíveis (2026-10-07)
+
+Bug relatado pelo autor: o teste da NVIDIA NIM falhava com uma chave válida.
+
+- **Causa**: o teste usava só o 1º modelo da lista embutida (`nvidia/llama-3.1-nemotron-70b-instruct`). O catálogo público da NVIDIA o lista, mas a API responde **404 "Function not found for account"**. Testado com a chave real do autor: dos 10 modelos de chat, só 2 responderam; os outros deram 404 ou **410 Gone** (descontinuados). Dos 10 de embedding, só 2.
+- **Teste com fallback**: `client.test_provider` tenta os candidatos em ordem (lista embutida; sem ela, os 3 primeiros do refresh, como no OpenRouter) e pula os que dão 404/410 (`ProviderError.code == MODEL_UNAVAILABLE`). Chave inválida, limite ou timeout encerram na hora. Se nenhum responder, o aviso diz que a chave funciona mas nenhum modelo de teste está disponível.
+- **410 reconhecido**: o LiteLLM levanta 410 como `APIError` genérico. `_map_error` agora olha `status_code` 404/410 e devolve "modelo indisponível" (sem retry), em vez de "falha ao falar com o provedor" com retry.
+- **Lista embutida da NVIDIA reduzida ao que responde** (verificado em 2026-10-07): chat `nemotron-3-super-120b-a12b` e `openai/gpt-oss-20b`; embedding `nemotron-3-embed-1b`.
+- **Limitação conhecida**: o refresh da NVIDIA continua trazendo os modelos que o catálogo lista, inclusive os que não respondem, porque a API de listagem não diz quais funcionam. Escolher um desses no caderno resulta em "modelo indisponível" na hora do uso. Verificar cada modelo no refresh exigiria uma chamada por modelo (80+).
+- **Para a Fase 3**: modelos de embedding **assimétricos** da NVIDIA (ex.: `llama-nemotron-embed-vl-1b-v2`) exigem `input_type` (`passage` ao indexar, `query` ao buscar). `client.embed` ainda não envia esse parâmetro e precisa enviar quando a ingestão/busca for implementada.
+
+## Hugging Face removido (2026-10-07)
+
+Decisão do autor, após análise: o roteador da HF repassa as chamadas para parceiros (Together, Groq, Fireworks…) cujos modelos abertos já estão acessíveis pelo OpenRouter, pelo Together e pelo Groq. Além disso, o caminho de chat e embedding nunca foi verificado com um token real, e cada provedor traz uma lista embutida que envelhece (ver o caso da NVIDIA). Removido de `constants`, `model_catalog`, testes e README. Migração `llm/0006` (só choices). Não havia chaves, listas nem cadernos com HF no banco, então não foi preciso limpar dados. A migração `0004` mantém o nome `nvidia_huggingface` por histórico. Readicionar exige: verificar chat/embedding com token real e preencher prefixo, URL e listas embutidas (o `ProviderRegistryTests` cobra isso).

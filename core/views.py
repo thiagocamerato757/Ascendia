@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.http import Http404
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView
 
 
@@ -31,9 +32,9 @@ class StyleguideView(TemplateView):
             ('warning', '--warning'),
         ]
         context['toasts'] = [
-            ('success', 'Success'),
-            ('error', 'Error'),
-            ('warning', 'Warning'),
-            ('info', 'Information'),
+            ('success', _('Success')),
+            ('error', _('Error')),
+            ('warning', _('Warning')),
+            ('info', _('Information')),
         ]
         return context

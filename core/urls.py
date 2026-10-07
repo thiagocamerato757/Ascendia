@@ -16,17 +16,18 @@ Including another URLconf
 """
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib import admin
 from django.urls import include, path
 
 from core.views import HomeView, StyleguideView
 
+# No Django admin route on purpose (see INSTALLED_APPS / docs/decisions.md):
+# the end user configures everything through the app, in prod and in dev alike.
 urlpatterns = [
     path('', HomeView.as_view(), name='home'),
-    path('admin/', admin.site.urls),
     path('users/', include('users.urls')),
     path('workspace/', include('workspace.urls')),
     path('notes/', include('notes.urls')),
+    path('llm/', include('llm.urls')),
 ]
 
 if settings.DEBUG:

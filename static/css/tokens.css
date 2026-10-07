@@ -95,6 +95,8 @@
   --surface-sunken: var(--neutral-100);
   --surface-overlay: rgba(15, 23, 42, 0.55);
   --surface-hover: var(--neutral-100);
+  --surface-menu: var(--neutral-0);
+  color-scheme: light;
   --text: var(--neutral-900);
   --text-muted: var(--neutral-500);
   --text-subtle: var(--neutral-400);
@@ -129,6 +131,8 @@
     --surface-sunken: var(--neutral-950);
     --surface-overlay: rgba(0, 0, 0, 0.6);
     --surface-hover: rgba(255, 255, 255, 0.10);
+    --surface-menu: var(--neutral-900);
+    color-scheme: dark;
     --text: #f8fafc;
     --text-muted: rgba(248, 250, 252, 0.65);
     --text-subtle: rgba(248, 250, 252, 0.40);
@@ -156,6 +160,8 @@
   --surface-sunken: var(--neutral-950);
   --surface-overlay: rgba(0, 0, 0, 0.6);
   --surface-hover: rgba(255, 255, 255, 0.10);
+  --surface-menu: var(--neutral-900);
+  color-scheme: dark;
   --text: #f8fafc;
   --text-muted: rgba(248, 250, 252, 0.65);
   --text-subtle: rgba(248, 250, 252, 0.40);

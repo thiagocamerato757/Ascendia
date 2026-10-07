@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from workspace.forms import COLOR_CHOICES
 
@@ -10,7 +11,7 @@ class NoteForm(forms.ModelForm):
         max_length=200,
         widget=forms.TextInput(attrs={
             'class': 'c-field__input',
-            'placeholder': 'Note title',
+            'placeholder': _('Note title'),
             'autofocus': True,
         })
     )
@@ -19,7 +20,7 @@ class NoteForm(forms.ModelForm):
         required=False,
         widget=forms.Textarea(attrs={
             'class': 'c-field__input',
-            'placeholder': 'Write your note here... (optional)',
+            'placeholder': _('Write your note here... (optional)'),
             'rows': 12,
         })
     )
@@ -34,7 +35,7 @@ class TagForm(forms.ModelForm):
         max_length=50,
         widget=forms.TextInput(attrs={
             'class': 'c-field__input',
-            'placeholder': 'Tag name',
+            'placeholder': _('Tag name'),
             'autofocus': True,
         })
     )

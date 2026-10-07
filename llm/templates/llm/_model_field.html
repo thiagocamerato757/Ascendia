@@ -1,0 +1,16 @@
+{% load i18n %}
+{% if free_text %}
+  <input type="text" name="{{ field_name }}" value="{{ current|default:'' }}"
+         class="c-field__input" placeholder="llama3.1, mistral, ...">
+{% else %}
+  <div class="c-select">
+    <select name="{{ field_name }}" class="c-field__control c-select__control">
+      {% if not models %}
+        <option value="">{% trans "— none available —" %}</option>
+      {% endif %}
+      {% for m in models %}
+        <option value="{{ m }}" {% if m == current %}selected{% endif %}>{{ m }}</option>
+      {% endfor %}
+    </select>
+  </div>
+{% endif %}

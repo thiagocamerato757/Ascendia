@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Styleguide - Ascendia{% endblock %}
+{% block title %}{% trans "Styleguide" %} - Ascendia{% endblock %}
 
 {% block content %}
 <div class="o-container o-section o-stack o-stack--lg">
   <div class="o-stack o-stack--sm">
-    <h1 class="text-4xl">Styleguide</h1>
+    <h1 class="text-4xl">{% trans "Styleguide" %}</h1>
     <p class="text-muted">
       {% trans "Living reference of tokens and components. Use the navbar toggle to check both themes." %}
     </p>
@@ -28,9 +28,9 @@
   <!-- Typography -->
   <section class="c-card o-stack">
     <h2 class="text-2xl">{% trans "Typography" %}</h2>
-    <h1>Heading 1 — Space Grotesk</h1>
-    <h2>Heading 2</h2>
-    <h3>Heading 3</h3>
+    <h1>{% trans "Heading 1" %} — Space Grotesk</h1>
+    <h2>{% trans "Heading 2" %}</h2>
+    <h3>{% trans "Heading 3" %}</h3>
     <p>{% trans "Body text in Inter. The quick brown fox jumps over the lazy dog." %}</p>
     <p class="text-muted">{% trans "Muted text." %}</p>
     <p><a href="#">{% trans "A link" %}</a> · <span class="text-brand">{% trans "Brand gradient" %}</span></p>
@@ -40,17 +40,18 @@
   <section class="c-card o-stack">
     <h2 class="text-2xl">{% trans "Buttons" %}</h2>
     <div class="o-cluster">
-      <button class="c-button c-button--primary">Primary</button>
-      <button class="c-button c-button--secondary">Secondary</button>
-      <button class="c-button c-button--outline">Outline</button>
-      <button class="c-button c-button--danger">Danger</button>
-      <button class="c-button c-button--primary" disabled>Disabled</button>
-      <button class="c-button c-button--primary is-loading">Loading</button>
+      <button class="c-button c-button--primary">{% trans "Primary" %}</button>
+      <button class="c-button c-button--secondary">{% trans "Secondary" %}</button>
+      <button class="c-button c-button--outline">{% trans "Outline" %}</button>
+      <button class="c-button c-button--danger">{% trans "Danger" %}</button>
+      <button class="c-button c-button--danger-outline">{% trans "Danger outline" %}</button>
+      <button class="c-button c-button--primary" disabled>{% trans "Disabled" %}</button>
+      <button class="c-button c-button--primary is-loading">{% trans "Loading" %}</button>
     </div>
     <div class="o-cluster">
-      <button class="c-button c-button--primary c-button--sm">Small</button>
-      <button class="c-button c-button--primary">Default</button>
-      <button class="c-button c-button--primary c-button--lg">Large</button>
+      <button class="c-button c-button--primary c-button--sm">{% trans "Small" %}</button>
+      <button class="c-button c-button--primary">{% trans "Default" %}</button>
+      <button class="c-button c-button--primary c-button--lg">{% trans "Large" %}</button>
     </div>
   </section>
 
@@ -64,7 +65,7 @@
     </div>
     <div class="c-field">
       <label class="c-field__label">{% trans "With error" %}</label>
-      <input class="c-field__input" type="text" value="invalid">
+      <input class="c-field__input" type="text" value="{% trans 'invalid' %}">
       <p class="c-field__error">{% trans "This field has an error." %}</p>
     </div>
     <div class="c-field">
@@ -91,9 +92,11 @@
   <section class="c-card o-stack">
     <h2 class="text-2xl">{% trans "Badges, tags & callouts" %}</h2>
     <div class="o-cluster">
-      <span class="c-badge">Badge</span>
-      <span class="c-badge c-badge--muted">Muted</span>
-      <span class="c-tag c-tag--demo">tag</span>
+      <span class="c-badge">{% trans "Badge" %}</span>
+      <span class="c-badge c-badge--muted">{% trans "Muted" %}</span>
+      <span class="c-badge c-badge--success">{% trans "Configured" %}</span>
+      <span class="c-badge c-badge--warning">{% trans "Missing key" %}</span>
+      <span class="c-tag c-tag--demo">{% trans "tag" %}</span>
     </div>
     <div class="c-callout">
       <div class="c-callout__body"><p class="c-callout__title">{% trans "Callout" %}</p><p>{% trans "Neutral informational box." %}</p></div>
@@ -128,6 +131,24 @@
           <div><div class="c-toast__title">{{ title }}</div><div class="c-toast__message">{% trans "Example message." %}</div></div>
         </div>
       {% endfor %}
+    </div>
+  </section>
+
+  <!-- Inline notices + equal-width button grid -->
+  <section class="c-card o-stack">
+    <h2 class="text-2xl">{% trans "Inline notices" %}</h2>
+    <p class="text-muted">{% trans "Result of an action shown in place. Long messages wrap; buttons in a button grid share the same width." %}</p>
+    <div class="o-stack o-stack--sm">
+      {% include 'components/notice.html' with variant='success' title=_("Models updated") message=_("Example message.") %}
+      {% include 'components/notice.html' with variant='warning' title=_("Action needed") message=_("Save an API key for this provider first.") %}
+      {% include 'components/notice.html' with variant='danger' title=_("Connection failed") message=_("The provider API key is invalid or was rejected.") %}
+      {% include 'components/notice.html' with variant='info' title=_("Callout") message=_("Example message.") %}
+    </div>
+    <div class="o-button-grid">
+      <button class="c-button c-button--primary c-button--sm">{% trans "Save key" %}</button>
+      <button class="c-button c-button--danger-outline c-button--sm">{% trans "Remove key" %}</button>
+      <button class="c-button c-button--secondary c-button--sm">{% trans "Refresh models" %}</button>
+      <button class="c-button c-button--secondary c-button--sm">{% trans "Test connection" %}</button>
     </div>
   </section>
 
@@ -181,9 +202,9 @@
       <div class="c-message c-message--user">{% trans "What does the source say about X?" %}</div>
       <div class="c-message c-message--assistant">{% trans "According to the sources, X means… " %}<span class="c-citation">1</span></div>
     </div>
-    <div class="c-source-item"><span class="c-source-item__title">document.pdf</span><span class="c-source-item__status c-source-item__status--ready">ready</span></div>
-    <div class="c-source-item"><span class="c-source-item__title">notes.txt</span><span class="c-source-item__status c-source-item__status--processing">processing</span></div>
-    <div class="c-source-item"><span class="c-source-item__title">broken.pdf</span><span class="c-source-item__status c-source-item__status--failed">failed</span></div>
+    <div class="c-source-item"><span class="c-source-item__title">document.pdf</span><span class="c-source-item__status c-source-item__status--ready">{% trans "ready" %}</span></div>
+    <div class="c-source-item"><span class="c-source-item__title">notes.txt</span><span class="c-source-item__status c-source-item__status--processing">{% trans "processing" %}</span></div>
+    <div class="c-source-item"><span class="c-source-item__title">broken.pdf</span><span class="c-source-item__status c-source-item__status--failed">{% trans "failed" %}</span></div>
   </section>
 </div>
 {% endblock %}

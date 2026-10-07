@@ -1,0 +1,70 @@
+{% load i18n %}
+{% comment %}One provider on the Providers page. Expects `row` (see views._provider_row).{% endcomment %}
+<article class="c-card c-provider" aria-labelledby="prov-{{ row.value }}">
+  <header class="c-provider__head">
+    <h3 id="prov-{{ row.value }}" class="c-provider__name">{{ row.label }}</h3>
+    {% if row.is_local %}
+      <span class="c-badge c-badge--muted">{% trans "Local" %}</span>
+    {% elif row.credential %}
+      <span class="c-badge c-badge--success">{% trans "Key saved" %}</span>
+    {% else %}
+      <span class="c-badge c-badge--warning">{% trans "No key" %}</span>
+    {% endif %}
+  </header>
+
+  {% if row.is_local %}
+    <form id="url-form-{{ row.value }}" method="post" action="{% url 'llm:base_url_set' %}" class="c-field">
+      {% csrf_token %}
+      <input type="hidden" name="provider" value="{{ row.value }}">
+      <label class="c-field__label" for="url-{{ row.value }}">{% trans "Server URL" %}</label>
+      <input type="url" id="url-{{ row.value }}" name="base_url" class="c-field__input" required
+             value="{{ row.base_url }}" placeholder="{{ row.default_base_url }}" aria-describedby="url-help-{{ row.value }}">
+      <p class="c-field__help" id="url-help-{{ row.value }}">{% blocktrans with url=row.default_base_url %}Default: {{ url }}{% endblocktrans %}</p>
+    </form>
+  {% else %}
+    <form id="key-form-{{ row.value }}" method="post" action="{% url 'llm:credential_set' %}" class="c-field">
+      {% csrf_token %}
+      <input type="hidden" name="provider" value="{{ row.value }}">
+      <label class="c-field__label" for="key-{{ row.value }}">{% trans "API key" %}</label>
+      <input type="password" id="key-{{ row.value }}" name="api_key" class="c-field__input" required
+             autocomplete="off" spellcheck="false" aria-describedby="key-help-{{ row.value }}"
+             placeholder="{% if row.credential %}{% trans 'Paste a new key to replace it' %}{% else %}{% trans 'Paste your key' %}{% endif %}">
+      <p class="c-field__help" id="key-help-{{ row.value }}">
+        {% if row.credential %}{% trans "A key is saved and encrypted." %}{% else %}{% trans "No key saved yet." %}{% endif %}
+      </p>
+    </form>
+    {% if row.credential %}
+      <form id="del-{{ row.value }}" method="post" action="{% url 'llm:credential_delete' row.value %}" class="is-hidden">{% csrf_token %}</form>
+    {% endif %}
+  {% endif %}
+
+  <p class="c-provider__meta" id="models-{{ row.value }}">{% include 'llm/_models_meta.html' with models=row.models %}</p>
+
+  <div class="c-provider__actions o-button-grid">
+    {% if row.is_local %}
+      <button type="submit" form="url-form-{{ row.value }}" class="c-button c-button--primary c-button--sm o-button-grid__full">{% trans "Save URL" %}</button>
+    {% else %}
+      <button type="submit" form="key-form-{{ row.value }}" class="c-button c-button--primary c-button--sm">{% trans "Save key" %}</button>
+      {% if row.credential %}
+        <button type="submit" form="del-{{ row.value }}" class="c-button c-button--danger-outline c-button--sm">{% trans "Remove key" %}</button>
+      {% else %}
+        <button type="button" class="c-button c-button--danger-outline c-button--sm" disabled>{% trans "Remove key" %}</button>
+      {% endif %}
+    {% endif %}
+    <form hx-post="{% url 'llm:refresh_models' row.value %}" hx-target="#status-{{ row.value }}" hx-swap="innerHTML">{% csrf_token %}
+      <button type="submit" class="c-button c-button--secondary c-button--sm"
+              {% if not row.ready %}disabled aria-describedby="setup-{{ row.value }}"{% endif %}>{% trans "Refresh models" %}</button>
+    </form>
+    <form hx-post="{% url 'llm:test_provider' row.value %}" hx-target="#status-{{ row.value }}" hx-swap="innerHTML">{% csrf_token %}
+      <button type="submit" class="c-button c-button--secondary c-button--sm"
+              {% if not row.ready %}disabled aria-describedby="setup-{{ row.value }}"{% endif %}>{% trans "Test connection" %}</button>
+    </form>
+  </div>
+  {% if not row.ready %}
+    <p class="c-provider__hint" id="setup-{{ row.value }}">
+      {% if row.is_local %}{% trans "Save the server URL to refresh models and test the connection." %}{% else %}{% trans "Save an API key to refresh models and test the connection." %}{% endif %}
+    </p>
+  {% endif %}
+
+  <div id="status-{{ row.value }}" class="c-provider__status" aria-live="polite"></div>
+</article>

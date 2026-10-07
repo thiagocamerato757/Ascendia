@@ -1,0 +1,10 @@
+{% load i18n %}
+{% if models.chat or models.embedding %}
+  {% if models.chat %}{% blocktrans count n=models.chat %}{{ n }} chat model{% plural %}{{ n }} chat models{% endblocktrans %}{% if models.embedding %}, {% else %}.{% endif %}{% endif %}
+  {% if models.embedding %}{% blocktrans count n=models.embedding %}{{ n }} embedding model{% plural %}{{ n }} embedding models{% endblocktrans %}.{% endif %}
+  {% if models.updated_at %}{% blocktrans with when=models.updated_at|date:"SHORT_DATETIME_FORMAT" %}Updated {{ when }}.{% endblocktrans %}{% endif %}
+{% elif models.builtin_chat %}
+  {% blocktrans count n=models.builtin_chat %}Built-in list: {{ n }} chat model.{% plural %}Built-in list: {{ n }} chat models.{% endblocktrans %}
+{% else %}
+  {% trans "No models loaded yet. Refresh to list what this provider offers." %}
+{% endif %}

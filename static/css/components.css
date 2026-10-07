@@ -72,6 +72,16 @@
   box-shadow: var(--shadow-md);
   filter: brightness(1.05);
 }
+/* Destructive but secondary action (e.g. "Remove key"): quiet until hovered. */
+.c-button--danger-outline {
+  color: var(--danger);
+  background: transparent;
+  border-color: var(--danger);
+}
+.c-button--danger-outline:hover {
+  color: var(--danger-text);
+  background: var(--danger);
+}
 .c-button--sm {
   padding: var(--space-2) var(--space-4);
   font-size: var(--text-sm);
@@ -111,6 +121,30 @@
   border-radius: var(--radius-full);
   color: var(--text-on-accent);
   animation: c-spin 0.8s linear infinite;
+}
+/* HTMX in flight: the triggering form (or button) shows the loading spinner. */
+.htmx-request .c-button,
+.c-button.htmx-request {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+.htmx-request .c-button::after,
+.c-button.htmx-request::after {
+  content: "";
+  position: absolute;
+  width: 1em;
+  height: 1em;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: var(--radius-full);
+  color: var(--text-on-accent);
+  animation: c-spin 0.8s linear infinite;
+}
+/* Light-surfaced buttons need a spinner in the text colour to stay visible. */
+.htmx-request .c-button--secondary::after,
+.c-button--secondary.is-loading::after {
+  color: var(--text);
 }
 .c-button__icon {
   width: 1.25em;
@@ -221,6 +255,63 @@ textarea.c-field__input {
   border-bottom: 2px solid var(--text-muted);
   transform: translateY(-70%) rotate(45deg);
   pointer-events: none;
+}
+/* Native popup options: the OS default is white, so the theme text colour
+   would vanish. Use a solid menu surface (the translucent --surface-raised
+   would show the page through) and let color-scheme darken the popup. */
+.c-field__control option {
+  background-color: var(--surface-menu);
+  color: var(--text);
+}
+.c-field__control option:checked {
+  background-color: var(--accent-strong);
+  color: var(--text-on-accent);
+}
+/* Customizable select (Chromium 135+): the popup itself takes the theme, so
+   the OS highlight colour no longer clashes with the token text colour.
+   Browsers without support keep the native popup styled above. */
+@supports (appearance: base-select) {
+  .c-select__control,
+  .c-select__control::picker(select) {
+    appearance: base-select;
+  }
+  .c-select__control {
+    /* Keep long model names on one line, as the native select does. */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .c-select__control::picker-icon {
+    display: none; /* .c-select::after draws the chevron */
+  }
+  .c-select__control::picker(select) {
+    margin-block: var(--space-1);
+    padding: var(--space-1);
+    color: var(--text);
+    background: var(--surface-menu);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+  }
+  .c-select__control option {
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-sm);
+    background-color: transparent;
+    color: var(--text);
+    cursor: pointer;
+  }
+  .c-select__control option::checkmark {
+    display: none;
+  }
+  .c-select__control option:hover,
+  .c-select__control option:focus-visible {
+    background-color: var(--surface-hover);
+    outline: none;
+  }
+  .c-select__control option:checked {
+    background-color: var(--accent-strong);
+    color: var(--text-on-accent);
+  }
 }
 
 /* ============================ Icon ============================ */
@@ -418,6 +509,14 @@ textarea.c-field__input {
 }
 .c-badge--muted {
   color: var(--text-muted);
+  background: var(--surface-hover);
+}
+.c-badge--success {
+  color: var(--success);
+  background: var(--surface-hover);
+}
+.c-badge--warning {
+  color: var(--warning);
   background: var(--surface-hover);
 }
 
@@ -827,3 +926,76 @@ a:hover > .c-avatar {
   font-size: var(--text-sm);
   color: var(--text-muted);
 }
+
+/* ============================ Notice (inline status) ============================ */
+/* Result of an action shown in place (refresh, test…). Same colour language as
+   the toasts, but it flows with the content and wraps long messages. */
+.c-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  font-size: var(--text-sm);
+}
+.c-notice__icon {
+  width: 0.625rem;
+  height: 0.625rem;
+  margin-top: 0.4em;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+  background: currentColor;
+}
+.c-notice__body {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.c-notice__title {
+  font-weight: var(--weight-semibold);
+  color: var(--text);
+}
+.c-notice__message {
+  color: var(--text-muted);
+}
+.c-notice--success { color: var(--success); border-color: var(--success); }
+.c-notice--warning { color: var(--warning); border-color: var(--warning); }
+.c-notice--danger { color: var(--danger); border-color: var(--danger); }
+.c-notice--info { color: var(--accent); border-color: var(--accent); }
+
+/* ============================ Provider card ============================ */
+/* One AI provider on the Providers page: status, credential or server URL,
+   model summary, action grid, then the result of the last action. Every card
+   has the same structure, so the action rows line up across a grid row; cards
+   keep their own height, so a notice in one card does not open gaps in its
+   neighbours. */
+.c-provider {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  align-self: start;
+}
+.c-provider__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.c-provider__name {
+  font-size: var(--text-lg);
+  min-width: 0;
+}
+.c-provider__head .c-badge { flex-shrink: 0; }
+.c-provider__meta {
+  font-size: var(--text-sm);
+  color: var(--text-muted);
+}
+.c-provider__status:empty { display: none; }
+.c-provider__hint {
+  margin-top: calc(var(--space-2) * -1);
+  font-size: var(--text-sm);
+  color: var(--text-subtle);
+}
+.c-provider-intro { max-width: 70ch; }
+

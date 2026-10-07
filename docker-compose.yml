@@ -21,6 +21,12 @@ services:
     environment:
       # Inside the compose network the database is reached by service name.
       POSTGRES_HOST: db
+      # Local model servers (Ollama, LM Studio, llama.cpp) run on the host
+      # machine, not in this container.
+      ASCENDIA_LOCAL_LLM_HOST: host.docker.internal
+    extra_hosts:
+      # Makes host.docker.internal resolve on Linux too (Docker Desktop has it).
+      - "host.docker.internal:host-gateway"
     depends_on:
       db:
         condition: service_healthy

@@ -27,6 +27,9 @@ jobs:
     env:
       DJANGO_SECRET_KEY: ci-secret-key-not-used-in-production
       DJANGO_DEBUG: "False"
+      # Throwaway Fernet key for the provider-credential encryption layer (CI only;
+      # protects nothing — tests override it with their own key).
+      ASCENDIA_FERNET_KEY: 7reelbMCNaBfLYnwYObk1Ia1BXE0nnY7QPaNDjGq9tQ=
       DJANGO_ALLOWED_HOSTS: localhost,127.0.0.1
       POSTGRES_DB: ascendia
       POSTGRES_USER: ascendia

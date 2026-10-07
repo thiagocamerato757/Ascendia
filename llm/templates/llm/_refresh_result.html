@@ -1,0 +1,13 @@
+{% load i18n %}
+{% if error %}
+  {% if error.level == 'warning' %}
+    {% include 'components/notice.html' with variant='warning' title=_("Action needed") message=error.user_message %}
+  {% else %}
+    {% include 'components/notice.html' with variant='danger' title=_("Couldn't refresh models") message=error.user_message %}
+  {% endif %}
+{% elif counts.chat or counts.embedding %}
+  {% include 'components/notice.html' with variant='success' title=_("Models updated") message=_("Notebook settings now offer the models listed above.") %}
+{% else %}
+  {% include 'components/notice.html' with variant='warning' title=_("No usable models found") message=_("The provider returned no chat or embedding models. Notebooks keep using the built-in list.") %}
+{% endif %}
+<p class="c-provider__meta" id="models-{{ provider }}" hx-swap-oob="true">{% include 'llm/_models_meta.html' %}</p>

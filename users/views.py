@@ -78,7 +78,7 @@ def profile_view(request: HttpRequest) -> HttpResponse:
 def update_avatar(request: HttpRequest) -> HttpResponse:
     """AJAX endpoint to upload a cropped avatar or delete the current one."""
     if request.method != 'POST':
-        return JsonResponse({'success': False, 'error': 'Invalid method'}, status=405)
+        return JsonResponse({'success': False, 'error': _('Invalid method')}, status=405)
 
     profile, created = Profile.objects.get_or_create(user=request.user)
 
@@ -91,7 +91,7 @@ def update_avatar(request: HttpRequest) -> HttpResponse:
                 profile.save()
             return JsonResponse({
                 'success': True,
-                'message': 'Avatar removed',
+                'message': _('Avatar removed'),
                 'avatar_url': None
             })
 
@@ -109,11 +109,11 @@ def update_avatar(request: HttpRequest) -> HttpResponse:
 
             return JsonResponse({
                 'success': True,
-                'message': 'Avatar updated',
+                'message': _('Avatar updated'),
                 'avatar_url': profile.avatar.url
             })
 
-        return JsonResponse({'success': False, 'error': 'No avatar data provided'}, status=400)
+        return JsonResponse({'success': False, 'error': _('No avatar data provided')}, status=400)
 
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)

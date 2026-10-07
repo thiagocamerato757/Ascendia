@@ -453,7 +453,7 @@ class AvatarUpdateTests(TestCase):
         self.assertEqual(response.status_code, 400)
         data = json.loads(response.content)
         self.assertFalse(data['success'])
-        self.assertIn('No avatar data provided', data['error'])
+        self.assertIn('Nenhum dado de avatar foi enviado', data['error'])
     
     def test_avatar_update_replaces_old_avatar(self):
         # Upload first avatar

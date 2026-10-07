@@ -7,7 +7,9 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     UV_LINK_MODE=copy \
-    UV_PROJECT_ENVIRONMENT=/usr/local
+    UV_PROJECT_ENVIRONMENT=/usr/local \
+    # Large wheels (e.g. litellm) can exceed the 30s default on slow links.
+    UV_HTTP_TIMEOUT=300
 
 WORKDIR /app
 

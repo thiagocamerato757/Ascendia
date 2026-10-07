@@ -13,8 +13,8 @@ A especificação completa e as decisões de projeto estão em
 fases estão em [`docs/audit.md`](docs/audit.md),
 [`docs/frontend.md`](docs/frontend.md) e [`docs/decisions.md`](docs/decisions.md).
 
-> **Status:** Fase 0 (fundação: auditoria, Docker, CI). As funcionalidades de RAG,
-> provedores de LLM e avaliação são das fases seguintes.
+> **Status:** Fase 2 concluída (camada de provedores, credenciais e estilo por caderno).
+> A ingestão/busca (RAG) e a avaliação são das fases seguintes.
 
 ## Stack
 
@@ -38,6 +38,9 @@ cp .env.example .env
 
 # 2. Gere uma SECRET_KEY e cole em DJANGO_SECRET_KEY no .env
 python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+
+# 2b. Gere a chave de criptografia das chaves de API e cole em ASCENDIA_FERNET_KEY
+python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 
 # 3. Suba o app (banco + web). Na primeira vez ele constrói a imagem,
 #    aplica as migrations e coleta os arquivos estáticos.
@@ -64,11 +67,10 @@ roda `collectstatic`:
 docker compose -f docker-compose.yml up --build
 ```
 
-Para criar um superusuário:
-
-```bash
-docker compose run --rm web python manage.py createsuperuser
-```
+> **Sem Django admin.** O Ascendia é auto-hospedável e toda a configuração é feita
+> pelo próprio usuário dentro do app (perfil, cadernos, chaves de API e configurações
+> por caderno). A rota `/admin/` não existe, nem em produção nem em desenvolvimento.
+> Contas são criadas pelo cadastro normal (`/users/`).
 
 ## Rodar os testes
 
@@ -93,8 +95,26 @@ uv run ruff check .
 
 ## Configurar provedores de LLM
 
-_Em breve (Fase 2)._ Cada caderno terá provedor, modelo e estilo configuráveis, com a
-chave de API do próprio usuário armazenada criptografada.
+As **chaves de API** são do usuário (criptografadas em repouso — Fernet, via
+`ASCENDIA_FERNET_KEY`); o **provedor, o modelo e o estilo de resposta** são **por caderno**.
+
+1. **Provedores** (`/llm/api-keys/`, link "Providers" no topo): um grid com todos os
+   provedores. Em cada card você **cola a chave** (nuvem) ou define a **Base URL** (endpoints
+   locais), clica **Atualizar modelos** para listar os modelos do provedor ao vivo e **Testar**
+   (nuvem: chamada mínima; local: reachability do endpoint). A chave é somente escrita: fica
+   criptografada e nunca volta a ser exibida. Provedores de nuvem: OpenAI, Anthropic (Claude),
+   Google Gemini, DeepSeek, Mistral, Groq, xAI (Grok), Perplexity, Together AI, NVIDIA NIM e **OpenRouter**
+   (gateway para 200+ modelos). Endpoints locais (com Base URL própria): **Ollama**, **LM
+   Studio** e **llama.cpp**.
+2. **Configurações do caderno** (botão **Settings** na página do caderno): selecione o
+   **provedor** e os **modelos** (de chat e de embedding; a lista mostra os modelos
+   carregados via "Atualizar modelos", senão a lista curada, ou texto livre para
+   OpenRouter/endpoints locais sem lista) e ajuste o **estilo** (preset, tom, tamanho,
+   idioma, formato, nível de detalhe e instruções extras). A página mostra a **instrução de
+   sistema compilada** a partir desse estilo.
+
+As regras de segurança (responder só pelas fontes, citar, admitir quando não encontrou)
+são fixas e nunca são sobrescritas pelo estilo ou pelas instruções extras.
 
 ## Rodar a avaliação
 

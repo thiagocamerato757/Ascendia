@@ -16,6 +16,12 @@ dependencies = [
     "psycopg[binary]>=3.2",
     # Static file serving under gunicorn/uvicorn
     "whitenoise>=6.0",
+    # LLM provider layer (single interface for OpenAI/Gemini/Claude/DeepSeek/local)
+    "litellm>=1.40",
+    # Symmetric encryption at rest for provider API keys (Fernet)
+    "cryptography>=42.0",
+    # HTTP client for live model listing ("Refresh models")
+    "requests>=2.31",
 ]
 
 [dependency-groups]

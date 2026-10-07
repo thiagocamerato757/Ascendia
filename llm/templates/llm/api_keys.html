@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Providers" %}{% endblock %}
+
+{% block nav_links %}
+  <a href="{% url 'workspace:home' %}" class="c-nav__link">{% trans "Workspace" %}</a>
+  <span class="c-nav__sep"></span>
+  <span class="c-nav__link is-active">{% trans "Providers" %}</span>
+{% endblock %}
+
+{% block content %}
+<div class="o-container o-section o-stack o-stack--lg">
+  <header class="o-stack o-stack--sm">
+    <h1 class="text-4xl">{% trans "Providers" %}</h1>
+    <p class="text-muted c-provider-intro">{% trans "Connect the AI providers you want to use. Each notebook then picks its provider and model in its own settings, from the models listed here." %}</p>
+  </header>
+
+  <section class="o-stack" aria-labelledby="cloud-heading">
+    <div class="o-stack o-stack--sm">
+      <h2 id="cloud-heading" class="text-2xl">{% trans "Cloud providers" %}</h2>
+      <p class="text-muted c-provider-intro">{% trans "Each one needs an API key from the provider's dashboard. Keys are stored encrypted and never shown again." %}</p>
+    </div>
+    <div class="o-grid o-grid--wide">
+      {% for row in cloud_rows %}{% include 'llm/_provider_card.html' %}{% endfor %}
+    </div>
+  </section>
+
+  <section class="o-stack" aria-labelledby="local-heading">
+    <div class="o-stack o-stack--sm">
+      <h2 id="local-heading" class="text-2xl">{% trans "Local servers" %}</h2>
+      <p class="text-muted c-provider-intro">{% trans "Models running on your own machine. No key needed: point Ascendia at the server's address." %}</p>
+    </div>
+    <div class="o-grid o-grid--wide">
+      {% for row in local_rows %}{% include 'llm/_provider_card.html' %}{% endfor %}
+    </div>
+  </section>
+
+  <div class="o-form-actions">
+    <a href="{% url 'workspace:home' %}" class="c-button c-button--secondary">{% trans "Back" %}</a>
+  </div>
+</div>
+{% endblock %}

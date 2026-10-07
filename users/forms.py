@@ -8,6 +8,7 @@ from django.contrib.auth.forms import (
     UserCreationForm,
 )
 from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
 
 from .models import Profile
 
@@ -17,11 +18,11 @@ class SignUpForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
-            'placeholder': 'Enter your email',
+            'placeholder': _('Enter your email'),
             'class': 'c-field__input'
         }),
-        help_text='Required. Enter a valid email address.',
-        label='Email'
+        help_text=_('Required. Enter a valid email address.'),
+        label=_('Email')
     )
 
     class Meta:
@@ -29,7 +30,7 @@ class SignUpForm(UserCreationForm):
         fields = ('username', 'email', 'password1', 'password2')
         widgets = {
             'username': forms.TextInput(attrs={
-                'placeholder': 'Choose a username',
+                'placeholder': _('Choose a username'),
                 'class': 'c-field__input'
             }),
         }
@@ -37,11 +38,11 @@ class SignUpForm(UserCreationForm):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super(SignUpForm, self).__init__(*args, **kwargs)
         self.fields['password1'].widget.attrs.update({
-            'placeholder': 'Create a password',
+            'placeholder': _('Create a password'),
             'class': 'c-field__input'
         })
         self.fields['password2'].widget.attrs.update({
-            'placeholder': 'Confirm your password',
+            'placeholder': _('Confirm your password'),
             'class': 'c-field__input'
         })
 
@@ -59,11 +60,11 @@ class LoginForm(AuthenticationForm):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.update({
-            'placeholder': 'Enter your username',
+            'placeholder': _('Enter your username'),
             'class': 'c-field__input'
         })
         self.fields['password'].widget.attrs.update({
-            'placeholder': 'Enter your password',
+            'placeholder': _('Enter your password'),
             'class': 'c-field__input'
         })
 
@@ -72,7 +73,7 @@ class StyledPasswordResetForm(PasswordResetForm):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.fields['email'].widget.attrs.update({
-            'placeholder': 'Enter your email',
+            'placeholder': _('Enter your email'),
             'class': 'c-field__input'
         })
 
@@ -81,11 +82,11 @@ class StyledSetPasswordForm(SetPasswordForm):
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.fields['new_password1'].widget.attrs.update({
-            'placeholder': 'New password',
+            'placeholder': _('New password'),
             'class': 'c-field__input'
         })
         self.fields['new_password2'].widget.attrs.update({
-            'placeholder': 'Confirm new password',
+            'placeholder': _('Confirm new password'),
             'class': 'c-field__input'
         })
 
@@ -94,10 +95,10 @@ class UserUpdateForm(forms.ModelForm):
     email = forms.EmailField(
         required=True,
         widget=forms.EmailInput(attrs={
-            'placeholder': 'Enter your email',
+            'placeholder': _('Enter your email'),
             'class': 'c-field__input'
         }),
-        label='Email'
+        label=_('Email')
     )
 
     class Meta:
@@ -105,22 +106,22 @@ class UserUpdateForm(forms.ModelForm):
         fields = ['username', 'email', 'first_name', 'last_name']
         widgets = {
             'username': forms.TextInput(attrs={
-                'placeholder': 'Username',
+                'placeholder': _('Username'),
                 'class': 'c-field__input'
             }),
             'first_name': forms.TextInput(attrs={
-                'placeholder': 'First name',
+                'placeholder': _('First name'),
                 'class': 'c-field__input'
             }),
             'last_name': forms.TextInput(attrs={
-                'placeholder': 'Last name',
+                'placeholder': _('Last name'),
                 'class': 'c-field__input'
             }),
         }
         labels = {
-            'username': 'Username',
-            'first_name': 'First Name',
-            'last_name': 'Last Name',
+            'username': _('Username'),
+            'first_name': _('First Name'),
+            'last_name': _('Last Name'),
         }
 
 
@@ -133,7 +134,7 @@ class ProfileUpdateForm(forms.ModelForm):
             'class': 'c-field__input'
         }),
         label='WhatsApp',
-        help_text='Enter your WhatsApp number with country code'
+        help_text=_('Enter your WhatsApp number with country code')
     )
 
     class Meta:
@@ -146,7 +147,7 @@ class ProfileUpdateForm(forms.ModelForm):
             })
         }
         labels = {
-            'avatar': 'Profile Picture',
+            'avatar': _('Profile Picture'),
             'whatsapp': 'WhatsApp'
         }
 
@@ -157,11 +158,11 @@ class ProfileUpdateForm(forms.ModelForm):
             cleaned = ''.join(c for c in whatsapp if c.isdigit() or c == '+')
 
             if not cleaned.startswith('+'):
-                raise forms.ValidationError('WhatsApp number must start with country code (e.g., +55)')
+                raise forms.ValidationError(_('WhatsApp number must start with country code (e.g., +55)'))
 
             digits = cleaned[1:]
             if len(digits) < 10:
-                raise forms.ValidationError('WhatsApp number must have at least 10 digits')
+                raise forms.ValidationError(_('WhatsApp number must have at least 10 digits'))
 
             return whatsapp
 

@@ -37,11 +37,24 @@ ALLOWED_HOSTS = [
     if host.strip()
 ]
 
+# Master key for encrypting provider API keys at rest (Fernet, spec §5/D6).
+# Generate with:
+#   python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
+# There is no insecure default on purpose; the llm layer raises if it is missing.
+ASCENDIA_FERNET_KEY = os.environ.get('ASCENDIA_FERNET_KEY', '')
+
+# Host of the user's local model servers (Ollama, LM Studio, llama.cpp). Inside
+# Docker, "localhost" is the container itself; docker-compose sets this to
+# host.docker.internal so the default URLs reach the machine running Docker.
+ASCENDIA_LOCAL_LLM_HOST = os.environ.get('ASCENDIA_LOCAL_LLM_HOST', 'localhost')
+
 
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
+    # The Django admin is intentionally NOT installed: Ascendia is self-hosted and
+    # every setting is configured by the end user through the app itself (profile,
+    # notebooks, API keys, per-notebook settings). See docs/decisions.md.
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -51,6 +64,7 @@ INSTALLED_APPS = [
     'users',
     'workspace',
     'notes',
+    'llm',
 ]
 
 MIDDLEWARE = [
@@ -79,6 +93,10 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
+            # `core` is not an installed app, so its template tags are registered here.
+            'libraries': {
+                'assets': 'core.templatetags.assets',
+            },
         },
     },
 ]

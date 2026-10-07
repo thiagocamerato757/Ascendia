@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Settings" %} · {{ notebook.title }}{% endblock %}
+
+{% block nav_links %}
+  <a href="{% url 'workspace:home' %}" class="c-nav__link">{% trans "Workspace" %}</a>
+  <a href="{% url 'workspace:notebook_detail' notebook.id %}" class="c-nav__link">{{ notebook.title|truncatechars:20 }}</a>
+  <span class="c-nav__sep"></span>
+  <span class="c-nav__link is-active">{% trans "Settings" %}</span>
+{% endblock %}
+
+{% block content %}
+<div class="o-container o-container--narrow o-section o-stack o-stack--lg">
+  <div class="o-cluster o-cluster--between">
+    <div class="o-stack o-stack--sm">
+      <h1 class="text-4xl">{% trans "Notebook settings" %}</h1>
+      <p class="text-muted">{% trans "Provider, model and answer style for this notebook." %}</p>
+    </div>
+    <a href="{% url 'llm:api_keys' %}" class="c-button c-button--secondary c-button--sm">{% trans "Providers" %}</a>
+  </div>
+
+  <form method="post" class="o-stack o-stack--lg">
+    {% csrf_token %}
+    {% for error in form.non_field_errors %}<p class="c-field__error">{{ error }}</p>{% endfor %}
+
+    <!-- Provider & model -->
+    <div class="c-card c-settings-panel">
+      <div class="o-stack o-stack--sm">
+        <h2 class="c-settings-panel__title">{% trans "Provider and model" %}</h2>
+        <p class="c-settings-panel__hint">{% trans "Connect providers and refresh their models on the Providers page. Chat and embeddings can use different providers." %}</p>
+      </div>
+
+      <div class="o-grid o-grid--sm">
+        <div class="c-field">
+          <label class="c-field__label" for="id_chat_provider">{% trans "Chat provider" %}</label>
+          <div class="c-select">
+            <select name="chat_provider" id="id_chat_provider" class="c-field__control c-select__control"
+                    hx-get="{% url 'llm:model_options' %}" hx-vals='{"kind": "chat"}'
+                    hx-target="#chat_model_wrap" hx-swap="innerHTML">
+              {% for value, label in form.fields.chat_provider.choices %}
+                <option value="{{ value }}" {% if value == form.chat_provider.value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% for e in form.chat_provider.errors %}<p class="c-field__error">{{ e }}</p>{% endfor %}
+        </div>
+        <div class="c-field">
+          <label class="c-field__label" for="chat_model_wrap">{% trans "Chat model" %}</label>
+          <div id="chat_model_wrap">
+            {% include 'llm/_model_field.html' with field_name='chat_model' models=form.chat_model_options free_text=form.chat_is_free_text current=form.chat_model.value %}
+          </div>
+          {% for e in form.chat_model.errors %}<p class="c-field__error">{{ e }}</p>{% endfor %}
+        </div>
+      </div>
+
+      <div class="o-grid o-grid--sm">
+        <div class="c-field">
+          <label class="c-field__label" for="id_embedding_provider">{% trans "Embedding provider" %}</label>
+          <div class="c-select">
+            <select name="embedding_provider" id="id_embedding_provider" class="c-field__control c-select__control"
+                    hx-get="{% url 'llm:model_options' %}" hx-vals='{"kind": "embedding"}'
+                    hx-target="#embedding_model_wrap" hx-swap="innerHTML">
+              {% for value, label in form.fields.embedding_provider.choices %}
+                <option value="{{ value }}" {% if value == form.embedding_provider.value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          {% for e in form.embedding_provider.errors %}<p class="c-field__error">{{ e }}</p>{% endfor %}
+        </div>
+        <div class="c-field">
+          <label class="c-field__label" for="embedding_model_wrap">{% trans "Embedding model" %}</label>
+          <div id="embedding_model_wrap">
+            {% include 'llm/_model_field.html' with field_name='embedding_model' models=form.embedding_model_options free_text=form.embedding_is_free_text current=form.embedding_model.value %}
+          </div>
+          {% for e in form.embedding_model.errors %}<p class="c-field__error">{{ e }}</p>{% endfor %}
+          <p class="c-field__help">{% trans "Changing the embedding model later requires re-indexing the sources." %}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Answer style -->
+    <div class="c-card c-settings-panel">
+      <div class="o-stack o-stack--sm">
+        <h2 class="c-settings-panel__title">{% trans "Answer style" %}</h2>
+        <p class="c-settings-panel__hint">{% trans "Structured style. Safety rules always apply and cannot be overridden." %}</p>
+      </div>
+
+      <div class="o-grid o-grid--sm">
+        {% include 'components/field.html' with field=form.preset %}
+        {% include 'components/field.html' with field=form.tone %}
+        {% include 'components/field.html' with field=form.length %}
+        {% include 'components/field.html' with field=form.language %}
+        {% include 'components/field.html' with field=form.answer_format %}
+        {% include 'components/field.html' with field=form.detail_level %}
+      </div>
+
+      <div class="c-field">
+        <label class="c-field__label" for="{{ form.extra_instructions.id_for_label }}">{% trans "Extra instructions" %}</label>
+        {{ form.extra_instructions }}
+        {% for e in form.extra_instructions.errors %}<p class="c-field__error">{{ e }}</p>{% endfor %}
+        <p class="c-field__help">{% trans "Up to 500 characters. Treated as a preference, below the safety rules." %}</p>
+      </div>
+    </div>
+
+    <div class="o-cluster o-cluster--between">
+      <a href="{% url 'workspace:notebook_detail' notebook.id %}" class="c-button c-button--secondary">{% trans "Back" %}</a>
+      <button type="submit" class="c-button c-button--primary c-button--lg">{% trans "Save settings" %}</button>
+    </div>
+  </form>
+
+  <!-- Compiled system instruction (read-only preview) -->
+  <div class="c-card c-settings-panel">
+    <div class="o-stack o-stack--sm">
+      <h2 class="c-settings-panel__title">{% trans "Compiled instruction" %}</h2>
+      <p class="c-settings-panel__hint">{% trans "This is the system prompt built from the style above. Save to refresh it." %}</p>
+    </div>
+    <pre class="text-pre text-xs" aria-label="{% trans 'Compiled system instruction' %}">{{ compiled_style }}</pre>
+  </div>
+</div>
+{% endblock %}

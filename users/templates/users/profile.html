@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
-{% load static i18n %}
+{% load static i18n assets %}
 
 {% block title %}{% trans "Profile" %} - Ascendia{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<link rel="stylesheet" href="{% asset 'css/profile.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
-<link rel="stylesheet" href="{% static 'css/cropper-custom.css' %}">
+<link rel="stylesheet" href="{% asset 'css/cropper-custom.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -184,7 +184,7 @@
               if (previewImg) {
                 previewImg.src = data.avatar_url;
               } else {
-                avatarPreview.innerHTML = '<img src="' + data.avatar_url + '" class="avatar-img" alt="Avatar">';
+                avatarPreview.innerHTML = '<img src="' + data.avatar_url + '" class="avatar-img" alt="{% trans 'Avatar' %}">';
               }
               let removeBtn = document.getElementById('remove-avatar-btn');
               if (!removeBtn) {

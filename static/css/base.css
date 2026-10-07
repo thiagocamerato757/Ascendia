@@ -222,6 +222,28 @@ button {
 .o-grid--sm {
   grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
 }
+/* Wider cells for cards that carry a form and a row of actions. */
+.o-grid--wide {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 21rem), 1fr));
+}
+
+/* Two equal-width columns of buttons. Every button fills its cell, so rows line
+   up across cards whatever the label length; long labels wrap inside the
+   button instead of widening it. Forms used as HTMX triggers take no box of
+   their own (display: contents), so their button is the grid item. */
+.o-button-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+.o-button-grid > form { display: contents; }
+.o-button-grid .c-button {
+  width: 100%;
+  min-height: 2.5rem;
+  white-space: normal;
+  line-height: 1.2;
+}
+.o-button-grid__full { grid-column: 1 / -1; }
 
 /* Centered content block (empty states, hero). */
 .o-center {
