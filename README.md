@@ -1,8 +1,8 @@
 # Ascendia
 
-Alternativa open-source e auto-hospedável ao NotebookLM: organize **fontes** (PDFs,
-texto, links) em **cadernos**, converse com elas e gere materiais de estudo, com
-respostas baseadas apenas nas fontes e com citação.
+Alternativa open-source e auto-hospedável ao NotebookLM: organize **fontes** (PDFs e
+texto) em **cadernos**, converse com elas e gere materiais de estudo, com respostas
+baseadas apenas nas fontes e com citação.
 
 Diferenciais planejados: provedor de LLM configurável por caderno (OpenAI, Gemini,
 Claude, DeepSeek, modelos locais), estilo de resposta configurável, avaliação embutida
@@ -13,15 +13,19 @@ A especificação completa e as decisões de projeto estão em
 fases estão em [`docs/audit.md`](docs/audit.md),
 [`docs/frontend.md`](docs/frontend.md) e [`docs/decisions.md`](docs/decisions.md).
 
-> **Status:** Fase 2 concluída (camada de provedores, credenciais e estilo por caderno).
-> A ingestão/busca (RAG) e a avaliação são das fases seguintes.
+> **Status:** Fase 3 concluída: ingestão de PDF e texto, busca híbrida (full-text +
+> vetorial com RRF), respostas em streaming com citações validadas e clicáveis, e
+> "não encontrei" quando as fontes não cobrem a pergunta. Avaliação (Fase 4),
+> reranking/CRAG (Fase 5) e materiais gerados (Fase 6) vêm a seguir.
 
 ## Stack
 
 - Django 5.2 (server-rendered), Python 3.11+
-- Postgres 16 + pgvector
+- Postgres 16 + pgvector (vetores e busca textual no mesmo banco)
+- LiteLLM (provedores de LLM e embeddings), PyMuPDF (PDF)
+- Fila de tarefas no Postgres (`django-tasks` + `django-tasks-db`), sem broker
 - uv para dependências; gunicorn + uvicorn worker (ASGI) para servir; WhiteNoise para estáticos
-- Front-end próprio com design tokens (CSS, tema claro/escuro) + HTMX; interface em pt-BR (i18n)
+- Front-end próprio com design tokens (CSS, tema claro/escuro) + HTMX; interface no idioma do navegador (pt-BR/en)
 
 ## Guia de estilo (styleguide)
 
@@ -42,20 +46,28 @@ python -c "from django.core.management.utils import get_random_secret_key; print
 # 2b. Gere a chave de criptografia das chaves de API e cole em ASCENDIA_FERNET_KEY
 python -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())"
 
-# 3. Suba o app (banco + web). Na primeira vez ele constrói a imagem,
+# 3. Suba o app (banco + web + worker). Na primeira vez ele constrói a imagem,
 #    aplica as migrations e coleta os arquivos estáticos.
 docker compose up --build
 ```
 
-O app fica em http://localhost:8000/.
+O app fica em http://localhost:8000/. São três serviços:
+
+- **db**: Postgres com pgvector;
+- **web**: a aplicação;
+- **worker**: processa as fontes enviadas (leitura do PDF, divisão em trechos e embeddings)
+  a partir da fila no banco (`python manage.py db_worker`).
+
+Os arquivos das fontes ficam no volume `sources`, compartilhado por `web` e `worker` e nunca
+servido por URL pública. Se o `worker` estiver parado, as fontes ficam "Na fila" até ele subir.
 
 ### Desenvolvimento (recarga automática)
 
 O `docker-compose.override.yml` é aplicado automaticamente pelo `docker compose up`
 e monta o código-fonte no contêiner, rodando o `runserver` do Django. Assim,
 edições em Python, templates, CSS e JS valem **na hora**, sem reconstruir a imagem
-(o Python recarrega sozinho; os estáticos são servidos direto da fonte com
-`DJANGO_DEBUG=True`). Reconstrua a imagem só quando mudar dependências
+(o Python recarrega sozinho, inclusive no `worker`; os estáticos são servidos direto da
+fonte com `DJANGO_DEBUG=True`). Reconstrua a imagem só quando mudar dependências
 (`pyproject.toml`/`uv.lock`).
 
 ### Produção / CI
@@ -71,6 +83,26 @@ docker compose -f docker-compose.yml up --build
 > pelo próprio usuário dentro do app (perfil, cadernos, chaves de API e configurações
 > por caderno). A rota `/admin/` não existe, nem em produção nem em desenvolvimento.
 > Contas são criadas pelo cadastro normal (`/users/`).
+
+## Usar um caderno
+
+A página do caderno tem três painéis: **Fontes**, **Conversa** e **Notas**. Em telas estreitas
+eles viram abas.
+
+1. **Fontes**: envie um PDF (até `ASCENDIA_SOURCE_MAX_MB`, padrão 25 MB) ou cole um texto. A
+   fonte passa por "Na fila" → "Processando" → "Pronta" (ou "Falhou", com o motivo e
+   "Tentar de novo"). Só fontes prontas e marcadas entram nas respostas. PDFs escaneados
+   (só imagem) precisam de OCR antes.
+2. **Conversa**: pergunte. A resposta chega em streaming e cita os trechos como `[n]`.
+   Clicar num número abre o trecho (fonte, página e seção) e destaca a fonte. Se as fontes
+   não respondem, o app diz que não encontrou. O botão **Parar** interrompe a resposta.
+3. **Trocar o modelo de embedding** do caderno deixa as fontes antigas de fora até você
+   clicar em **Reindexar fontes** (vetores de modelos diferentes nunca são misturados).
+
+Parâmetros de ingestão e busca (todos opcionais, ver `.env.example`):
+`ASCENDIA_CHUNK_SIZE`/`ASCENDIA_CHUNK_OVERLAP` (tamanho e sobreposição dos trechos, em
+caracteres), `ASCENDIA_RAG_TOP_K`, `ASCENDIA_RAG_CANDIDATES`, `ASCENDIA_RAG_RRF_K` e os limites
+`ASCENDIA_RATE_ASK_PER_MIN`/`ASCENDIA_RATE_UPLOAD_PER_MIN`.
 
 ## Rodar os testes
 

@@ -195,16 +195,58 @@
     </div>
   </section>
 
-  <!-- RAG placeholders -->
+  <!-- Notebook workspace components (Phase 3) -->
   <section class="c-card o-stack">
-    <h2 class="text-2xl">{% trans "RAG components (preview)" %}</h2>
-    <div class="o-stack o-stack--sm">
-      <div class="c-message c-message--user">{% trans "What does the source say about X?" %}</div>
-      <div class="c-message c-message--assistant">{% trans "According to the sources, X means… " %}<span class="c-citation">1</span></div>
+    <h2 class="text-2xl">{% trans "Notebook workspace" %}</h2>
+    <p class="text-muted">{% trans "Panels, sources, chat and citations as used on the notebook page." %}</p>
+
+    <div class="c-tabs" role="tablist" aria-label="{% trans 'Example tabs' %}">
+      <button type="button" class="c-tabs__tab" role="tab" aria-selected="false">{% trans "Sources" %}</button>
+      <button type="button" class="c-tabs__tab" role="tab" aria-selected="true">{% trans "Conversation" %}</button>
+      <button type="button" class="c-tabs__tab" role="tab" aria-selected="false">{% trans "Notes" %}</button>
     </div>
-    <div class="c-source-item"><span class="c-source-item__title">document.pdf</span><span class="c-source-item__status c-source-item__status--ready">{% trans "ready" %}</span></div>
-    <div class="c-source-item"><span class="c-source-item__title">notes.txt</span><span class="c-source-item__status c-source-item__status--processing">{% trans "processing" %}</span></div>
-    <div class="c-source-item"><span class="c-source-item__title">broken.pdf</span><span class="c-source-item__status c-source-item__status--failed">{% trans "failed" %}</span></div>
+
+    <div class="o-grid">
+      <section class="c-panel o-stack">
+        <header class="c-panel__head"><h3 class="c-panel__title">{% trans "Sources" %}</h3><span class="c-panel__count">3</span></header>
+        <div class="c-source-item c-source-item--stacked">
+          <div class="c-source-item__row"><input type="checkbox" class="c-checkbox__input c-checkbox__input--sm" checked aria-label="document.pdf"><span class="c-source-item__title">document.pdf</span><span class="c-source-item__status c-source-item__status--ready">{% trans "Ready" %}</span></div>
+          <div class="c-source-item__meta">12 {% trans "pages" %}<span class="c-source-item__actions"><button type="button" class="c-link-button c-link-button--danger">{% trans "Remove" %}</button></span></div>
+        </div>
+        <div class="c-source-item c-source-item--stacked">
+          <div class="c-source-item__row"><span class="c-source-item__title">notes.txt</span><span class="c-source-item__status c-source-item__status--processing">{% trans "Processing" %}</span></div>
+        </div>
+        <div class="c-source-item c-source-item--stacked is-highlighted">
+          <div class="c-source-item__row"><span class="c-source-item__title">broken.pdf</span><span class="c-source-item__status c-source-item__status--failed">{% trans "Failed" %}</span></div>
+          <div class="c-source-item__meta">PDF<span class="c-source-item__actions"><button type="button" class="c-link-button">{% trans "Try again" %}</button></span></div>
+          <p class="c-source-item__error">{% trans "This PDF is password-protected. Remove the password and upload it again." %}</p>
+        </div>
+        <details class="c-disclosure"><summary class="c-disclosure__summary">{% trans "Paste text instead" %}</summary><p class="c-disclosure__body text-muted">…</p></details>
+      </section>
+
+      <section class="c-panel c-chat">
+        <header class="c-panel__head"><h3 class="c-panel__title">{% trans "Conversation" %}</h3></header>
+        <div class="c-chat__log">
+          <div class="c-message c-message--user">{% trans "What does the source say about X?" %}</div>
+          <div class="c-message c-message--assistant"><div class="c-message__body"><p>{% trans "According to the sources, X means… " %}<button type="button" class="c-citation">1</button></p></div></div>
+          <div class="c-message c-message--assistant"><div class="c-message__body"><span class="c-typing"><span class="c-typing__dot"></span><span class="c-typing__dot"></span><span class="c-typing__dot"></span></span></div><button type="button" class="c-link-button c-message__stop">{% trans "Stop" %}</button></div>
+        </div>
+        <div class="c-citation-card">
+          <div class="c-citation-card__head"><p class="c-citation-card__title"><span class="c-citation c-citation--static">1</span> document.pdf</p><button type="button" class="c-link-button">{% trans "Close" %}</button></div>
+          <p class="c-citation-card__meta">{% blocktrans with page=3 %}Page {{ page }}{% endblocktrans %}</p>
+          <blockquote class="c-citation-card__text">{% trans "Example message." %}</blockquote>
+        </div>
+        <form class="c-chat__composer" onsubmit="return false">
+          <textarea class="c-field__input c-chat__input" rows="2" aria-label="{% trans 'Your question' %}" placeholder="{% trans 'Ask something about your sources…' %}"></textarea>
+          <button type="button" class="c-button c-button--primary">{% trans "Ask" %}</button>
+        </form>
+      </section>
+
+      <section class="c-panel o-stack">
+        <header class="c-panel__head"><h3 class="c-panel__title">{% trans "Notes" %}</h3><span class="c-panel__count">1</span></header>
+        <a class="c-note-item" href="#"><span class="c-note-item__title">{% trans "Example note" %}</span><span class="c-note-item__meta">{% trans "Updated 2 hours ago" %}</span></a>
+      </section>
+    </div>
   </section>
 </div>
 {% endblock %}

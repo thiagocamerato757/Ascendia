@@ -3,7 +3,6 @@ import json
 from types import SimpleNamespace
 
 from django.test import SimpleTestCase
-from django.utils.translation import gettext
 
 from llm.providers import FakeProvider
 from llm.style import fixed_rules
@@ -149,8 +148,9 @@ class AnswerPipelineTests(RagTestCase):
         message.refresh_from_db()
         self.assertTrue(message.not_found)
         self.assertEqual(message.content, not_found_text())
-        self.assertIn(gettext('Your answer did not cite the sources.')[:20],
-                      self.fake.last_chat_call['messages'][-1]['content'])
+        from rag.prompt import citation_reminder
+
+        self.assertEqual(self.fake.last_chat_call['messages'][-1], citation_reminder())
 
     def test_retry_with_citation_is_kept(self):
         class Fixes(FakeProvider):

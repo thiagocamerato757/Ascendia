@@ -112,3 +112,30 @@ class SourceViewsTests(SourcesTestCase):
         self.assertEqual(Source.objects.count(), 2)
         self.assertContains(resp, 'c-notice--warning')
         self.assertEqual(resp['Retry-After'], '60')
+
+
+class CsrfWithHtmxTests(SourcesTestCase):
+    """Buttons outside forms (Remove, Try again, Clear conversation) must carry the CSRF token.
+
+    The default test client skips CSRF checks, which hid this bug; this one enforces them.
+    """
+
+    def test_htmx_buttons_send_the_token_from_body_headers(self):
+        import json
+        import re
+
+        from django.test import Client
+
+        browser = Client(enforce_csrf_checks=True)
+        browser.force_login(self.user)
+        source = Source.objects.create(notebook=self.notebook, kind='text', title='t', text='x', content_hash='h',
+                                       status=Source.STATUS_FAILED, error='falhou')
+        page = browser.get(reverse('workspace:notebook_detail', kwargs={'notebook_id': self.notebook.id}))
+        headers = json.loads(re.search(r"<body hx-headers='([^']+)'", page.content.decode()).group(1))
+        retry = reverse('sources:retry', kwargs={'source_id': source.id})
+        self.assertEqual(browser.post(retry).status_code, 403)  # what happened before the fix
+        self.assertEqual(browser.post(retry, HTTP_X_CSRFTOKEN=headers['X-CSRFToken']).status_code, 200)
+        delete = reverse('sources:delete', kwargs={'source_id': source.id})
+        self.assertEqual(browser.post(delete, HTTP_X_CSRFTOKEN=headers['X-CSRFToken']).status_code, 200)
+        self.assertFalse(Source.objects.filter(pk=source.pk).exists())
+

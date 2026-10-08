@@ -7,9 +7,6 @@
     </p>
     <button type="button" class="c-link-button" data-close-citation aria-label="{% trans 'Close passage' %}">{% trans "Close" %}</button>
   </div>
-  <p class="c-citation-card__meta">
-    {% if citation.page %}{% blocktrans with page=citation.page %}Page {{ page }}{% endblocktrans %}{% endif %}
-    {% if citation.page and citation.section %}, {% endif %}{{ citation.section }}
-  </p>
+  <p class="c-citation-card__meta">{% if citation.page %}{% blocktrans with page=citation.page %}Page {{ page }}{% endblocktrans %}{% endif %}{% if citation.page and citation.section %}, {% endif %}{{ citation.section }}</p>
   <blockquote class="c-citation-card__text">{{ citation.text|linebreaksbr }}</blockquote>
 </div>

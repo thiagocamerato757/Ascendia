@@ -7,6 +7,7 @@ whole layer without spending API credits.
 """
 from __future__ import annotations
 
+import logging
 import math
 import re
 import time
@@ -17,6 +18,8 @@ from dataclasses import dataclass, field
 from django.utils.translation import gettext as _
 
 from . import constants as c
+
+logger = logging.getLogger('ascendia.llm')
 
 
 class ProviderError(Exception):
@@ -300,6 +303,9 @@ class LiteLLMProvider(BaseProvider):
 
     def _map_error(self, exc: Exception) -> ProviderError:
         import litellm
+
+        # Diagnostics without content (spec §11): exception type and HTTP status only.
+        logger.warning('Provider call failed: %s (status=%s)', type(exc).__name__, getattr(exc, 'status_code', None))
 
         if isinstance(exc, litellm.AuthenticationError):
             return ProviderError(_('The provider API key is invalid or was rejected.'), retryable=False)

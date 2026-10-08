@@ -57,88 +57,60 @@
     {% endif %}
   </div>
 
-  <!-- Content area -->
-  <div class="l-two-col">
-    <!-- Main: notes -->
-    <div class="o-stack">
-      <div class="o-cluster o-cluster--between">
-        <h2 class="text-2xl">{% trans "Notes" %}</h2>
-        <a href="{% url 'notes:note_create' notebook.id %}" class="c-button c-button--primary c-button--sm">
+  <!-- Workspace: sources | conversation | notes (spec §10.4). On narrow screens the
+       columns become tabs; without JS they simply stack. -->
+  <div class="c-tabs" role="tablist" aria-label="{% trans 'Notebook sections' %}" data-notebook-tabs hidden>
+    <button type="button" class="c-tabs__tab" role="tab" id="tab-sources" aria-controls="col-sources" aria-selected="false" data-tab="sources">{% trans "Sources" %}</button>
+    <button type="button" class="c-tabs__tab" role="tab" id="tab-chat" aria-controls="col-chat" aria-selected="true" data-tab="chat">{% trans "Conversation" %}</button>
+    <button type="button" class="c-tabs__tab" role="tab" id="tab-notes" aria-controls="col-notes" aria-selected="false" data-tab="notes">{% trans "Notes" %}</button>
+  </div>
+
+  <div class="l-notebook">
+    <div class="l-notebook__col" id="col-sources" data-col="sources" role="tabpanel" aria-labelledby="tab-sources">
+      {% with ctx=sources_panel %}{% include 'sources/_panel.html' with notebook=notebook sources=ctx.sources any_active=ctx.any_active has_ready=ctx.has_ready stale_count=ctx.stale_count notice=None text_form=ctx.text_form %}{% endwith %}
+    </div>
+
+    <div class="l-notebook__col" id="col-chat" data-col="chat" role="tabpanel" aria-labelledby="tab-chat">
+      {% with ctx=chat %}{% include 'rag/_chat.html' with notebook=notebook messages=ctx.messages has_ready_sources=ctx.has_ready_sources max_question_chars=ctx.max_question_chars %}{% endwith %}
+    </div>
+
+    <div class="l-notebook__col" id="col-notes" data-col="notes" role="tabpanel" aria-labelledby="tab-notes">
+      <section class="c-panel o-stack" aria-labelledby="notes-heading">
+        <header class="c-panel__head">
+          <h2 id="notes-heading" class="c-panel__title">{% trans "Notes" %}</h2>
+          <span class="c-panel__count">{{ notes_count }}</span>
+        </header>
+        <a href="{% url 'notes:note_create' notebook.id %}" class="c-button c-button--primary c-button--sm c-button--block">
           <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           <span>{% trans "New note" %}</span>
         </a>
-      </div>
-
-      {% if notes %}
-        <div class="o-stack">
-          {% for note in notes %}
-            <a class="c-card c-card--interactive o-stack o-stack--sm" href="{% url 'notes:note_detail' note.id %}">
-              <div class="o-cluster o-cluster--between o-cluster--top">
-                <div class="o-cluster o-cluster--sm o-cluster--nowrap o-min0">
-                  {% if note.is_pinned %}
-                    <svg class="c-button__icon text-warning" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>
-                  {% endif %}
-                  <h3 class="c-card__title text-truncate">{{ note.title }}</h3>
-                </div>
-                <span class="c-field__help">{% blocktrans with when=note.updated_at|timesince %}Updated {{ when }} ago{% endblocktrans %}</span>
-              </div>
-              {% if note.content %}
-                <p class="text-muted text-sm">{{ note.content|truncatewords:30 }}</p>
-              {% else %}
-                <p class="text-subtle text-sm text-italic">{% trans "No content yet" %}</p>
-              {% endif %}
-              {% if note.note_tags.exists %}
-                <div class="o-cluster o-cluster--sm">
-                  {% for note_tag in note.note_tags.all|slice:":3" %}
-                    <span class="c-tag" style="background-color: {{ note_tag.tag.color }}30; border: 1px solid {{ note_tag.tag.color }};">{{ note_tag.tag.name }}</span>
-                  {% endfor %}
-                  {% if note.note_tags.count > 3 %}
-                    <span class="c-field__help">+{{ note.note_tags.count|add:"-3" }} {% trans "more" %}</span>
-                  {% endif %}
-                </div>
-              {% endif %}
-            </a>
-          {% endfor %}
-        </div>
-      {% else %}
-        <div class="c-card">
-          <div class="c-empty-state">
-            <svg class="c-empty-state__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            <h2 class="c-empty-state__title">{% trans "No notes yet" %}</h2>
-            <p class="c-empty-state__text">{% trans "Create your first note to start capturing ideas, insights and knowledge in this notebook." %}</p>
-            <a href="{% url 'notes:note_create' notebook.id %}" class="c-button c-button--primary">
-              <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-              <span>{% trans "Create first note" %}</span>
-            </a>
+        {% if notes %}
+          <div class="o-stack o-stack--sm">
+            {% for note in notes %}
+              <a class="c-note-item" href="{% url 'notes:note_detail' note.id %}">
+                <span class="c-note-item__title">
+                  {% if note.is_pinned %}<svg class="c-icon c-icon--sm text-warning" fill="currentColor" viewBox="0 0 24 24" aria-label="{% trans 'Pinned' %}"><path d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg>{% endif %}
+                  {{ note.title }}
+                </span>
+                <span class="c-note-item__meta">{% blocktrans with when=note.updated_at|timesince %}Updated {{ when }} ago{% endblocktrans %}</span>
+                {% if note.note_tags.exists %}
+                  <span class="o-cluster o-cluster--sm">
+                    {% for note_tag in note.note_tags.all|slice:":3" %}
+                      <span class="c-tag" style="background-color: {{ note_tag.tag.color }}30; border: 1px solid {{ note_tag.tag.color }};">{{ note_tag.tag.name }}</span>
+                    {% endfor %}
+                  </span>
+                {% endif %}
+              </a>
+            {% endfor %}
           </div>
-        </div>
-      {% endif %}
-    </div>
-
-    <!-- Sidebar -->
-    <div class="o-stack">
-      <div class="c-card o-stack o-stack--sm">
-        <h3 class="text-xl">{% trans "Quick actions" %}</h3>
-        <a href="{% url 'notes:note_create' notebook.id %}" class="c-button c-button--secondary c-button--sm c-button--block">
-          <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-          <span>{% trans "Add note" %}</span>
-        </a>
-        <button type="button" class="c-button c-button--secondary c-button--sm c-button--block" disabled title="{% trans 'Coming soon' %}">{% trans "Upload file" %}</button>
-        <button type="button" class="c-button c-button--secondary c-button--sm c-button--block" disabled title="{% trans 'Coming soon' %}">{% trans "Add link" %}</button>
-      </div>
-
-      <div class="c-card o-stack o-stack--sm">
-        <h3 class="text-xl">{% trans "Statistics" %}</h3>
-        <div class="o-cluster o-cluster--between"><span class="text-muted">{% trans "Notes" %}</span><strong>{{ notes_count }}</strong></div>
-        <div class="o-cluster o-cluster--between"><span class="text-muted">{% trans "Files" %}</span><strong>0</strong></div>
-        <div class="o-cluster o-cluster--between"><span class="text-muted">{% trans "Links" %}</span><strong>0</strong></div>
-      </div>
-
-      <div class="c-card o-stack o-stack--sm">
-        <h3 class="text-xl">{% trans "Tags" %}</h3>
-        <p class="text-muted text-sm text-italic">{% trans "No tags yet" %}</p>
-        <a href="{% url 'notes:tag_create' %}" class="c-button c-button--secondary c-button--sm c-button--block">{% trans "+ Add tag" %}</a>
-      </div>
+        {% else %}
+          <div class="c-empty-state c-empty-state--compact">
+            <p class="c-empty-state__title">{% trans "No notes yet" %}</p>
+            <p class="c-empty-state__text">{% trans "Write down ideas and summaries while you study." %}</p>
+          </div>
+        {% endif %}
+        <a href="{% url 'notes:tag_list' %}" class="c-link-button">{% trans "Manage tags" %}</a>
+      </section>
     </div>
   </div>
 
@@ -149,4 +121,10 @@
     </a>
   </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+{% load assets %}
+<script src="{% asset 'js/chat.js' %}" defer></script>
+<script src="{% asset 'js/notebook.js' %}" defer></script>
 {% endblock %}

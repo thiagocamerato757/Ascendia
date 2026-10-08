@@ -30,8 +30,14 @@ class NotebookDetailView(LoginRequiredMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        from rag.views import chat_context
+        from sources.views import panel_context
+
         context['notes'] = self.object.notes.all()
         context['notes_count'] = context['notes'].count()
+        # Three-panel workspace (spec §10.4): sources | conversation | notes.
+        context['sources_panel'] = panel_context(self.object)
+        context['chat'] = chat_context(self.object)
         return context
 
 

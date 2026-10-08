@@ -24,7 +24,7 @@
   <title>{% block title %}Ascendia{% endblock %}</title>
 </head>
 
-<body>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>{# every HTMX request carries the CSRF token, inside a form or not #}
   <div class="l-app">
     <!-- Navbar -->
     <header class="c-nav">

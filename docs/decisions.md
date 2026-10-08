@@ -203,3 +203,50 @@ O app faz GET na URL que o usuário salva para um servidor local. Numa instânci
 ## HTTPS em produção (2026-10-07) — em aberto
 
 Os avisos do `check --deploy` (HSTS, `SECURE_SSL_REDIRECT`, cookies `Secure`) dependem de como cada pessoa hospeda: atrás de proxy com TLS, só na rede de casa por HTTP, ou só em `localhost`. Ativar fixo quebraria o uso por HTTP. **Pendente de decisão do autor**; a opção proposta é uma flag de ambiente opt-in (`DJANGO_SECURE_HTTPS`), desligada por padrão.
+
+## Implementadas na Fase 3 (2026-10-07/08)
+
+Escolhas do autor no planejamento: fila no Postgres + worker; fontes PDF + texto colado (links depois); notas no painel direito; uma conversa por caderno.
+
+**Infraestrutura**
+- **Fila de tarefas**: `django-tasks` 0.12 + `django-tasks-db` (a partir da 0.12 o backend de banco é um pacote separado). Serviço `worker` (`manage.py db_worker`) no compose, mesma imagem, com autoreload em dev. A tarefa é enfileirada com `transaction.on_commit`, para o worker nunca pegar uma fonte ainda não gravada.
+- **Arquivos das fontes**: storage privado em `ASCENDIA_SOURCES_ROOT`, fora de `MEDIA_ROOT`, sem URL e com nome UUID; no Docker é o volume `sources`, compartilhado entre web e worker. Um sinal `post_delete` apaga o arquivo junto com a fonte, inclusive em cascata.
+- **Cache compartilhado** (`DatabaseCache`) para o rate limit valer entre os workers do gunicorn; `createcachetable` roda no comando de subida.
+- **pgvector**: a extensão é criada na migração `sources/0001` (`VectorExtension`). A coluna `embedding` é `vector` **sem dimensão fixa** (cada caderno usa um modelo) e toda consulta filtra por `embedding_model` e `embedding_dim`.
+
+**Ingestão**
+- PyMuPDF; a seção vem do sumário do PDF. Validação real: assinatura `%PDF-`, abertura pelo parser, PDF com senha, limite de páginas e de tamanho.
+- Chunking em caracteres (1200/200 por padrão), por parágrafo, **sem cruzar página nem seção**, para que toda citação aponte para uma página exata.
+- **Reindexar = reingerir**: o arquivo original continua guardado, então reindexar (novo modelo de embedding ou novo idioma) é a mesma rotina da ingestão. Essa versão é mais simples que re-embedar os chunks guardados, como estava no plano, e também recalcula o full-text.
+- `search_vector` usa a config do idioma de resposta do caderno (`portuguese`/`english`/`spanish`), guardada por chunk.
+
+**Busca**
+- Full-text (`websearch_to_tsquery`, que exige todos os termos) + vetorial exata (`CosineDistance`), fundidas por RRF (k=60, 40 candidatos por método, top 8). Sem índice ANN até a Fase 4 medir.
+- **Bug encontrado nos testes**: `DISTINCT` em `search_config` herdava o `Meta.ordering` de `Chunk` e repetia a busca uma vez por chunk; corrigido com `order_by()`, com teste de regressão.
+- O embedder falso usa 512 dimensões; com 64, as colisões de hash invertiam rankings nos testes.
+
+**Geração e chat**
+- **Streaming com gerador síncrono** + `StreamingHttpResponse` (SSE): funciona igual com runserver (dev) e com uvicorn (prod). O retry só acontece **antes** do primeiro token. Uma reconexão do `EventSource` reapresenta a resposta, sem gerar de novo (a mensagem é "reivindicada" de forma atômica). Se o cliente se desconecta, o parcial é salvo como interrompido.
+- **Citações com snapshot** (texto, fonte, página e seção em `MessageCitation`): continuam válidas depois de reindexar, porque reindexar recria os chunks.
+- **Gate**: números inválidos são removidos. Sem nenhuma citação válida, há uma nova tentativa (sem streaming); se ainda faltar, a resposta é o "não encontrei" padrão. Busca vazia responde sem chamar o LLM.
+- **Prompt**: estilo compilado + regras fixas + regras de entrega das fontes; os trechos vão em `<sources>` como dado não confiável, e o texto do PDF tem os delimitadores neutralizados para não poder fechar o bloco.
+- **Render**: Markdown sem HTML cru (`markdown-it-py`, links e imagens desligados) → `nh3` → chips `[n]` gerados por nós **depois** de sanitizar.
+- **Rate limit** por usuário em pergunta (20/min) e envio de fontes (10/min); no HTMX, o aviso aparece no lugar certo via `HX-Retarget`.
+- **`client` LLM**: `api_base` dos servidores locais agora chega a chat e embed (antes só listagem e teste); `input_type` (`passage`/`query`) para NVIDIA; embeddings em lote.
+
+**Interface**
+- Três painéis (Fontes | Conversa | Notas). Abaixo de 75rem viram abas WAI-ARIA (`notebook.js`); sem JS, as colunas empilham. `chat.js` em JS puro, sem dependências.
+
+**Verificação ponta a ponta (com a chave NVIDIA real do autor)**
+- PDF de 3 páginas com sumário → worker → 3 chunks com página e seção corretas, 2048 dimensões.
+- Pergunta coberta → resposta correta com chip `[1]`; o chip abre o trecho da página 3 e destaca a fonte.
+- Streaming confirmado por leitura byte a byte: 55 leituras com um token cada, sem buffer no servidor.
+- **Observação: o tempo até o primeiro token é alto** (~10 s com `nemotron-3-super`): embedding da pergunta + busca + o raciocínio oculto do modelo. É característica do modelo de raciocínio; um modelo sem raciocínio responde mais rápido.
+- Pergunta fora das fontes → o modelo diz que não encontrou, **mas cita os trechos para justificar**, e o gate as aceita por serem válidas. A busca vetorial sempre devolve os "mais próximos", mesmo irrelevantes; julgar relevância é papel do CRAG (Fase 5).
+- **Não verificado visualmente: layout em largura de celular.** A janela do Chrome não redimensionou e o `X-Frame-Options: DENY` (proteção contra clickjacking) bloqueia testar num iframe. A estrutura está coberta por teste, e a regra de CSS foi revisada.
+
+**Fica para depois**
+- Links como fonte (exigem regras de SSRF próprias) e várias conversas por caderno.
+- OCR de PDFs escaneados.
+- Índice ANN por modelo (quando a Fase 4 medir).
+- Avaliação (Fase 4), reranking/CRAG (Fase 5).

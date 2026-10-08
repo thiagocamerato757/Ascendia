@@ -232,3 +232,18 @@ class NotebookPermissionsTest(TestCase):
         )
         self.assertEqual(response.status_code, 404)
         self.assertTrue(Notebook.objects.filter(id=self.notebook.id).exists())
+
+
+class NotebookWorkspaceLayoutTests(TestCase):
+    """The notebook page is the three-panel workspace (spec §10.4)."""
+
+    def test_sources_chat_and_notes_panels_with_tabs(self):
+        user = User.objects.create_user('layout', password='pw')
+        notebook = Notebook.objects.create(user=user, title='NB')
+        self.client.force_login(user)
+        resp = self.client.get(reverse('workspace:notebook_detail', kwargs={'notebook_id': notebook.id}))
+        for marker in ('id="sources-panel"', 'id="chat-panel"', 'id="ask-form"', 'id="col-notes"',
+                       'data-notebook-tabs', 'role="tablist"', 'js/chat.js', 'js/notebook.js'):
+            self.assertContains(resp, marker)
+        self.assertNotContains(resp, 'Upload file')  # old disabled placeholder is gone
+

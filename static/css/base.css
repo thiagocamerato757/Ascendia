@@ -257,6 +257,28 @@ button {
 }
 .o-button-grid__full { grid-column: 1 / -1; }
 
+/* Notebook workspace (spec §10.4): sources | conversation | notes.
+   Wide screens: three columns. Narrow: one column at a time, picked by the
+   tabs (notebook.js sets data-active-tab; without JS the columns stack). */
+.l-notebook {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+@media (max-width: 74.99rem) {
+  .l-notebook[data-active-tab] > .l-notebook__col { display: none; }
+  .l-notebook[data-active-tab="sources"] > [data-col="sources"],
+  .l-notebook[data-active-tab="chat"] > [data-col="chat"],
+  .l-notebook[data-active-tab="notes"] > [data-col="notes"] { display: block; }
+}
+@media (min-width: 75rem) {
+  .l-notebook {
+    grid-template-columns: minmax(15rem, 19rem) minmax(0, 1fr) minmax(14rem, 17rem);
+  }
+}
+.l-notebook__col { min-width: 0; }
+
 /* Centered content block (empty states, hero). */
 .o-center {
   display: flex;
