@@ -103,3 +103,12 @@ class HashingEmbeddingTests(FernetTestCase):
         far = hashing_embedding('Revolução Francesa e a queda da Bastilha.')
         self.assertGreater(cos(q, near), cos(q, far))
         self.assertAlmostEqual(math.sqrt(sum(v * v for v in near)), 1.0)
+
+
+class StartupTests(FernetTestCase):
+    def test_litellm_is_loaded_at_startup_not_inside_answer_threads(self):
+        # Loaded lazily, its first import happened inside an answer-generation thread
+        # and deadlocked on Python's import lock (see llm/apps.py).
+        import sys
+
+        self.assertIn('litellm', sys.modules)

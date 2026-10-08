@@ -37,4 +37,11 @@ class StyleguideView(TemplateView):
             ('warning', _('Warning')),
             ('info', _('Information')),
         ]
+        from rag.render import render_partial
+
+        context['rich_sample'] = render_partial(
+            'Dijkstra custa $O((V+E)\\log V)$ [1].\n\n'
+            '$$d(v) = \\min_{u}\\,(d(u) + w(u, v))$$\n\n'
+            '```python\ndef relax(d, u, v, w):\n    if d[u] + w < d[v]:\n        d[v] = d[u] + w\n```'
+        )
         return context

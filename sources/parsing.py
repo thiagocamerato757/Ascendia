@@ -6,6 +6,7 @@ so chunks — and therefore citations — can point at an exact page.
 """
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass
 
 from django.utils.translation import gettext as _
@@ -86,3 +87,46 @@ def extract_pdf(data: bytes) -> list[PageText]:
 def extract_text(text: str) -> list[PageText]:
     """Pasted text as a single page-less block."""
     return [PageText(page=None, section='', text=text)]
+
+
+_HEADING = re.compile(r'^ {0,3}(#{1,6})[ \t]+(.*?)[ \t]*#*[ \t]*$')
+_FENCE = re.compile(r'^ {0,3}(`{3,}|~{3,})')
+
+
+def extract_markdown(text: str) -> list[PageText]:
+    """A Markdown file as one block per heading section; ``section`` is the heading path.
+
+    Headings inside fenced code are ignored. Each section keeps its heading line,
+    so a chunk carries its own context. Markdown has no pages: ``page=None``.
+    """
+    sections: list[PageText] = []
+    path: list[tuple[int, str]] = []
+    buf: list[str] = []
+    fence: str | None = None
+
+    def flush() -> None:
+        body = ''.join(buf)
+        if body.strip():
+            sections.append(PageText(page=None, section=' › '.join(t for _, t in path)[:255], text=body))
+        buf.clear()
+
+    for line in text.splitlines(keepends=True):
+        bare = line.rstrip('\r\n')
+        fence_match = _FENCE.match(bare)
+        if fence_match:
+            marker = fence_match.group(1)
+            if fence is None:
+                fence = marker
+            elif marker[0] == fence[0] and len(marker) >= len(fence) and not bare.strip()[len(marker):].strip():
+                fence = None
+        heading = None if fence else _HEADING.match(bare)
+        if heading:
+            flush()
+            level = len(heading.group(1))
+            while path and path[-1][0] >= level:
+                path.pop()
+            path.append((level, heading.group(2).strip()))
+        buf.append(line)
+    flush()
+    return sections
+

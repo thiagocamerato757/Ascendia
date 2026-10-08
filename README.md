@@ -64,7 +64,7 @@ servido por URL pública. Se o `worker` estiver parado, as fontes ficam "Na fila
 ### Desenvolvimento (recarga automática)
 
 O `docker-compose.override.yml` é aplicado automaticamente pelo `docker compose up`
-e monta o código-fonte no contêiner, rodando o `runserver` do Django. Assim,
+e monta o código-fonte no contêiner, rodando o `uvicorn --reload` (ASGI, o mesmo servidor da produção). Assim,
 edições em Python, templates, CSS e JS valem **na hora**, sem reconstruir a imagem
 (o Python recarrega sozinho, inclusive no `worker`; os estáticos são servidos direto da
 fonte com `DJANGO_DEBUG=True`). Reconstrua a imagem só quando mudar dependências
@@ -89,11 +89,13 @@ docker compose -f docker-compose.yml up --build
 A página do caderno tem três painéis: **Fontes**, **Conversa** e **Notas**. Em telas estreitas
 eles viram abas.
 
-1. **Fontes**: envie um PDF (até `ASCENDIA_SOURCE_MAX_MB`, padrão 25 MB) ou cole um texto. A
+1. **Fontes**: arraste PDFs ou arquivos Markdown (`.md`) para a área de envio, ou escolha vários de uma vez (até
+   `ASCENDIA_UPLOAD_MAX_FILES`, padrão 10, com `ASCENDIA_SOURCE_MAX_MB`, padrão 25 MB, cada), ou cole um texto.
+   Cada arquivo é conferido sozinho: um PDF inválido não impede os outros, e o aviso diz o que ficou de fora. A
    fonte passa por "Na fila" → "Processando" → "Pronta" (ou "Falhou", com o motivo e
    "Tentar de novo"). Só fontes prontas e marcadas entram nas respostas. PDFs escaneados
    (só imagem) precisam de OCR antes.
-2. **Conversa**: pergunte. A resposta chega em streaming e cita os trechos como `[n]`.
+2. **Conversa**: pergunte. Fórmulas em LaTeX (`$…$`, `$$…$$`, `\(…\)`, `\[…\]`) aparecem formatadas (KaTeX, servido pelo próprio app) e blocos de código vêm com realce de sintaxe e botão "Copiar código". A resposta chega em streaming e cita os trechos como `[n]`.
    Clicar num número abre o trecho (fonte, página e seção) e destaca a fonte. Se as fontes
    não respondem, o app diz que não encontrou. O botão **Parar** interrompe a resposta.
 3. **Trocar o modelo de embedding** do caderno deixa as fontes antigas de fora até você

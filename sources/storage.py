@@ -35,6 +35,10 @@ def get_source_storage():
     return source_storage
 
 
+#: Stored extension per source kind (never taken from the user's file name).
+_EXTENSIONS = {'pdf': 'pdf', 'markdown': 'md'}
+
+
 def source_upload_to(instance, filename: str) -> str:
-    """``<notebook id>/<uuid>.pdf`` — the original name is kept only in the DB."""
-    return f'{instance.notebook_id}/{uuid.uuid4().hex}.pdf'
+    """``<notebook id>/<uuid>.<pdf|md>`` — the original name is kept only in the DB."""
+    return f'{instance.notebook_id}/{uuid.uuid4().hex}.{_EXTENSIONS.get(instance.kind, "bin")}'

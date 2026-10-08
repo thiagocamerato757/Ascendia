@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Ascendia\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-10-07 22:13+0000\n"
+"POT-Creation-Date: 2026-10-08 14:19+0000\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -263,51 +263,51 @@ msgstr "Instruções extras"
 msgid "notebook settings"
 msgstr "configurações do caderno"
 
-#: llm/providers.py:228
+#: llm/providers.py:231
 msgid "The server answered with a redirect. Enter its final address as the server URL."
 msgstr "O servidor respondeu com um redirecionamento. Informe o endereço final como URL do servidor."
 
-#: llm/providers.py:278
+#: llm/providers.py:281
 msgid "The provider took too long to list its models."
 msgstr "O provedor demorou demais para listar os modelos."
 
-#: llm/providers.py:280
+#: llm/providers.py:283
 msgid "Could not connect to the provider. Check the URL/endpoint."
 msgstr "Não foi possível conectar ao provedor. Verifique a URL/endpoint."
 
-#: llm/providers.py:284 llm/providers.py:305 templates/styleguide.html:144
+#: llm/providers.py:287 llm/providers.py:311 templates/styleguide.html:144
 msgid "The provider API key is invalid or was rejected."
 msgstr "A chave de API do provedor é inválida ou foi recusada."
 
-#: llm/providers.py:287
+#: llm/providers.py:290
 msgid "This provider doesn't publish a model list. Notebooks keep using the built-in list."
 msgstr "Este provedor não publica uma lista de modelos. Os cadernos continuam usando a lista embutida."
 
-#: llm/providers.py:289
+#: llm/providers.py:292
 msgid "The provider refused to list its models."
 msgstr "O provedor recusou a listagem de modelos."
 
-#: llm/providers.py:291
+#: llm/providers.py:294
 msgid "Unexpected response from the provider while listing models."
 msgstr "Resposta inesperada do provedor ao listar modelos."
 
-#: llm/providers.py:293
+#: llm/providers.py:296
 msgid "Failed to list the provider models."
 msgstr "Falha ao listar os modelos do provedor."
 
-#: llm/providers.py:307
+#: llm/providers.py:313
 msgid "The provider took too long to respond. Try again."
 msgstr "O provedor demorou demais para responder. Tente novamente."
 
-#: llm/providers.py:309
+#: llm/providers.py:315
 msgid "The provider usage limit was reached. Try again shortly."
 msgstr "O limite de uso do provedor foi atingido. Tente novamente em instantes."
 
-#: llm/providers.py:317
+#: llm/providers.py:323
 msgid "The configured model is not available for this provider."
 msgstr "O modelo configurado não está disponível para este provedor."
 
-#: llm/providers.py:320
+#: llm/providers.py:326
 msgid "Failed to reach the LLM provider. Try again."
 msgstr "Falha ao falar com o provedor de LLM. Tente novamente."
 
@@ -603,7 +603,7 @@ msgstr "Voltar"
 
 #: llm/templates/llm/notebook_settings.html:4
 #: llm/templates/llm/notebook_settings.html:10
-#: workspace/templates/workspace/notebook_detail.html:47
+#: workspace/templates/workspace/notebook_detail.html:48
 msgid "Settings"
 msgstr "Configurações"
 
@@ -701,7 +701,7 @@ msgstr "Editar nota"
 
 #: notes/templates/notes/note_create.html:4
 #: notes/templates/notes/note_create.html:12
-#: workspace/templates/workspace/notebook_detail.html:85
+#: workspace/templates/workspace/notebook_detail.html:79
 msgid "New note"
 msgstr "Nova nota"
 
@@ -720,7 +720,7 @@ msgstr "Início"
 #: notes/templates/notes/note_create.html:19
 #: notes/templates/notes/note_detail.html:39
 #: workspace/templates/workspace/notebook_create.html:17
-#: workspace/templates/workspace/notebook_detail.html:43
+#: workspace/templates/workspace/notebook_detail.html:44
 msgid "Edit"
 msgstr "Editar"
 
@@ -740,8 +740,8 @@ msgstr "Nova"
 msgid "In %(name)s"
 msgstr "Em %(name)s"
 
-#: notes/templates/notes/note_create.html:32 sources/forms.py:39
-#: sources/models.py:34
+#: notes/templates/notes/note_create.html:32 sources/forms.py:68
+#: sources/models.py:37
 msgid "Title"
 msgstr "Título"
 
@@ -778,7 +778,7 @@ msgstr "Excluir nota"
 #: notes/templates/notes/note_delete.html:10
 #: notes/templates/notes/note_detail.html:43 templates/styleguide.html:165
 #: workspace/templates/workspace/notebook_delete.html:10
-#: workspace/templates/workspace/notebook_detail.html:51
+#: workspace/templates/workspace/notebook_detail.html:52
 msgid "Delete"
 msgstr "Excluir"
 
@@ -796,7 +796,7 @@ msgid "Yes, delete note"
 msgstr "Sim, excluir nota"
 
 #: notes/templates/notes/note_detail.html:26
-#: workspace/templates/workspace/notebook_detail.html:25
+#: workspace/templates/workspace/notebook_detail.html:27
 #, python-format
 msgid "Created %(created)s • Updated %(updated)s ago"
 msgstr "Criado em %(created)s • Atualizado há %(updated)s"
@@ -877,7 +877,6 @@ msgid "Create first tag"
 msgstr "Criar a primeira tag"
 
 #: notes/templates/notes/tag_list.html:54
-#: workspace/templates/workspace/notebook_detail.html:120
 msgid "Back to workspace"
 msgstr "Voltar para o espaço de trabalho"
 
@@ -924,13 +923,32 @@ msgstr "Tag \"%(name)s\" adicionada."
 msgid "Tag \"%(name)s\" removed."
 msgstr "Tag \"%(name)s\" removida."
 
-#: rag/answer.py:41
+#: rag/answer.py:74
+msgid "This answer didn't start. Ask again."
+msgstr "Esta resposta não começou. Pergunte de novo."
+
+#: rag/answer.py:97
+msgid "This answer is taking too long. Reload the page to check it."
+msgstr "Esta resposta está demorando demais. Recarregue a página para conferir."
+
+#: rag/export.py:24
+#, python-format
+msgid "p. %(page)s"
+msgstr "p. %(page)s"
+
+#: rag/export.py:36 rag/export.py:48 sources/templates/sources/_panel.html:9
+#: templates/styleguide.html:211 templates/styleguide.html:218
+#: workspace/templates/workspace/notebook_detail.html:58
+msgid "Sources"
+msgstr "Fontes"
+
+#: rag/generation.py:52
 msgid "I couldn't find this in the sources of this notebook."
 msgstr "Não encontrei isso nas fontes deste caderno."
 
-#: rag/answer.py:109
-msgid "This answer is already being written in another tab."
-msgstr "Esta resposta já está sendo escrita em outra aba."
+#: rag/generation.py:86
+msgid "Something went wrong while writing this answer. Ask again."
+msgstr "Algo deu errado ao escrever esta resposta. Pergunte de novo."
 
 #: rag/prompt.py:51
 msgid "How the sources are delivered:"
@@ -956,7 +974,7 @@ msgstr "Pergunta:"
 msgid "Your answer did not cite the sources. Answer again using only the passages above and cite them as [n]. If they do not answer the question, say only that the sources do not cover it."
 msgstr "Sua resposta não citou as fontes. Responda de novo usando apenas os trechos acima e cite-os como [n]. Se eles não respondem à pergunta, diga apenas que as fontes não cobrem o assunto."
 
-#: rag/render.py:51
+#: rag/render.py:123
 #, python-format
 msgid "Open source %(n)s"
 msgstr "Abrir fonte %(n)s"
@@ -973,57 +991,87 @@ msgstr "Interrompida antes do fim."
 msgid "The answer failed"
 msgstr "A resposta falhou"
 
-#: rag/templates/rag/_assistant_message.html:11 templates/styleguide.html:232
+#: rag/templates/rag/_assistant_message.html:11 templates/styleguide.html:240
 msgid "Stop"
 msgstr "Parar"
+
+#: rag/templates/rag/_assistant_message.html:14 templates/styleguide.html:238
+msgid "Copy Markdown"
+msgstr "Copiar Markdown"
+
+#: rag/templates/rag/_assistant_message.html:15 templates/styleguide.html:238
+msgid "Copy formatted"
+msgstr "Copiar formatado"
 
 #: rag/templates/rag/_chat.html:5
 msgid "The connection was lost. Reload the page to see the answer."
 msgstr "A conexão caiu. Recarregue a página para ver a resposta."
 
-#: rag/templates/rag/_chat.html:7 templates/styleguide.html:205
-#: templates/styleguide.html:228
-#: workspace/templates/workspace/notebook_detail.html:64
+#: rag/templates/rag/_chat.html:6 templates/styleguide.html:199
+#: templates/styleguide.html:238
+msgid "Copied"
+msgstr "Copiado"
+
+#: rag/templates/rag/_chat.html:6
+msgid "Could not copy"
+msgstr "Não foi possível copiar"
+
+#: rag/templates/rag/_chat.html:7 templates/styleguide.html:199
+#| msgid "Copy formatted"
+msgid "Copy code"
+msgstr "Copiar código"
+
+#: rag/templates/rag/_chat.html:7 templates/styleguide.html:199
+msgid "code"
+msgstr "código"
+
+#: rag/templates/rag/_chat.html:9 templates/styleguide.html:212
+#: templates/styleguide.html:235
+#: workspace/templates/workspace/notebook_detail.html:59
 msgid "Conversation"
 msgstr "Conversa"
 
-#: rag/templates/rag/_chat.html:10
+#: rag/templates/rag/_chat.html:12
 msgid "Clear the whole conversation?"
 msgstr "Limpar toda a conversa?"
 
-#: rag/templates/rag/_chat.html:10
+#: rag/templates/rag/_chat.html:12
 msgid "Clear conversation"
 msgstr "Limpar conversa"
 
-#: rag/templates/rag/_chat.html:24
+#: rag/templates/rag/_chat.html:29
 msgid "Ask about your sources"
 msgstr "Pergunte sobre suas fontes"
 
-#: rag/templates/rag/_chat.html:25
+#: rag/templates/rag/_chat.html:30
 msgid "Answers come only from this notebook's sources, with numbered citations you can open."
 msgstr "As respostas vêm só das fontes deste caderno, com citações numeradas que você pode abrir."
 
-#: rag/templates/rag/_chat.html:27
+#: rag/templates/rag/_chat.html:32
 msgid "Add a source to start"
 msgstr "Adicione uma fonte para começar"
 
-#: rag/templates/rag/_chat.html:28
+#: rag/templates/rag/_chat.html:33
 msgid "Upload a PDF or paste text in the Sources panel. Once it is ready, ask anything about it here."
 msgstr "Envie um PDF ou cole um texto no painel Fontes. Quando estiver pronto, pergunte o que quiser aqui."
 
-#: rag/templates/rag/_chat.html:40 templates/styleguide.html:240
+#: rag/templates/rag/_chat.html:40
+msgid "Jump to latest"
+msgstr "Ir para o fim"
+
+#: rag/templates/rag/_chat.html:50 templates/styleguide.html:248
 msgid "Your question"
 msgstr "Sua pergunta"
 
-#: rag/templates/rag/_chat.html:42 templates/styleguide.html:240
+#: rag/templates/rag/_chat.html:52 templates/styleguide.html:248
 msgid "Ask something about your sources…"
 msgstr "Pergunte algo sobre suas fontes…"
 
-#: rag/templates/rag/_chat.html:43 templates/styleguide.html:241
+#: rag/templates/rag/_chat.html:53 templates/styleguide.html:249
 msgid "Ask"
 msgstr "Perguntar"
 
-#: rag/templates/rag/_chat.html:45
+#: rag/templates/rag/_chat.html:55
 msgid "Enter sends, Shift+Enter adds a line."
 msgstr "Enter envia; Shift+Enter quebra a linha."
 
@@ -1031,11 +1079,11 @@ msgstr "Enter envia; Shift+Enter quebra a linha."
 msgid "Close passage"
 msgstr "Fechar trecho"
 
-#: rag/templates/rag/_citation.html:8 templates/styleguide.html:235
+#: rag/templates/rag/_citation.html:8 templates/styleguide.html:243
 msgid "Close"
 msgstr "Fechar"
 
-#: rag/templates/rag/_citation.html:10 templates/styleguide.html:236
+#: rag/templates/rag/_citation.html:10 templates/styleguide.html:244
 #, python-format
 msgid "Page %(page)s"
 msgstr "Página %(page)s"
@@ -1044,115 +1092,124 @@ msgstr "Página %(page)s"
 msgid "Stopping…"
 msgstr "Parando…"
 
-#: rag/views.py:69
+#: rag/views.py:72
 msgid "Type a question."
 msgstr "Digite uma pergunta."
 
-#: rag/views.py:71
+#: rag/views.py:74
 #, python-format
 msgid "The question is too long (limit: %(n)s characters)."
 msgstr "A pergunta é longa demais (limite: %(n)s caracteres)."
 
-#: rag/views.py:78
+#: rag/views.py:81
 msgid "Select at least one source to search."
 msgstr "Selecione pelo menos uma fonte para a busca."
 
-#: sources/forms.py:14
-msgid "PDF file"
-msgstr "Arquivo PDF"
-
-#: sources/forms.py:23
+#: sources/forms.py:26
 #, python-format
 msgid "This file is larger than %(mb)s MB."
 msgstr "Este arquivo tem mais de %(mb)s MB."
 
-#: sources/forms.py:26
+#: sources/forms.py:41
+#| msgid "This file is not a PDF."
+msgid "This Markdown file is not valid UTF-8 text."
+msgstr "Este arquivo Markdown não é texto UTF-8 válido."
+
+#: sources/forms.py:43
+msgid "This file does not look like a text file."
+msgstr "Este arquivo não parece ser de texto."
+
+#: sources/forms.py:45
+#| msgid "This file is not a PDF."
+msgid "This file is empty."
+msgstr "Este arquivo está vazio."
+
+#: sources/forms.py:56
 msgid "Only PDF files are accepted."
 msgstr "Só arquivos PDF são aceitos."
 
-#: sources/forms.py:40
+#: sources/forms.py:69
 msgid "e.g. Class notes, week 3"
 msgstr "ex.: Anotações da aula, semana 3"
 
-#: sources/forms.py:43 sources/models.py:18
+#: sources/forms.py:72 sources/models.py:19
 msgid "Text"
 msgstr "Texto"
 
-#: sources/forms.py:45
+#: sources/forms.py:74
 msgid "Paste the text here."
 msgstr "Cole o texto aqui."
 
-#: sources/forms.py:52
+#: sources/forms.py:81
 msgid "Paste some text."
 msgstr "Cole algum texto."
 
-#: sources/forms.py:54
+#: sources/forms.py:83
 #, python-format
 msgid "The text is longer than %(n)s characters."
 msgstr "O texto tem mais de %(n)s caracteres."
 
-#: sources/ingestion.py:93
+#: sources/ingestion.py:102
 msgid "No text was found in this source. Scanned PDFs need OCR first."
 msgstr "Nenhum texto foi encontrado nesta fonte. PDFs escaneados precisam de OCR antes."
 
-#: sources/ingestion.py:97
+#: sources/ingestion.py:106
 msgid "The embedding provider returned an unexpected number of vectors."
 msgstr "O provedor de embeddings devolveu um número inesperado de vetores."
 
-#: sources/ingestion.py:107
+#: sources/ingestion.py:116
 msgid "Something went wrong while processing this source. Try again."
 msgstr "Algo deu errado ao processar esta fonte. Tente de novo."
 
-#: sources/models.py:18
+#: sources/models.py:19
 msgid "PDF"
 msgstr "PDF"
 
-#: sources/models.py:25
+#: sources/models.py:19
+#| msgid "Copy Markdown"
+msgid "Markdown"
+msgstr "Markdown"
+
+#: sources/models.py:28
 msgid "Pending"
 msgstr "Na fila"
 
-#: sources/models.py:26 templates/styleguide.html:217
+#: sources/models.py:29 templates/styleguide.html:224
 msgid "Processing"
 msgstr "Processando"
 
-#: sources/models.py:27 templates/styleguide.html:213
+#: sources/models.py:30 templates/styleguide.html:220
 msgid "Ready"
 msgstr "Pronta"
 
-#: sources/models.py:28 templates/styleguide.html:220
+#: sources/models.py:31 templates/styleguide.html:227
 msgid "Failed"
 msgstr "Falhou"
 
-#: sources/models.py:33
+#: sources/models.py:36
 msgid "Type"
 msgstr "Tipo"
 
-#: sources/parsing.py:31
+#: sources/parsing.py:32
 msgid "This file is not a PDF."
 msgstr "Este arquivo não é um PDF."
 
-#: sources/parsing.py:35
+#: sources/parsing.py:36
 msgid "This PDF could not be read. It may be damaged."
 msgstr "Não foi possível ler este PDF. Ele pode estar corrompido."
 
-#: sources/parsing.py:38 templates/styleguide.html:222
+#: sources/parsing.py:39 templates/styleguide.html:229
 msgid "This PDF is password-protected. Remove the password and upload it again."
 msgstr "Este PDF tem senha. Remova a senha e envie de novo."
 
-#: sources/parsing.py:50
+#: sources/parsing.py:51
 msgid "This PDF has no pages."
 msgstr "Este PDF não tem páginas."
 
-#: sources/parsing.py:53
+#: sources/parsing.py:54
 #, python-format
 msgid "This PDF has %(pages)s pages; the limit is %(max)s."
 msgstr "Este PDF tem %(pages)s páginas; o limite é %(max)s."
-
-#: sources/templates/sources/_panel.html:9 templates/styleguide.html:204
-#: templates/styleguide.html:211
-#: workspace/templates/workspace/notebook_detail.html:63
-msgid "Sources"
-msgstr "Fontes"
 
 #: sources/templates/sources/_panel.html:17
 #, python-format
@@ -1181,7 +1238,7 @@ msgid_plural "%(n)s pages"
 msgstr[0] "%(n)s página"
 msgstr[1] "%(n)s páginas"
 
-#: sources/templates/sources/_panel.html:45 templates/styleguide.html:221
+#: sources/templates/sources/_panel.html:45 templates/styleguide.html:228
 msgid "Try again"
 msgstr "Tentar de novo"
 
@@ -1190,7 +1247,7 @@ msgstr "Tentar de novo"
 msgid "Remove “%(title)s” from this notebook?"
 msgstr "Remover “%(title)s” deste caderno?"
 
-#: sources/templates/sources/_panel.html:49 templates/styleguide.html:214
+#: sources/templates/sources/_panel.html:49 templates/styleguide.html:221
 #: users/templates/users/profile.html:38 users/templates/users/profile.html:193
 msgid "Remove"
 msgstr "Remover"
@@ -1203,39 +1260,79 @@ msgstr "Nenhuma fonte ainda"
 msgid "Add a PDF or paste text. Answers in this notebook come only from its sources."
 msgstr "Adicione um PDF ou cole um texto. As respostas deste caderno vêm só das fontes dele."
 
-#: sources/templates/sources/_panel.html:65
-msgid "Add a PDF"
-msgstr "Adicionar um PDF"
+#: sources/templates/sources/_panel.html:64
+msgid "Uploading 1 file…"
+msgstr "Enviando 1 arquivo…"
 
-#: sources/templates/sources/_panel.html:67
-msgid "Upload PDF"
-msgstr "Enviar PDF"
+#: sources/templates/sources/_panel.html:64
+#, python-format
+msgid "Uploading %%(n)s files…"
+msgstr "Enviando %%(n)s arquivos…"
 
-#: sources/templates/sources/_panel.html:71 templates/styleguide.html:224
+#: sources/templates/sources/_panel.html:70
+#| msgid "Drop PDFs here or choose files"
+msgid "Drop PDF or Markdown files here, or choose files"
+msgstr "Arraste arquivos PDF ou Markdown para cá, ou escolha arquivos"
+
+#: sources/templates/sources/_panel.html:71
+#, python-format
+msgid "Up to %(n)s files, %(mb)s MB each"
+msgstr "Até %(n)s arquivos, %(mb)s MB cada"
+
+#: sources/templates/sources/_panel.html:82 templates/styleguide.html:231
 msgid "Paste text instead"
 msgstr "Ou cole um texto"
 
-#: sources/templates/sources/_panel.html:77
+#: sources/templates/sources/_panel.html:88
 msgid "Add text"
 msgstr "Adicionar texto"
 
-#: sources/views.py:78
-msgid "Choose a PDF file."
-msgstr "Escolha um arquivo PDF."
+#: sources/views.py:90 sources/views.py:94 sources/views.py:131
+#| msgid "Couldn't add the PDFs"
+msgid "Couldn't add the files"
+msgstr "Não foi possível adicionar os arquivos"
 
-#: sources/views.py:79
-msgid "Couldn't add the PDF"
-msgstr "Não foi possível adicionar o PDF"
+#: sources/views.py:91
+#| msgid "Choose a PDF file."
+msgid "Choose a PDF or Markdown file."
+msgstr "Escolha um arquivo PDF ou Markdown."
 
-#: sources/views.py:86 sources/views.py:103
+#: sources/views.py:95
+#, python-format
+msgid "Send at most %(n)s files at a time."
+msgstr "Envie no máximo %(n)s arquivos por vez."
+
+#: sources/views.py:109
+#| msgid "Only PDF files are accepted."
+msgid "Only PDF and Markdown (.md) files are accepted."
+msgstr "Só arquivos PDF e Markdown (.md) são aceitos."
+
+#: sources/views.py:117
+msgid "already in this notebook"
+msgstr "já está neste caderno"
+
+#: sources/views.py:128 sources/views.py:130
+#, python-format
+msgid "%(n)s file added"
+msgid_plural "%(n)s files added"
+msgstr[0] "%(n)s arquivo adicionado"
+msgstr[1] "%(n)s arquivos adicionados"
+
+#: sources/views.py:129
+msgid "They are being processed; answers can use them once they are ready."
+msgstr "Eles estão sendo processados; as respostas podem usá-los quando ficarem prontos."
+
+#: sources/views.py:135
+msgid "This file was left out:"
+msgid_plural "These files were left out:"
+msgstr[0] "Este arquivo ficou de fora:"
+msgstr[1] "Estes arquivos ficaram de fora:"
+
+#: sources/views.py:151
 msgid "Already added"
 msgstr "Já adicionado"
 
-#: sources/views.py:87
-msgid "This PDF is already in the notebook."
-msgstr "Este PDF já está no caderno."
-
-#: sources/views.py:104
+#: sources/views.py:152
 msgid "This text is already in the notebook."
 msgstr "Este texto já está no caderno."
 
@@ -1472,7 +1569,7 @@ msgid "Toasts"
 msgstr "Notificações"
 
 #: templates/styleguide.html:131 templates/styleguide.html:142
-#: templates/styleguide.html:145 templates/styleguide.html:237
+#: templates/styleguide.html:145 templates/styleguide.html:245
 msgid "Example message."
 msgstr "Mensagem de exemplo."
 
@@ -1518,44 +1615,48 @@ msgid "Analytical"
 msgstr "Analítico"
 
 #: templates/styleguide.html:200
-#| msgid "Back to workspace"
+msgid "Math and code in answers"
+msgstr "Matemática e código nas respostas"
+
+#: templates/styleguide.html:201
+msgid "Rendered on the server (sanitized), math drawn by KaTeX, code highlighted by Pygments."
+msgstr "Renderizado no servidor (sanitizado); fórmulas desenhadas pelo KaTeX, código realçado pelo Pygments."
+
+#: templates/styleguide.html:207
 msgid "Notebook workspace"
 msgstr "Espaço do caderno"
 
-#: templates/styleguide.html:201
+#: templates/styleguide.html:208
 msgid "Panels, sources, chat and citations as used on the notebook page."
 msgstr "Painéis, fontes, conversa e citações como aparecem na página do caderno."
 
-#: templates/styleguide.html:203
-#| msgid "Example message."
+#: templates/styleguide.html:210
 msgid "Example tabs"
 msgstr "Abas de exemplo"
 
-#: templates/styleguide.html:206 templates/styleguide.html:246
-#: workspace/templates/workspace/notebook_detail.html:65
-#: workspace/templates/workspace/notebook_detail.html:80
+#: templates/styleguide.html:213 templates/styleguide.html:254
+#: workspace/templates/workspace/notebook_detail.html:60
+#: workspace/templates/workspace/notebook_detail.html:74
 msgid "Notes"
 msgstr "Notas"
 
-#: templates/styleguide.html:214
+#: templates/styleguide.html:221
 msgid "pages"
 msgstr "páginas"
 
-#: templates/styleguide.html:230
+#: templates/styleguide.html:237
 msgid "What does the source say about X?"
 msgstr "O que a fonte diz sobre X?"
 
-#: templates/styleguide.html:231
+#: templates/styleguide.html:238 templates/styleguide.html:239
 msgid "According to the sources, X means… "
 msgstr "De acordo com as fontes, X significa… "
 
-#: templates/styleguide.html:247
-#| msgid "Example message."
+#: templates/styleguide.html:255
 msgid "Example note"
 msgstr "Nota de exemplo"
 
-#: templates/styleguide.html:247
-#| msgid "Updated %(when)s ago"
+#: templates/styleguide.html:255
 msgid "Updated 2 hours ago"
 msgstr "Atualizada há 2 horas"
 
@@ -2001,7 +2102,7 @@ msgid "New notebook"
 msgstr "Novo caderno"
 
 #: workspace/templates/workspace/home.html:40
-#: workspace/templates/workspace/notebook_detail.html:95
+#: workspace/templates/workspace/notebook_detail.html:89
 #, python-format
 msgid "Updated %(when)s ago"
 msgstr "Atualizado há %(when)s"
@@ -2112,31 +2213,31 @@ msgstr "Todos os dados associados"
 msgid "Yes, delete notebook"
 msgstr "Sim, excluir caderno"
 
-#: workspace/templates/workspace/notebook_detail.html:34
+#: workspace/templates/workspace/notebook_detail.html:35
 msgid "Starred"
 msgstr "Favoritado"
 
-#: workspace/templates/workspace/notebook_detail.html:37
+#: workspace/templates/workspace/notebook_detail.html:38
 msgid "Star"
 msgstr "Favoritar"
 
-#: workspace/templates/workspace/notebook_detail.html:62
+#: workspace/templates/workspace/notebook_detail.html:57
 msgid "Notebook sections"
 msgstr "Seções do caderno"
 
-#: workspace/templates/workspace/notebook_detail.html:92
+#: workspace/templates/workspace/notebook_detail.html:86
 msgid "Pinned"
 msgstr "Fixada"
 
-#: workspace/templates/workspace/notebook_detail.html:108
+#: workspace/templates/workspace/notebook_detail.html:102
 msgid "No notes yet"
 msgstr "Nenhuma nota ainda"
 
-#: workspace/templates/workspace/notebook_detail.html:109
+#: workspace/templates/workspace/notebook_detail.html:103
 msgid "Write down ideas and summaries while you study."
 msgstr "Anote ideias e resumos enquanto estuda."
 
-#: workspace/templates/workspace/notebook_detail.html:112
+#: workspace/templates/workspace/notebook_detail.html:106
 msgid "Manage tags"
 msgstr "Gerenciar tags"
 

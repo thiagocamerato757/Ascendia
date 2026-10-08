@@ -246,4 +246,10 @@ class NotebookWorkspaceLayoutTests(TestCase):
                        'data-notebook-tabs', 'role="tablist"', 'js/chat.js', 'js/notebook.js'):
             self.assertContains(resp, marker)
         self.assertNotContains(resp, 'Upload file')  # old disabled placeholder is gone
+        self.assertContains(resp, 'l-app--workspace')  # fixed-height workspace, columns scroll
+        self.assertContains(resp, 'data-chat-jump')
+        self.assertContains(resp, 'o-container--fluid')  # edge to edge
+        self.assertContains(resp, 'c-notebook-bar')
+        self.assertContains(resp, 'data-dropzone')
+        self.assertNotContains(resp, 'class="l-footer"')
 

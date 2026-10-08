@@ -55,6 +55,8 @@ class Message(models.Model):
     latency_ms = models.PositiveIntegerField(default=0)
     cost_usd = models.FloatField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    #: Heartbeat while the answer is being written (set explicitly: QuerySet.update skips auto_now).
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         ordering = ['created_at', 'id']

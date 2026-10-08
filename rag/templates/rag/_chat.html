@@ -1,7 +1,9 @@
 {% load i18n %}
 {% comment %}Chat panel (center column). The answer streams into the last bubble via static/js/chat.js.{% endcomment %}
 <section id="chat-panel" class="c-panel c-chat" aria-labelledby="chat-heading"
-         data-connection-lost="{% trans 'The connection was lost. Reload the page to see the answer.' %}">
+         data-connection-lost="{% trans 'The connection was lost. Reload the page to see the answer.' %}"
+         data-copied="{% trans 'Copied' %}" data-copy-failed="{% trans 'Could not copy' %}"
+         data-richtext-labels data-copy-code="{% trans 'Copy code' %}" data-code-label="{% trans 'code' %}">
   <header class="c-panel__head">
     <h2 id="chat-heading" class="c-panel__title">{% trans "Conversation" %}</h2>
     {% if messages %}
@@ -10,6 +12,7 @@
     {% endif %}
   </header>
 
+  <div class="c-chat__viewport">
   <div id="chat-log" class="c-chat__log" aria-live="polite" aria-busy="false">
     {% for message in messages %}
       {% if message.role == 'user' %}
@@ -18,7 +21,9 @@
         {% include 'rag/_assistant_message.html' with message=message %}
       {% endif %}
     {% empty %}
-      <div class="c-empty-state c-empty-state--compact" data-chat-empty>
+      <div class="c-empty-state c-empty-state--compact" data-chat-empty
+           hx-get="{% url 'rag:chat' notebook.id %}" hx-trigger="sources-updated from:body"
+           hx-select="[data-chat-empty]" hx-swap="outerHTML">
         {% if has_ready_sources %}
           <p class="c-empty-state__title">{% trans "Ask about your sources" %}</p>
           <p class="c-empty-state__text">{% trans "Answers come only from this notebook's sources, with numbered citations you can open." %}</p>
@@ -29,17 +34,22 @@
       </div>
     {% endfor %}
   </div>
+  <button type="button" class="c-chat__jump" data-chat-jump hidden>
+    <svg class="c-icon c-icon--sm" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+    {% trans "Jump to latest" %}
+  </button>
+  </div>
 
-  <div id="citation-viewer" class="c-citation-viewer" aria-live="polite"></div>
-  <div id="ask-error"></div>
+  <div id="citation-viewer" class="c-citation-viewer c-chat__measure" aria-live="polite"></div>
+  <div id="ask-error" class="c-chat__measure"></div>
 
-  <form id="ask-form" class="c-chat__composer" hx-post="{% url 'rag:ask' notebook.id %}" hx-target="#chat-log"
+  <form id="ask-form" class="c-chat__composer c-chat__measure" hx-post="{% url 'rag:ask' notebook.id %}" hx-target="#chat-log"
         hx-swap="beforeend" data-chat-form>
     {% csrf_token %}
     <label class="is-visually-hidden" for="ask-question">{% trans "Your question" %}</label>
-    <textarea id="ask-question" name="question" class="c-field__input c-chat__input" rows="2" required
+    <textarea id="ask-question" name="question" class="c-field__input c-chat__input" rows="1" required
               maxlength="{{ max_question_chars }}" placeholder="{% trans 'Ask something about your sources…' %}"></textarea>
     <button type="submit" class="c-button c-button--primary">{% trans "Ask" %}</button>
   </form>
-  <p class="c-chat__hint">{% trans "Enter sends, Shift+Enter adds a line." %}</p>
+  <p class="c-chat__hint c-chat__measure">{% trans "Enter sends, Shift+Enter adds a line." %}</p>
 </section>

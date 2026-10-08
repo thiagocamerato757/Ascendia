@@ -25,7 +25,7 @@
 </head>
 
 <body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>{# every HTMX request carries the CSRF token, inside a form or not #}
-  <div class="l-app">
+  <div class="l-app {% block app_class %}{% endblock %}">
     <!-- Navbar -->
     <header class="c-nav">
       <nav class="c-nav__inner">

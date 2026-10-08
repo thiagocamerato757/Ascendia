@@ -10,22 +10,23 @@
   <span class="c-nav__link is-active">{{ notebook.title|truncatechars:20 }}</span>
 {% endblock %}
 
+{# The notebook is a fixed-height workspace: each column scrolls on its own. #}
+{% block app_class %}l-app--workspace{% endblock %}
+{% block footer %}{% endblock %}
+
 {% block content %}
-<div class="o-container o-section o-stack o-stack--lg">
-  <!-- Notebook header -->
-  <div class="c-card o-stack">
-    <span class="c-card__accent-bar" style="background: {{ notebook.color }};"></span>
-    <div class="o-cluster o-cluster--between o-cluster--top">
-      <div class="o-cluster o-cluster--sm o-cluster--nowrap o-min0">
-        <svg class="c-icon c-icon--xl" style="color: {{ notebook.color }};" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
-        </svg>
-        <div class="o-min0">
-          <h1 class="text-4xl">{{ notebook.title }}</h1>
-          <p class="c-field__help">{% blocktrans with created=notebook.created_at|date:"d/m/Y" updated=notebook.updated_at|timesince %}Created {{ created }} • Updated {{ updated }} ago{% endblocktrans %}</p>
-        </div>
+<div class="o-container o-container--fluid l-workspace">
+  <!-- Workspace (spec §10.4), edge to edge. Wide: sources | (bar + conversation) | notes,
+       each column scrolling on its own. Narrow: bar, tabs, then the active panel;
+       without JS the columns simply stack. -->
+  <div class="l-notebook">
+    <header class="c-notebook-bar" title="{{ notebook.description|default:'' }}">
+      <span class="c-notebook-bar__mark" style="background: {{ notebook.color }};" aria-hidden="true"></span>
+      <div class="c-notebook-bar__text">
+        <h1 class="c-notebook-bar__title">{{ notebook.title }}</h1>
+        <p class="c-notebook-bar__meta">{% blocktrans with created=notebook.created_at|date:"d/m/Y" updated=notebook.updated_at|timesince %}Created {{ created }} • Updated {{ updated }} ago{% endblocktrans %}</p>
       </div>
-      <div class="o-cluster o-cluster--sm">
+      <div class="c-notebook-bar__actions">
         <form method="post" action="{% url 'workspace:notebook_toggle_favorite' notebook.id %}">
           {% csrf_token %}
           <button type="submit" class="c-button c-button--secondary c-button--sm">
@@ -51,23 +52,16 @@
           <span>{% trans "Delete" %}</span>
         </a>
       </div>
+    </header>
+
+    <div class="c-tabs" role="tablist" aria-label="{% trans 'Notebook sections' %}" data-notebook-tabs hidden>
+      <button type="button" class="c-tabs__tab" role="tab" id="tab-sources" aria-controls="col-sources" aria-selected="false" data-tab="sources">{% trans "Sources" %}</button>
+      <button type="button" class="c-tabs__tab" role="tab" id="tab-chat" aria-controls="col-chat" aria-selected="true" data-tab="chat">{% trans "Conversation" %}</button>
+      <button type="button" class="c-tabs__tab" role="tab" id="tab-notes" aria-controls="col-notes" aria-selected="false" data-tab="notes">{% trans "Notes" %}</button>
     </div>
-    {% if notebook.description %}
-      <p class="text-muted text-lg">{{ notebook.description }}</p>
-    {% endif %}
-  </div>
 
-  <!-- Workspace: sources | conversation | notes (spec §10.4). On narrow screens the
-       columns become tabs; without JS they simply stack. -->
-  <div class="c-tabs" role="tablist" aria-label="{% trans 'Notebook sections' %}" data-notebook-tabs hidden>
-    <button type="button" class="c-tabs__tab" role="tab" id="tab-sources" aria-controls="col-sources" aria-selected="false" data-tab="sources">{% trans "Sources" %}</button>
-    <button type="button" class="c-tabs__tab" role="tab" id="tab-chat" aria-controls="col-chat" aria-selected="true" data-tab="chat">{% trans "Conversation" %}</button>
-    <button type="button" class="c-tabs__tab" role="tab" id="tab-notes" aria-controls="col-notes" aria-selected="false" data-tab="notes">{% trans "Notes" %}</button>
-  </div>
-
-  <div class="l-notebook">
     <div class="l-notebook__col" id="col-sources" data-col="sources" role="tabpanel" aria-labelledby="tab-sources">
-      {% with ctx=sources_panel %}{% include 'sources/_panel.html' with notebook=notebook sources=ctx.sources any_active=ctx.any_active has_ready=ctx.has_ready stale_count=ctx.stale_count notice=None text_form=ctx.text_form %}{% endwith %}
+      {% with ctx=sources_panel %}{% include 'sources/_panel.html' with notebook=notebook sources=ctx.sources any_active=ctx.any_active has_ready=ctx.has_ready stale_count=ctx.stale_count notice=None text_form=ctx.text_form max_mb=ctx.max_mb max_files=ctx.max_files %}{% endwith %}
     </div>
 
     <div class="l-notebook__col" id="col-chat" data-col="chat" role="tabpanel" aria-labelledby="tab-chat">
@@ -114,17 +108,19 @@
     </div>
   </div>
 
-  <div>
-    <a href="{% url 'workspace:home' %}" class="c-button c-button--secondary">
-      <svg class="c-button__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-      <span>{% trans "Back to workspace" %}</span>
-    </a>
-  </div>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+{% load assets %}
+<link rel="stylesheet" href="{% asset 'vendor/katex/katex.min.css' %}">
 {% endblock %}
 
 {% block extra_js %}
 {% load assets %}
+{# KaTeX (vendored, MIT) renders the math the server marks; richtext.js adds code-block bars. #}
+<script src="{% asset 'vendor/katex/katex.min.js' %}" defer></script>
+<script src="{% asset 'js/richtext.js' %}" defer></script>
 <script src="{% asset 'js/chat.js' %}" defer></script>
 <script src="{% asset 'js/notebook.js' %}" defer></script>
 {% endblock %}

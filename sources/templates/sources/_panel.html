@@ -10,7 +10,7 @@
     <span class="c-panel__count">{{ sources|length }}</span>
   </header>
 
-  {% if notice %}{% include 'components/notice.html' with variant=notice.variant title=notice.title message=notice.message %}{% endif %}
+  {% if notice %}{% include 'components/notice.html' with variant=notice.variant title=notice.title message=notice.message items=notice.items %}{% endif %}
 
   {% if stale_count %}
     <div class="o-stack o-stack--sm">
@@ -59,12 +59,23 @@
     {% endfor %}
   </div>
 
-  <form class="o-stack o-stack--sm" hx-post="{% url 'sources:upload' notebook.id %}" hx-encoding="multipart/form-data"
-        hx-target="#sources-panel" hx-swap="outerHTML">
+  {# Several PDFs at once: choose or drop them; the upload starts by itself (notebook.js). #}
+  <form class="c-dropzone" data-dropzone
+        data-uploading-one="{% trans 'Uploading 1 file…' %}" data-uploading-many="{% trans 'Uploading %(n)s files…' %}"
+        hx-post="{% url 'sources:upload' notebook.id %}" hx-encoding="multipart/form-data"
+        hx-target="#sources-panel" hx-swap="outerHTML" hx-trigger="change from:find input[type=file]">
     {% csrf_token %}
-    <label class="c-field__label" for="source-file-{{ notebook.id }}">{% trans "Add a PDF" %}</label>
-    <input type="file" id="source-file-{{ notebook.id }}" name="file" accept="application/pdf,.pdf" class="c-field__input" required>
-    <button type="submit" class="c-button c-button--primary c-button--sm c-button--block">{% trans "Upload PDF" %}</button>
+    <label class="c-dropzone__area" for="source-files-{{ notebook.id }}">
+      <svg class="c-icon c-icon--lg c-dropzone__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 16V4m0 0l-4 4m4-4l4 4M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
+      <span class="c-dropzone__title">{% trans "Drop PDF or Markdown files here, or choose files" %}</span>
+      <span class="c-dropzone__hint">{% blocktrans with mb=max_mb n=max_files %}Up to {{ n }} files, {{ mb }} MB each{% endblocktrans %}</span>
+      <input type="file" id="source-files-{{ notebook.id }}" name="file" accept="application/pdf,.pdf,.md,.markdown,text/markdown" multiple
+             class="c-dropzone__input">
+    </label>
+    <div class="c-dropzone__progress" data-dropzone-progress hidden>
+      <span class="c-dropzone__status" role="status" data-dropzone-status></span>
+      <progress class="c-dropzone__bar" max="100" value="0" data-dropzone-bar></progress>
+    </div>
   </form>
 
   <details class="c-disclosure" {% if text_form.errors %}open{% endif %}>

@@ -1100,25 +1100,59 @@ a:hover > .c-avatar {
   flex-direction: column;
   gap: var(--space-4);
 }
+/* The log scrolls inside the panel; the composer stays visible below it. */
+.c-chat__viewport {
+  position: relative;
+  flex: 1;
+  min-height: 12rem;
+  display: flex;
+}
 .c-chat__log {
+  flex: 1;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
-  min-height: 16rem;
-  max-height: 60vh;
   overflow-y: auto;
   overscroll-behavior: contain;
   padding-right: var(--space-1);
 }
+/* Shown when the reader scrolled up while new text arrived. */
+.c-chat__jump {
+  position: absolute;
+  left: 50%;
+  bottom: var(--space-3);
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  background: var(--surface-menu);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+}
+.c-chat__jump[hidden] { display: none; }
+.c-chat__jump:hover { border-color: var(--accent); }
+.c-chat__jump:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.c-chat > * { flex-shrink: 0; }
+.c-chat > .c-chat__viewport { flex-shrink: 1; }
 .c-chat__composer {
   display: flex;
   align-items: flex-end;
   gap: var(--space-2);
 }
-.c-chat__input {
+/* textarea.c-chat__input: must outrank the generic textarea.c-field__input min-height. */
+textarea.c-chat__input {
   flex: 1;
-  min-height: 3rem;
-  resize: vertical;
+  min-height: 2.75rem;
+  max-height: 9rem; /* grows with the text (chat.js), then scrolls */
+  resize: none;
+  overflow-y: auto;
 }
 .c-chat__hint {
   margin-top: calc(var(--space-3) * -1);
@@ -1129,11 +1163,26 @@ a:hover > .c-avatar {
 .c-message__body > * + * { margin-top: var(--space-2); }
 .c-message__body ul,
 .c-message__body ol { padding-left: var(--space-5); }
-.c-message__body pre {
+/* Code: inline and blocks (blocks get a bar with language + copy, from richtext.js). */
+.c-message__body code,
+.c-citation-card__text code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+.c-message__body :not(pre) > code,
+.c-citation-card__text :not(pre) > code {
+  padding: 0.1em 0.35em;
+  border-radius: var(--radius-sm);
+  background: var(--surface-hover);
+}
+.c-message__body pre,
+.c-citation-card__text pre {
   overflow-x: auto;
-  padding: var(--space-3);
+  padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-sm);
   background: var(--surface-sunken);
+  line-height: 1.5;
+  tab-size: 4;
 }
 .c-message__meta {
   margin-top: var(--space-2);
@@ -1188,7 +1237,7 @@ a:hover > .c-avatar {
 }
 .c-citation-card__meta { font-size: var(--text-xs); color: var(--text-muted); }
 .c-citation-card__text {
-  max-height: 14rem;
+  max-height: 10rem;
   overflow-y: auto;
   padding-left: var(--space-3);
   border-left: 3px solid var(--accent);
@@ -1249,4 +1298,202 @@ a:hover > .c-avatar {
   overflow-wrap: anywhere;
 }
 .c-note-item__meta { font-size: var(--text-xs); color: var(--text-muted); }
+
+/* Answer actions (copy) and in-progress citation chips */
+.c-message__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--border);
+}
+.c-message__action {
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+.c-message__action:hover { color: var(--text); border-color: var(--accent); }
+.c-message__action:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.c-message__copied { font-size: var(--text-xs); color: var(--success); }
+.c-citation--pending { cursor: default; opacity: 0.6; }
+
+/* Tables in answers */
+.c-message__body table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: var(--text-sm);
+}
+.c-message__body th,
+.c-message__body td {
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border);
+  text-align: left;
+}
+.c-message__body th { background: var(--surface-hover); }
+
+/* ============================ Notebook bar (workspace page) ============================ */
+/* Thin bar above the conversation: notebook color, title, dates, actions. */
+.c-notebook-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface-raised);
+}
+.c-notebook-bar__mark {
+  width: 0.75rem;
+  height: 0.75rem;
+  flex-shrink: 0;
+  border-radius: var(--radius-full);
+}
+.c-notebook-bar__text { flex: 1; min-width: 0; }
+.c-notebook-bar__title {
+  font-size: var(--text-lg);
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.c-notebook-bar__meta {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.c-notebook-bar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: var(--space-2);
+}
+
+/* ============================ Reading measure (conversation) ============================ */
+/* The conversation is a reading surface: however wide the panel, text stays at a
+   comfortable measure (~72 characters), centered, with the scrollbar at the edge. */
+.c-chat { --chat-measure: 46rem; }
+.c-chat__log { padding-inline: max(var(--space-2), calc((100% - var(--chat-measure)) / 2)); }
+.c-chat__measure {
+  width: 100%;
+  max-width: var(--chat-measure);
+  margin-inline: auto;
+}
+.c-chat__log .c-message--assistant { max-width: 100%; }
+.c-chat__log .c-message--assistant .c-message__body { line-height: 1.65; }
+
+/* ============================ Dropzone (several PDFs at once) ============================ */
+.c-dropzone { display: flex; flex-direction: column; gap: var(--space-2); }
+.c-dropzone__area {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-4) var(--space-3);
+  border: 2px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  color: var(--text);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.c-dropzone__area:hover,
+.c-dropzone.is-dragging .c-dropzone__area {
+  border-color: var(--accent);
+  background: var(--surface-hover);
+}
+.c-dropzone__area:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+.c-dropzone__icon { color: var(--accent); }
+.c-dropzone__title { font-size: var(--text-sm); font-weight: var(--weight-semibold); }
+.c-dropzone__hint { font-size: var(--text-xs); color: var(--text-muted); }
+/* The real input stays focusable for keyboards and screen readers, but invisible. */
+.c-dropzone__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+.c-dropzone__progress { display: flex; flex-direction: column; gap: var(--space-1); }
+.c-dropzone__progress[hidden] { display: none; }
+.c-dropzone__status { font-size: var(--text-xs); color: var(--text-muted); }
+.c-dropzone__bar { width: 100%; height: 0.375rem; accent-color: var(--accent); }
+.c-dropzone.is-uploading .c-dropzone__area { opacity: 0.6; pointer-events: none; }
+
+/* A list inside a notice (e.g. files left out of an upload). */
+.c-notice__list {
+  margin-top: var(--space-1);
+  padding-left: var(--space-4);
+  color: var(--text-muted);
+  list-style: disc;
+  overflow-wrap: anywhere;
+}
+
+/* ============================ Code block chrome + syntax colors ============================ */
+.c-code {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--surface-sunken);
+}
+.c-code > pre { margin: 0; border-radius: 0; }
+.c-code__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2) var(--space-1) var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-hover);
+  font-size: var(--text-xs);
+}
+.c-code__lang { color: var(--text-muted); font-family: var(--font-mono); }
+.c-code__copy {
+  padding: var(--space-1) var(--space-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-weight: var(--weight-semibold);
+  cursor: pointer;
+}
+.c-code__copy:hover { color: var(--text); background: var(--surface-raised); }
+.c-code__copy:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+/* Pygments token classes (classprefix "tok-"), colored by the --code-* theme tokens. */
+.tok-c, .tok-c1, .tok-cm, .tok-cs, .tok-ch, .tok-cp, .tok-cpf { color: var(--code-comment); font-style: italic; }
+.tok-k, .tok-kd, .tok-kn, .tok-kr, .tok-kc, .tok-kp, .tok-ow { color: var(--code-keyword); font-weight: var(--weight-semibold); }
+.tok-kt, .tok-nc, .tok-nn, .tok-ne { color: var(--code-type); }
+.tok-nf, .tok-fm, .tok-nd { color: var(--code-function); }
+.tok-s, .tok-s1, .tok-s2, .tok-sa, .tok-sb, .tok-sc, .tok-sd, .tok-se, .tok-sh, .tok-si, .tok-sx, .tok-sr, .tok-ss, .tok-dl { color: var(--code-string); }
+.tok-m, .tok-mi, .tok-mf, .tok-mh, .tok-mo, .tok-mb, .tok-il { color: var(--code-number); }
+.tok-nb, .tok-bp, .tok-vc, .tok-vg, .tok-vi { color: var(--code-function); }
+.tok-o, .tok-p { color: var(--text-muted); }
+.tok-err, .tok-gd { color: var(--danger); }
+.tok-gi { color: var(--code-string); }
+
+/* ============================ Math (KaTeX) ============================ */
+.c-message__body .math.block,
+.c-citation-card__text .math.block {
+  margin-block: var(--space-2);
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.c-message__body .katex,
+.c-citation-card__text .katex { font-size: 1.05em; }
 

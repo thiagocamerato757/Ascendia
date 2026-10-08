@@ -2,10 +2,9 @@
 # (Compose merges docker-compose.override.yml on top of docker-compose.yml).
 #
 # It bind-mounts the project into the container so edits to Python, templates,
-# CSS and JS take effect live, with no image rebuild. The app runs under
-# Django's runserver: StatReloader restarts workers on code changes, and with
-# DJANGO_DEBUG=True it serves static files straight from source (no
-# collectstatic in dev). Dependencies live in /usr/local, not /app, so the
+# CSS and JS take effect live, with no image rebuild. The app runs under uvicorn
+# --reload (ASGI, like production), and with DJANGO_DEBUG=True WhiteNoise serves
+# static files straight from source (no collectstatic in dev). Dependencies live in /usr/local, not /app, so the
 # mount does not shadow them.
 #
 # Production / CI must use the base file only:
@@ -17,7 +16,9 @@ services:
     command:
       - sh
       - -c
-      - python manage.py migrate --noinput && python manage.py createcachetable && exec python manage.py runserver 0.0.0.0:8000
+      # uvicorn (ASGI), the same server as production, with --reload. runserver is
+      # WSGI and streams differently: it once hid that answers didn't stream in prod.
+      - python manage.py migrate --noinput && python manage.py createcachetable && exec uvicorn core.asgi:application --host 0.0.0.0 --port 8000 --reload
   worker:
     volumes:
       - .:/app

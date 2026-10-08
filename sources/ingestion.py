@@ -22,9 +22,9 @@ from llm import constants as c
 from llm.models import NotebookSettings
 from llm.providers import ProviderError
 
-from .chunking import chunk_pages
+from .chunking import chunk_markdown, chunk_pages
 from .models import Chunk, Source
-from .parsing import SourceParseError, extract_pdf, extract_text
+from .parsing import SourceParseError, extract_markdown, extract_pdf, extract_text
 
 logger = logging.getLogger('ascendia.sources')
 
@@ -59,7 +59,16 @@ def _read_pages(source: Source):
     if source.kind == Source.KIND_TEXT:
         return extract_text(source.text)
     with source.file.open('rb') as fh:
-        return extract_pdf(fh.read())
+        data = fh.read()
+    if source.kind == Source.KIND_MARKDOWN:
+        return extract_markdown(data.decode('utf-8-sig'))
+    return extract_pdf(data)
+
+
+def _chunk(source: Source, pages):
+    """Markdown keeps its blocks (code, tables, math) intact; PDF and text are reflowed."""
+    chunker = chunk_markdown if source.kind == Source.KIND_MARKDOWN else chunk_pages
+    return chunker(pages, size=settings.ASCENDIA_CHUNK_SIZE, overlap=settings.ASCENDIA_CHUNK_OVERLAP)
 
 
 def _store_chunks(source: Source, drafts, vectors, model: str, config: str) -> None:
@@ -88,7 +97,7 @@ def ingest(source_id: int) -> None:
     with override(settings.LANGUAGE_CODE):
         try:
             pages = _read_pages(source)
-            drafts = chunk_pages(pages, size=settings.ASCENDIA_CHUNK_SIZE, overlap=settings.ASCENDIA_CHUNK_OVERLAP)
+            drafts = _chunk(source, pages)
             if not drafts:
                 _fail(source, _('No text was found in this source. Scanned PDFs need OCR first.'))
                 return

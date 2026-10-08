@@ -263,6 +263,8 @@ def _env_int(name: str, default: int) -> int:
 ASCENDIA_SOURCES_ROOT = os.environ.get('ASCENDIA_SOURCES_ROOT', os.path.join(BASE_DIR, 'private', 'sources'))
 ASCENDIA_SOURCE_MAX_MB = _env_int('ASCENDIA_SOURCE_MAX_MB', 25)
 ASCENDIA_SOURCE_MAX_PAGES = _env_int('ASCENDIA_SOURCE_MAX_PAGES', 1000)
+# PDFs accepted in a single upload (each one is still checked on its own).
+ASCENDIA_UPLOAD_MAX_FILES = _env_int('ASCENDIA_UPLOAD_MAX_FILES', 10)
 ASCENDIA_TEXT_SOURCE_MAX_CHARS = _env_int('ASCENDIA_TEXT_SOURCE_MAX_CHARS', 200_000)
 # Chunking (characters): paragraph-aware windows with overlap.
 ASCENDIA_CHUNK_SIZE = _env_int('ASCENDIA_CHUNK_SIZE', 1200)
@@ -275,3 +277,13 @@ ASCENDIA_RAG_TOP_K = _env_int('ASCENDIA_RAG_TOP_K', 8)
 # Rate limits per user per minute (spec §11).
 ASCENDIA_RATE_ASK_PER_MIN = _env_int('ASCENDIA_RATE_ASK_PER_MIN', 20)
 ASCENDIA_RATE_UPLOAD_PER_MIN = _env_int('ASCENDIA_RATE_UPLOAD_PER_MIN', 10)
+# Answers are written by background threads (independent of the HTTP connection);
+# 0 runs them inline (tests). An answer without a heartbeat for this long lost its
+# writer (restart/crash) and is marked as interrupted.
+ASCENDIA_ANSWER_THREADS = _env_int('ASCENDIA_ANSWER_THREADS', 4)
+ASCENDIA_ANSWER_STALE_SECONDS = _env_int('ASCENDIA_ANSWER_STALE_SECONDS', 60)
+
+# Dev under uvicorn (same server as production): serve static files straight from
+# the source folders, picking up edits, as runserver did.
+WHITENOISE_USE_FINDERS = DEBUG
+WHITENOISE_AUTOREFRESH = DEBUG

@@ -8,7 +8,8 @@ from __future__ import annotations
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import StreamingHttpResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import aget_object_or_404, get_object_or_404, render
+from django.utils.translation import get_language
 from django.utils.translation import gettext as _
 from django.views.decorators.http import require_GET, require_POST
 
@@ -16,9 +17,11 @@ from core.ratelimit import rate_limited
 from sources.models import Source
 from workspace.models import Notebook
 
-from .answer import stream_answer
+from . import generation
+from .answer import follow
+from .export import decorate
 from .models import Conversation, Message, MessageCitation
-from .render import render_answer
+from .render import markdown_to_safe_html
 
 #: Longest question accepted (characters).
 MAX_QUESTION_CHARS = 2000
@@ -48,8 +51,8 @@ def chat_context(notebook: Notebook, *, error: str = '', question: str = '') -> 
     conversation = Conversation.objects.filter(notebook=notebook).first()
     messages = list(conversation.messages.prefetch_related('citations')) if conversation else []
     for message in messages:
-        if message.role == Message.ROLE_ASSISTANT and not message.is_open:
-            message.html = render_answer(message)
+        if message.role == Message.ROLE_ASSISTANT:
+            decorate(message)
     ready = notebook.sources.filter(status=Source.STATUS_READY).exists()
     return {'notebook': notebook, 'messages': messages, 'has_ready_sources': ready,
             'error': error, 'question': question, 'max_question_chars': MAX_QUESTION_CHARS}
@@ -81,14 +84,22 @@ def ask(request, notebook_id: int):
     user_msg = Message.objects.create(conversation=conversation, role=Message.ROLE_USER, content=question)
     answer = Message.objects.create(conversation=conversation, role=Message.ROLE_ASSISTANT,
                                     status=Message.STATUS_PENDING, source_filter=source_filter)
+    # Written in the background: leaving the page or reloading never interrupts it.
+    generation.start(answer.pk, get_language())
     return render(request, 'rag/_exchange.html', {'user_msg': user_msg, 'message': answer})
 
 
 @login_required
 @require_GET
-def stream(request, message_id: int):
-    message = _assistant_message(request, message_id)
-    response = StreamingHttpResponse(stream_answer(message), content_type='text/event-stream; charset=utf-8')
+async def stream(request, message_id: int):
+    """Follow an answer as SSE. Async on purpose: under ASGI a sync iterator would be
+    buffered whole by Django instead of streamed (see rag.answer)."""
+    user = await request.auser()
+    message = await aget_object_or_404(
+        Message, id=message_id, role=Message.ROLE_ASSISTANT, conversation__notebook__user=user,
+    )
+    response = StreamingHttpResponse(follow(message.pk, get_language()),
+                                     content_type='text/event-stream; charset=utf-8')
     response['Cache-Control'] = 'no-cache'
     response['X-Accel-Buffering'] = 'no'  # no proxy buffering of the stream
     return response
@@ -108,8 +119,11 @@ def stop(request, message_id: int):
 @require_GET
 def citation(request, message_id: int, n: int):
     message = _assistant_message(request, message_id)
-    item = get_object_or_404(MessageCitation, message=message, n=n)
-    return render(request, 'rag/_citation.html', {'citation': item})
+    item = get_object_or_404(MessageCitation.objects.select_related('source'), message=message, n=n)
+    # Markdown sources show the passage formatted (code, tables, math), through the same sanitizer.
+    rendered = (markdown_to_safe_html(item.text)
+                if item.source and item.source.kind == Source.KIND_MARKDOWN else '')
+    return render(request, 'rag/_citation.html', {'citation': item, 'rendered_text': rendered})
 
 
 @login_required

@@ -164,3 +164,67 @@ class ProviderErrorSafety(SourcesTestCase):
         self.assertEqual(source.status, Source.STATUS_FAILED)
         self.assertTrue(source.error)
         self.assertIsInstance(ProviderError('x'), Exception)
+
+
+MARKDOWN_NOTES = """# Grafos
+
+Introducao aos grafos.
+
+## Dijkstra
+
+Usa fila de prioridade. Custo $O((V+E) \\log V)$.
+
+```python
+def dijkstra(g, s):
+    dist = {s: 0}
+    # comentario com # que nao e titulo
+    return dist
+```
+
+| Algoritmo | Custo |
+|---|---|
+| Dijkstra | O(E log V) |
+"""
+
+
+class MarkdownSourceTests(SourcesTestCase):
+    def test_sections_from_headings_ignoring_code(self):
+        from sources.parsing import extract_markdown
+
+        pages = extract_markdown(MARKDOWN_NOTES)
+        self.assertEqual([p.section for p in pages], ['Grafos', 'Grafos › Dijkstra'])
+        self.assertTrue(all(p.page is None for p in pages))
+
+    def test_chunks_keep_code_and_tables_intact(self):
+        from sources.chunking import chunk_markdown
+        from sources.parsing import extract_markdown
+
+        chunks = chunk_markdown(extract_markdown(MARKDOWN_NOTES), size=200, overlap=40)
+        joined = '\n'.join(c.text for c in chunks)
+        self.assertIn('def dijkstra(g, s):\n    dist = {s: 0}', joined)  # no reflow, indentation kept
+        code_chunks = [c.text for c in chunks if '```python' in c.text]
+        self.assertTrue(all(t.count('```') == 2 for t in code_chunks))  # never cut mid-block
+        self.assertTrue(any('| Dijkstra | O(E log V) |' in c.text for c in chunks))
+
+    def test_oversized_code_block_is_split_with_fences(self):
+        from sources.chunking import chunk_markdown
+        from sources.parsing import PageText
+
+        code = '```python\n' + '\n'.join(f'x{i} = {i}' for i in range(200)) + '\n```'
+        chunks = chunk_markdown([PageText(None, 'S', code)], size=300, overlap=0)
+        self.assertGreater(len(chunks), 1)
+        self.assertTrue(all(c.text.startswith('```python') and c.text.endswith('```') for c in chunks))
+
+    def test_ingestion_end_to_end(self):
+        from django.core.files.base import ContentFile
+
+        data = MARKDOWN_NOTES.encode()
+        source = Source(notebook=self.notebook, kind=Source.KIND_MARKDOWN, title='grafos.md',
+                        content_hash=ingestion.content_hash(data))
+        source.file.save('grafos.md', ContentFile(data), save=True)
+        self.assertTrue(source.file.name.endswith('.md'))
+        ingestion.ingest(source.pk)
+        source.refresh_from_db()
+        self.assertEqual(source.status, Source.STATUS_READY)
+        sections = set(Chunk.objects.filter(source=source).values_list('section', flat=True))
+        self.assertIn('Grafos › Dijkstra', sections)

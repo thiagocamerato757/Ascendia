@@ -226,7 +226,7 @@ Escolhas do autor no planejamento: fila no Postgres + worker; fontes PDF + texto
 - O embedder falso usa 512 dimensões; com 64, as colisões de hash invertiam rankings nos testes.
 
 **Geração e chat**
-- **Streaming com gerador síncrono** + `StreamingHttpResponse` (SSE): funciona igual com runserver (dev) e com uvicorn (prod). O retry só acontece **antes** do primeiro token. Uma reconexão do `EventSource` reapresenta a resposta, sem gerar de novo (a mensagem é "reivindicada" de forma atômica). Se o cliente se desconecta, o parcial é salvo como interrompido.
+- ~~**Streaming com gerador síncrono** + `StreamingHttpResponse` (SSE): funciona igual com runserver (dev) e com uvicorn (prod).~~ **Errado, corrigido em 2026-10-08** (ver "Resposta em segundo plano" abaixo): em ASGI o Django consome um iterador síncrono inteiro antes de enviar, ou seja, não havia streaming em produção. O retry só acontece **antes** do primeiro token. Uma reconexão do `EventSource` reapresenta a resposta, sem gerar de novo (a mensagem é "reivindicada" de forma atômica). Se o cliente se desconecta, o parcial é salvo como interrompido.
 - **Citações com snapshot** (texto, fonte, página e seção em `MessageCitation`): continuam válidas depois de reindexar, porque reindexar recria os chunks.
 - **Gate**: números inválidos são removidos. Sem nenhuma citação válida, há uma nova tentativa (sem streaming); se ainda faltar, a resposta é o "não encontrei" padrão. Busca vazia responde sem chamar o LLM.
 - **Prompt**: estilo compilado + regras fixas + regras de entrega das fontes; os trechos vão em `<sources>` como dado não confiável, e o texto do PDF tem os delimitadores neutralizados para não poder fechar o bloco.
@@ -250,3 +250,86 @@ Escolhas do autor no planejamento: fila no Postgres + worker; fontes PDF + texto
 - OCR de PDFs escaneados.
 - Índice ANN por modelo (quando a Fase 4 medir).
 - Avaliação (Fase 4), reranking/CRAG (Fase 5).
+
+## Chat: Markdown no streaming, copiar resposta, rolagem (2026-10-08)
+
+Pedido do autor depois de usar a Fase 3.
+
+- **Markdown durante a escrita**: o servidor renderiza o texto parcial (mesmo caminho seguro: markdown-it sem HTML → nh3) e envia eventos `html` em vez de `token`. Há um *throttle* (no máximo a cada 8 tokens ou 120 ms, e sempre no 1º), porque cada evento reenvia o texto todo. O cliente não interpreta Markdown. Os `[n]` aparecem como chips inertes até passar pelo gate. Tabelas e tachado foram habilitados.
+- **Copiar**: "Copiar Markdown" (texto cru) e "Copiar formatado" (`text/html` + `text/plain`, cola formatado no Docs/Word/Notion). Os dois terminam com a lista das fontes **citadas** (título, página, seção), porque fora do app um `[1]` sozinho não diz nada. Os conteúdos vão em `<template>` na bolha (`rag/export.py`). Há fallback `execCommand('copy')` para auto-hospedagem por HTTP, onde a Clipboard API não existe. Respostas interrompidas também podem ser copiadas; "não encontrei" e erros não.
+- **`done` traz a bolha inteira** (mesmo template do histórico), então a resposta nova e o histórico são idênticos.
+- **Idioma no streaming (bug latente corrigido)**: o gerador roda depois que a view retorna e, sob ASGI, cada passo pode cair em outra thread. A view passa o idioma da requisição e o idioma é reativado **a cada passo** do gerador (um `override` só em volta do gerador não basta, porque é *thread-local*).
+- **Rolagem**:
+  - a página do caderno virou um espaço de trabalho de altura fixa (`l-app--workspace`, sem rodapé, cabeçalho compacto) e cada coluna rola sozinha;
+  - o log de mensagens ocupa o resto do painel, e o campo de pergunta fica sempre visível, com 1 linha que cresce até ~6;
+  - a rolagem automática só acompanha quem já está no fim; quem subiu para reler não é puxado de volta e vê "Ir para o fim";
+  - em telas com menos de 34rem de altura, a página volta a rolar normalmente.
+- **Verificado no navegador** (caderno temporário, removido depois): formatação durante o streaming, conteúdo copiado nos dois formatos (com a lista de fontes), leitor no topo sem ser puxado, sem rolagem dupla, campo crescendo, temas claro e escuro. Numa janela de 671 px de altura, o log foi de 192 → 327 px.
+- **Bug achado na medição**: `textarea.c-field__input { min-height: 7rem }` vencia `.c-chat__input` por especificidade; resolvido com `textarea.c-chat__input`.
+
+## Envio de vários PDFs e caderno de borda a borda (2026-10-08)
+
+Pedido do autor. Direção de layout escolhida entre três propostas: **"Só fluido"** (descartadas: painéis recolhíveis e modo foco).
+
+- **Borda a borda**: o caderno usa `o-container--fluid` (sem `max-width`, só o gutter). Grid com áreas:
+  - largo: Fontes | (barra do caderno + conversa) | Notas. A barra fica só em cima da conversa, então os painéis laterais ganham a altura toda;
+  - estreito: barra, abas e o painel ativo;
+  - sem JS: colunas empilhadas.
+- **Larguras**: laterais `minmax(16rem, 18rem)` / `minmax(14rem, 16rem)`, que viram 20/18rem acima de 120rem. A conversa fica com o resto.
+- **Medida de leitura** (princípio da skill frontend-design: a conversa é a superfície de leitura). O texto fica em ~46rem (~72 caracteres por linha), centralizado por `padding-inline`, para a barra de rolagem continuar na borda do painel. O campo de pergunta, a área de erro e o cartão de citação seguem a mesma medida. A resposta do assistente ocupa a medida inteira, com entrelinha 1.65.
+- **Cabeçalho do caderno** virou a barra fina `c-notebook-bar` (cor, título, datas, ações). A descrição foi para o `title`.
+- **Envio múltiplo**:
+  - zona `c-dropzone` (arrastar e soltar, ou escolher vários) no lugar do input nativo, que aparecia cortado;
+  - o envio começa ao escolher ou soltar, com barra de progresso (`htmx:xhr:progress`);
+  - no servidor, cada arquivo é validado e criado de forma independente (`validate_pdf_upload`), com teto `ASCENDIA_UPLOAD_MAX_FILES` (10) por envio;
+  - o aviso resume o resultado: verde se tudo entrou; amarelo se algo ficou de fora mas nada quebrou (inclusive só duplicatas); vermelho se nada entrou por erro. A lista "arquivo: motivo" usa o novo `items` de `components/notice.html`.
+- **Estado vazio da conversa sempre atual**: respostas do painel de fontes emitem `HX-Trigger: sources-updated`, e o estado vazio da conversa se recarrega sozinho (só ele, via `hx-select`, sem apagar o que estiver digitado). Antes ficava "Adicione uma fonte" mesmo com fontes prontas.
+- **Verificado no navegador a 1920 px**: gutters de 24 px, laterais 320/288 px, conversa 1232 px, campo de pergunta 736 px centralizado, sem rolagem da página. O arrastar e soltar de 3 PDFs + 1 falso deu 3 adicionados e o falso listado com o motivo; o worker deixou os 3 prontos. O estado vazio atualizou nos dois sentidos. Tema claro OK.
+
+## Resposta em segundo plano e streaming real em ASGI (2026-10-08)
+
+**Bug relatado**: "This answer is already being written in another tab." numa resposta que foi gerada inteira. Pelos logs: o autor perguntou, abriu uma nota 2 s depois e voltou. O stream da volta tentou reivindicar uma resposta que ainda estava sendo escrita pelo primeiro stream (já sem ninguém ouvindo) e virou erro permanente. Investigando, apareceram problemas mais sérios:
+
+- **Não havia streaming em produção.** Em ASGI, `StreamingHttpResponse` consome um iterador **síncrono** inteiro (`sync_to_async(list)`) antes de enviar; o inverso vale em WSGI. O dev rodava runserver (WSGI) e a produção roda uvicorn (ASGI), por isso o problema passou despercebido.
+- **A resposta dependia da conexão**: em dev continuava sem ninguém ouvindo; em produção, sair a cortaria.
+- **Órfãs**: um restart no meio deixava a resposta em `streaming` para sempre.
+
+**Desenho novo** (o autor escolheu que a resposta **continua sendo escrita** ao sair da página):
+- `rag/generation.py`: o `ask` dispara a geração, depois do commit, numa **thread** (`ThreadPoolExecutor`, `ASCENDIA_ANSWER_THREADS=4`; 0 roda inline nos testes). A thread salva o parcial e o **batimento** (`Message.updated_at`, definido explicitamente porque `update()` ignora `auto_now`) a cada ~0,3 s, num único `UPDATE ... WHERE status='streaming'`; se nenhuma linha muda, alguém pediu "Parar". O fim também é condicional, para nunca sobrescrever um "parado". Thread em vez da fila `django-tasks`: a resposta é interativa, e a fila (polling de ~1 s, uma tarefa por vez) faria a ingestão de PDFs atrasar as respostas.
+- `rag/answer.py`: o stream é um **gerador assíncrono** que só **acompanha** a mensagem no banco (a cada 0,25 s envia `html` quando o texto muda, `done` no fim, e `: keepalive` a cada 15 s). Desconectar não altera nada; várias abas acompanham a mesma resposta. Sem batimento há mais de `ASCENDIA_ANSWER_STALE_SECONDS` (60), a resposta vira "interrompida" com o parcial salvo; `pending` que nunca começou (3× o prazo) vira erro "pergunte de novo".
+- **Dev igual a produção**: o override do compose usa `uvicorn --reload` (ASGI). Os estáticos de dev vêm da fonte via `WHITENOISE_USE_FINDERS/AUTOREFRESH = DEBUG`.
+- **Segundo bug achado na verificação**: com a geração em thread, o **primeiro** `import litellm` (que era preguiçoso) passou a acontecer dentro da thread e deu `_DeadlockError` no lock de import do Python. Agora o LiteLLM é carregado no `ready()` do app `llm`, na thread principal (~2 s por processo), com teste de regressão.
+
+**Verificado contra o uvicorn real (cliente HTTP e navegador)**:
+- sair 1 s depois de perguntar e voltar → o texto já escrito aparece na hora e o resto chega ao vivo (13 eventos `html` em 3,6 s), sem erro;
+- reiniciar o `web` no meio de uma resposta → depois de 60 s sem batimento, quem volta vê "Interrompida antes do fim" com os 150 caracteres preservados;
+- nenhum erro no log depois da correção do import.
+
+## LaTeX, blocos de código e fontes Markdown (2026-10-08)
+
+**Diagnóstico** (o render aplicado a uma resposta típica): além de não formatar, o código era **corrompido**:
+- o gate de citações tratava todo `[n]` como citação, inclusive em código: `dp = [0]` virava `dp = +`, `dp[3]` virava `dp`, `moedas[1, 2]` virava chip;
+- a limpeza de espaços do gate colapsava a indentação no texto inteiro;
+- `\(…\)` perdia a barra (escape do Markdown) e `$…$` ficava cru.
+
+**Decisões**:
+- **`rag/segments.py`** divide o Markdown em prosa / código / matemática:
+  - cercas com e sem fechamento (streaming), crases de N caracteres;
+  - `$$`, `\[`, `\(`, e `$` com a regra do Pandoc, para "R$ 10 e R$ 20" não virar fórmula.
+  - Gate, chips e normalização de matemática atuam **só na prosa**; código e fórmulas passam byte a byte.
+- **Gate sem limpeza global de espaços**: um marcador removido leva o espaço antes dele, e nada mais é mexido (preserva indentação de listas e quebras forçadas do Markdown).
+- **Chips por sentinela**: citações válidas viram caracteres de uso privado **antes** do Markdown e viram botões **depois** do nh3, então um `[1]` dentro de código nunca vira chip.
+- **Matemática**: `mdit-py-plugins` `dollarmath` (`allow_space=False, allow_digits=False`) marca `.math.inline`/`.math.block` com o TeX escapado. O **KaTeX 0.16.11** fica em `static/vendor/katex/` (MIT; integridade sha512 conferida no registro do npm; só JS, CSS e fontes woff2; ~600 KB), sem CDN. Renderiza com `trust: false`, `throwOnError: false` e limites de `maxSize`/`maxExpand`; saída `htmlAndMathml` (MathML para leitores de tela).
+- **Código**: realce no servidor com **Pygments** (`classprefix='tok-'`). O nh3 só aceita `class` em `span`/`div`/`code` quando os valores são `tok-*`, `math`/`inline`/`block` ou `language-*` (`attribute_filter`). As cores vêm de tokens `--code-*` por tema: no claro o número tinha contraste **1.52** e agora todos passam de AA (4.58 a 6.12). Botão "Copiar código" e nome da linguagem por bloco (`static/js/richtext.js`, compartilhado com `chat.js`).
+- **Fontes `.md`** (`Source.KIND_MARKDOWN`, migração `sources/0002`):
+  - validação UTF-8, aceitando BOM;
+  - seções pelos títulos, ignorando `#` dentro de código ("Grafos › Dijkstra");
+  - **chunking por blocos** usando o mapa de linhas do markdown-it: texto original, sem refluir, e bloco de código/tabela/fórmula nunca cortado (código grande é dividido por linhas, refazendo as cercas);
+  - o arquivo guardado leva a extensão do tipo (`.md`), nunca o nome enviado;
+  - o cartão de citação de fonte `.md` mostra o trecho renderizado.
+  - Texto colado segue o chunking antigo (fora do pedido).
+- **Verificado no navegador** (caderno temporário, removido):
+  - `.md` enviado por arrastar e soltar ficou pronto;
+  - na resposta real, 5 fórmulas inline + 1 em bloco pelo KaTeX (0 erros, já durante o streaming) e código Python realçado e indentado;
+  - "Copiar código" copiou o texto exato;
+  - o cartão de citação `.md` veio renderizado com fórmulas e código.

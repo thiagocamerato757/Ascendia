@@ -15,7 +15,10 @@ class Source(models.Model):
 
     KIND_PDF = 'pdf'
     KIND_TEXT = 'text'
-    KIND_CHOICES = [(KIND_PDF, _('PDF')), (KIND_TEXT, _('Text'))]
+    KIND_MARKDOWN = 'markdown'
+    KIND_CHOICES = [(KIND_PDF, _('PDF')), (KIND_TEXT, _('Text')), (KIND_MARKDOWN, _('Markdown'))]
+    #: Kinds whose original file is kept in private storage (re-read on reindex).
+    FILE_KINDS = (KIND_PDF, KIND_MARKDOWN)
 
     STATUS_PENDING = 'pending'
     STATUS_PROCESSING = 'processing'

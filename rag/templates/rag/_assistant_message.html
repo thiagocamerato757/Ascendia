@@ -9,4 +9,14 @@
   {% if message.status == 'stopped' %}<p class="c-message__meta">{% trans "Stopped before the end." %}</p>{% endif %}
   {% if message.status == 'error' %}{% include 'components/notice.html' with variant='danger' title=_("The answer failed") message=message.error %}{% endif %}
   {% if message.is_open %}<button type="button" class="c-link-button c-message__stop" data-stop>{% trans "Stop" %}</button>{% endif %}
+  {% if message.copyable %}
+    <div class="c-message__actions" data-copy-actions>
+      <button type="button" class="c-message__action" data-copy="markdown">{% trans "Copy Markdown" %}</button>
+      <button type="button" class="c-message__action" data-copy="rich">{% trans "Copy formatted" %}</button>
+      <span class="c-message__copied" role="status" aria-live="polite" data-copy-status></span>
+      {# Raw Markdown (escaped text) and formatted HTML (sanitized server-side) for the clipboard. #}
+      <template data-copy-source="markdown">{{ message.copy_markdown }}</template>
+      <template data-copy-source="rich">{{ message.copy_html|safe }}</template>
+    </div>
+  {% endif %}
 </article>

@@ -43,3 +43,60 @@
     if (tablist) init(tablist);
   });
 })();
+
+/*
+ * Sources dropzone: drop or choose several PDFs; HTMX sends them as soon as the
+ * input changes (hx-trigger on the form) and the panel shows upload progress.
+ * The panel is replaced after every upload, so listeners are delegated.
+ */
+(function () {
+  'use strict';
+
+  function zoneOf(target) { return target && target.closest ? target.closest('[data-dropzone]') : null; }
+
+  ['dragenter', 'dragover'].forEach(function (type) {
+    document.addEventListener(type, function (event) {
+      var zone = zoneOf(event.target);
+      if (!zone) return;
+      event.preventDefault();
+      zone.classList.add('is-dragging');
+    });
+  });
+  document.addEventListener('dragleave', function (event) {
+    var zone = zoneOf(event.target);
+    if (zone && !zone.contains(event.relatedTarget)) zone.classList.remove('is-dragging');
+  });
+  document.addEventListener('drop', function (event) {
+    var zone = zoneOf(event.target);
+    if (!zone) return;
+    event.preventDefault();
+    zone.classList.remove('is-dragging');
+    var input = zone.querySelector('input[type=file]');
+    if (!input || !event.dataTransfer || !event.dataTransfer.files.length) return;
+    input.files = event.dataTransfer.files; // the server checks each file (type, size, content)
+    input.dispatchEvent(new Event('change', { bubbles: true }));
+  });
+
+  document.addEventListener('htmx:beforeRequest', function (event) {
+    var zone = event.detail.elt;
+    if (!zone.matches || !zone.matches('[data-dropzone]')) return;
+    var count = (zone.querySelector('input[type=file]').files || []).length;
+    var text = count === 1 ? zone.dataset.uploadingOne : (zone.dataset.uploadingMany || '').replace('%(n)s', count);
+    zone.classList.add('is-uploading');
+    zone.querySelector('[data-dropzone-status]').textContent = text;
+    zone.querySelector('[data-dropzone-progress]').hidden = false;
+  });
+  document.addEventListener('htmx:xhr:progress', function (event) {
+    var zone = event.detail.elt;
+    if (!zone.matches || !zone.matches('[data-dropzone]') || !event.detail.total) return;
+    zone.querySelector('[data-dropzone-bar]').value = Math.round((event.detail.loaded / event.detail.total) * 100);
+  });
+  document.addEventListener('htmx:afterRequest', function (event) {
+    var zone = event.detail.elt;
+    if (zone.matches && zone.matches('[data-dropzone]') && zone.isConnected) {
+      zone.classList.remove('is-uploading'); // only matters if the panel was not replaced (network error)
+      zone.querySelector('[data-dropzone-progress]').hidden = true;
+    }
+  });
+})();
+

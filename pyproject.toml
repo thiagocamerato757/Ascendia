@@ -28,6 +28,8 @@ dependencies = [
     "markdown-it-py>=4.2.0",
     "nh3>=0.3.7",
     "django-tasks-db>=0.13.0",
+    "mdit-py-plugins>=0.6.1",
+    "pygments>=2.21.0",
 ]
 
 [dependency-groups]

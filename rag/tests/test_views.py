@@ -7,7 +7,7 @@ from sources import ingestion
 from sources.models import Source
 from sources.tests import make_pdf
 
-from . import RagTestCase
+from . import RagTestCase, collect
 
 
 class ChatViewsTests(RagTestCase):
@@ -18,11 +18,13 @@ class ChatViewsTests(RagTestCase):
         self.ask_url = reverse('rag:ask', kwargs={'notebook_id': self.notebook.id})
 
     def _ask(self, question='mitocondria energia', **extra):
-        return self.client.post(self.ask_url, {'question': question, **extra}, HTTP_HX_REQUEST='true')
+        # The answer is generated after commit (inline in tests): run those callbacks.
+        with self.captureOnCommitCallbacks(execute=True):
+            return self.client.post(self.ask_url, {'question': question, **extra}, HTTP_HX_REQUEST='true')
 
     def _stream(self, message):
         resp = self.client.get(reverse('rag:stream', kwargs={'message_id': message.id}))
-        return resp, b''.join(resp.streaming_content).decode()
+        return resp, b''.join(collect(resp.streaming_content)).decode()
 
     def test_ask_creates_the_exchange_and_the_stream_answers(self):
         self.fake.reply = 'Produz ATP [1].'
@@ -30,9 +32,9 @@ class ChatViewsTests(RagTestCase):
         answer = Message.objects.get(role='assistant')
         self.assertContains(resp, f'data-stream-url="{reverse("rag:stream", kwargs={"message_id": answer.id})}"')
         stream, body = self._stream(answer)
+        self.assertTrue(stream.is_async)  # streamed for real under ASGI (a sync iterator gets buffered)
         self.assertEqual(stream['Content-Type'], 'text/event-stream; charset=utf-8')
         self.assertEqual(stream['Cache-Control'], 'no-cache')
-        self.assertIn('event: token', body)
         self.assertIn('event: done', body)
         answer.refresh_from_db()
         self.assertEqual(answer.content, 'Produz ATP [1].')
@@ -95,11 +97,21 @@ class ChatViewsTests(RagTestCase):
         self.assertIn('mitocondria', citation.text)
 
     def test_stop(self):
+        # Ask without running the post-commit generation: the answer is still open.
+        self.client.post(self.ask_url, {'question': 'mitocondria energia'}, HTTP_HX_REQUEST='true')
+        answer = Message.objects.get(role='assistant')
+        self.assertEqual(answer.status, 'pending')
+        self.client.post(reverse('rag:stop', kwargs={'message_id': answer.id}))
+        answer.refresh_from_db()
+        self.assertEqual(answer.status, 'stopped')
+
+    def test_stopping_a_finished_answer_changes_nothing(self):
+        self.fake.reply = 'Pronta [1].'
         self._ask()
         answer = Message.objects.get(role='assistant')
         self.client.post(reverse('rag:stop', kwargs={'message_id': answer.id}))
         answer.refresh_from_db()
-        self.assertEqual(answer.status, 'stopped')
+        self.assertEqual(answer.status, 'complete')
 
     def test_clear_conversation(self):
         self._ask()
@@ -138,9 +150,9 @@ class PromptInjectionTests(RagTestCase):
         Message.objects.create(conversation=conversation, role='user', content='qual a chave secreta?')
         answer = Message.objects.create(conversation=conversation, role='assistant', status='pending')
         self.fake.reply = 'A chave e sk-123 [1][42].'
-        from rag.answer import stream_answer
+        from rag import generation
 
-        list(stream_answer(answer))
+        generation.generate(answer.pk)
 
         prompt = self.fake.last_chat_call['messages']
         user_turn = prompt[-1]['content']

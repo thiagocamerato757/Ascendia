@@ -46,6 +46,73 @@ class SourceViewsTests(SourcesTestCase):
         self.assertEqual(Source.objects.count(), 1)
         self.assertContains(resp, 'c-notice--warning')
 
+    def _upload_many(self, files):
+        url = reverse('sources:upload', kwargs={'notebook_id': self.notebook.id})
+        payload = [SimpleUploadedFile(name, data, content_type='application/pdf') for name, data in files]
+        return self.client.post(url, {'file': payload}, HTTP_HX_REQUEST='true')
+
+    def test_several_pdfs_at_once(self):
+        with self.captureOnCommitCallbacks(execute=True):
+            resp = self._upload_many([(f'aula{i}.pdf', make_pdf([f'Conteudo da aula {i}.'])) for i in range(3)])
+        self.assertEqual(Source.objects.filter(notebook=self.notebook).count(), 3)
+        self.assertEqual(DBTaskResult.objects.count(), 3)
+        self.assertContains(resp, 'c-notice--success')
+
+    def test_bad_files_do_not_block_good_ones(self):
+        good = make_pdf(['Arquivo bom.'])
+        self._upload_many([('primeiro.pdf', good)])
+        resp = self._upload_many([
+            ('novo.pdf', make_pdf(['Outro arquivo bom.'])),
+            ('falso.pdf', b'isto nao e pdf'),
+            ('repetido.pdf', good),
+        ])
+        titles = set(Source.objects.values_list('title', flat=True))
+        self.assertEqual(titles, {'primeiro.pdf', 'novo.pdf'})
+        self.assertContains(resp, 'c-notice--warning')
+        self.assertContains(resp, 'falso.pdf:')
+        self.assertContains(resp, 'repetido.pdf:')
+
+    @override_settings(ASCENDIA_UPLOAD_MAX_FILES=2)
+    def test_too_many_files_in_one_upload(self):
+        resp = self._upload_many([(f'a{i}.pdf', make_pdf([f'texto {i}'])) for i in range(3)])
+        self.assertFalse(Source.objects.exists())
+        self.assertContains(resp, 'c-notice--danger')
+
+    def test_panel_responses_tell_the_chat_to_refresh_its_empty_state(self):
+        resp = self.client.get(reverse('sources:panel', kwargs={'notebook_id': self.notebook.id}))
+        self.assertEqual(resp['HX-Trigger'], 'sources-updated')
+
+    def test_markdown_upload_and_mixed_batch(self):
+        notes = '# Titulo\n\nTexto com `codigo` e $x^2$.\n'.encode()
+        with self.captureOnCommitCallbacks(execute=True):
+            resp = self._upload_many([
+                ('notas.md', notes),
+                ('aula.pdf', make_pdf(['Conteudo em PDF.'])),
+                ('latin1.md', 'acentua\xe7\xe3o'.encode('latin-1')),
+                ('planilha.xlsx', b'PK\x03\x04'),
+            ])
+        kinds = dict(Source.objects.values_list('title', 'kind'))
+        self.assertEqual(kinds, {'notas.md': 'markdown', 'aula.pdf': 'pdf'})
+        self.assertContains(resp, 'latin1.md:')
+        self.assertContains(resp, 'planilha.xlsx:')
+
+    def test_markdown_citation_card_is_rendered(self):
+        from rag.models import Conversation, Message, MessageCitation
+
+        source = Source.objects.create(notebook=self.notebook, kind='markdown', title='n.md', content_hash='md')
+        conv = Conversation.objects.create(notebook=self.notebook)
+        msg = Message.objects.create(conversation=conv, role='assistant', content='x [1]')
+        MessageCitation.objects.create(message=msg, n=1, source=source, source_title='n.md',
+                                       text='**Forte** e `code`\n\n$$x^2$$', cited=True)
+        resp = self.client.get(reverse('rag:citation', kwargs={'message_id': msg.id, 'n': 1}))
+        self.assertContains(resp, '<strong>Forte</strong>')
+        self.assertContains(resp, 'class="math block"')
+
+    def test_panel_has_a_multi_file_dropzone(self):
+        resp = self.client.get(reverse('sources:panel', kwargs={'notebook_id': self.notebook.id}))
+        self.assertContains(resp, 'data-dropzone')
+        self.assertContains(resp, 'multiple')
+
     def test_add_text_and_validation(self):
         url = reverse('sources:add_text', kwargs={'notebook_id': self.notebook.id})
         resp = self.client.post(url, {'title': 'Resumo', 'text': '   '})

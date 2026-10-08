@@ -195,6 +195,13 @@
     </div>
   </section>
 
+  <!-- Rich answers: math (KaTeX) and code blocks -->
+  <section class="c-card o-stack" data-richtext-labels data-copy-code="{% trans 'Copy code' %}" data-code-label="{% trans 'code' %}" data-copied="{% trans 'Copied' %}">
+    <h2 class="text-2xl">{% trans "Math and code in answers" %}</h2>
+    <p class="text-muted">{% trans "Rendered on the server (sanitized), math drawn by KaTeX, code highlighted by Pygments." %}</p>
+    <div class="c-message c-message--assistant"><div class="c-message__body">{{ rich_sample|safe }}</div></div>
+  </section>
+
   <!-- Notebook workspace components (Phase 3) -->
   <section class="c-card o-stack">
     <h2 class="text-2xl">{% trans "Notebook workspace" %}</h2>
@@ -228,7 +235,8 @@
         <header class="c-panel__head"><h3 class="c-panel__title">{% trans "Conversation" %}</h3></header>
         <div class="c-chat__log">
           <div class="c-message c-message--user">{% trans "What does the source say about X?" %}</div>
-          <div class="c-message c-message--assistant"><div class="c-message__body"><p>{% trans "According to the sources, X means… " %}<button type="button" class="c-citation">1</button></p></div></div>
+          <div class="c-message c-message--assistant"><div class="c-message__body"><p>{% trans "According to the sources, X means… " %}<button type="button" class="c-citation">1</button></p></div><div class="c-message__actions"><button type="button" class="c-message__action">{% trans "Copy Markdown" %}</button><button type="button" class="c-message__action">{% trans "Copy formatted" %}</button><span class="c-message__copied">{% trans "Copied" %}</span></div></div>
+          <div class="c-message c-message--assistant"><div class="c-message__body"><p>{% trans "According to the sources, X means… " %}<span class="c-citation c-citation--pending">2</span></p></div></div>
           <div class="c-message c-message--assistant"><div class="c-message__body"><span class="c-typing"><span class="c-typing__dot"></span><span class="c-typing__dot"></span><span class="c-typing__dot"></span></span></div><button type="button" class="c-link-button c-message__stop">{% trans "Stop" %}</button></div>
         </div>
         <div class="c-citation-card">
@@ -249,4 +257,15 @@
     </div>
   </section>
 </div>
+{% endblock %}
+
+{% block extra_css %}
+{% load assets %}
+<link rel="stylesheet" href="{% asset 'vendor/katex/katex.min.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+{% load assets %}
+<script src="{% asset 'vendor/katex/katex.min.js' %}" defer></script>
+<script src="{% asset 'js/richtext.js' %}" defer></script>
 {% endblock %}

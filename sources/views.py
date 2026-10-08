@@ -6,17 +6,20 @@ while a source is pending or processing, the list polls for status.
 """
 from __future__ import annotations
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404, render
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 from django.views.decorators.http import require_GET, require_POST
 
 from core.ratelimit import rate_limited
 from llm.models import NotebookSettings
 from workspace.models import Notebook
 
-from .forms import PdfUploadForm, TextSourceForm
+from .forms import TextSourceForm, kind_for_filename, validate_markdown_upload, validate_pdf_upload
 from .ingestion import content_hash
 from .models import Source
 from .tasks import enqueue_ingestion
@@ -44,11 +47,16 @@ def panel_context(notebook: Notebook, *, notice: dict | None = None, text_form=N
         'stale_count': len(stale),
         'notice': notice,
         'text_form': text_form or TextSourceForm(),
+        'max_mb': settings.ASCENDIA_SOURCE_MAX_MB,
+        'max_files': settings.ASCENDIA_UPLOAD_MAX_FILES,
     }
 
 
 def _panel(request, notebook: Notebook, **kwargs):
-    return render(request, 'sources/_panel.html', panel_context(notebook, **kwargs))
+    response = render(request, 'sources/_panel.html', panel_context(notebook, **kwargs))
+    # Lets the conversation refresh its empty state ("add a source" -> "ask") when sources change.
+    response['HX-Trigger'] = 'sources-updated'
+    return response
 
 
 def _create(notebook: Notebook, **fields) -> Source | None:
@@ -72,20 +80,60 @@ def panel(request, notebook_id: int):
 @require_POST
 @rate_limited('upload', 'ASCENDIA_RATE_UPLOAD_PER_MIN')
 def upload_pdf(request, notebook_id: int):
+    """Add one or more files (PDF or Markdown). Each file is checked and added on its
+    own: a bad file never blocks the good ones, and the notice lists what was left
+    out and why."""
     notebook = _notebook(request, notebook_id)
-    form = PdfUploadForm(request.POST, request.FILES)
-    if not form.is_valid():
-        message = form.errors['file'][0] if 'file' in form.errors else _('Choose a PDF file.')
-        return _panel(request, notebook, notice={'variant': 'danger', 'title': _("Couldn't add the PDF"),
-                                                  'message': message})
-    upload = form.cleaned_data['file']
-    title = upload.name.rsplit('/', 1)[-1][:255]
-    source = _create(notebook, kind=Source.KIND_PDF, title=title, file=upload,
-                     content_hash=content_hash(form.data_bytes), page_count=form.page_count)
-    if source is None:
-        return _panel(request, notebook, notice={'variant': 'warning', 'title': _('Already added'),
-                                                  'message': _('This PDF is already in the notebook.')})
-    return _panel(request, notebook)
+    uploads = request.FILES.getlist('file')
+    limit = settings.ASCENDIA_UPLOAD_MAX_FILES
+    if not uploads:
+        return _panel(request, notebook, notice={'variant': 'danger', 'title': _("Couldn't add the files"),
+                                                  'message': _('Choose a PDF or Markdown file.')})
+    if len(uploads) > limit:
+        return _panel(request, notebook, notice={
+            'variant': 'danger', 'title': _("Couldn't add the files"),
+            'message': _('Send at most %(n)s files at a time.') % {'n': limit},
+        })
+
+    added, rejected, duplicates = 0, [], 0
+    for upload in uploads:
+        name = upload.name.rsplit('/', 1)[-1][:255]
+        kind = kind_for_filename(name)
+        try:
+            if kind == Source.KIND_PDF:
+                data, pages = validate_pdf_upload(upload)
+            elif kind == Source.KIND_MARKDOWN:
+                data, _text = validate_markdown_upload(upload)
+                pages = 0
+            else:
+                raise ValidationError(_('Only PDF and Markdown (.md) files are accepted.'))
+        except ValidationError as exc:
+            rejected.append(f'{name}: {exc.messages[0]}')
+            continue
+        source = _create(notebook, kind=kind, title=name, file=upload,
+                         content_hash=content_hash(data), page_count=pages)
+        if source is None:
+            duplicates += 1
+            rejected.append(f'{name}: {_("already in this notebook")}')
+        else:
+            added += 1
+    notice = _upload_notice(added, rejected, only_duplicates=duplicates == len(rejected))
+    return _panel(request, notebook, notice=notice)
+
+
+def _upload_notice(added: int, rejected: list[str], *, only_duplicates: bool = False) -> dict | None:
+    if added and not rejected:
+        if added == 1:
+            return None  # the new item in the list is feedback enough
+        return {'variant': 'success', 'title': ngettext('%(n)s file added', '%(n)s files added', added) % {'n': added},
+                'message': _('They are being processed; answers can use them once they are ready.')}
+    title = (ngettext('%(n)s file added', '%(n)s files added', added) % {'n': added} if added
+             else _("Couldn't add the files"))
+    # Something left out but nothing broken (some added, or only duplicates): warning.
+    variant = 'warning' if added or only_duplicates else 'danger'
+    return {'variant': variant, 'title': title,
+            'message': ngettext('This file was left out:', 'These files were left out:', len(rejected)),
+            'items': rejected}
 
 
 @login_required

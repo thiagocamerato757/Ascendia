@@ -186,6 +186,10 @@ button {
   margin-inline: auto;
   padding-inline: var(--space-5);
 }
+/* Edge to edge, keeping only the side gutter (the notebook workspace). */
+.o-container--fluid {
+  max-width: none;
+}
 .o-container--narrow {
   max-width: var(--container-narrow);
 }
@@ -257,27 +261,88 @@ button {
 }
 .o-button-grid__full { grid-column: 1 / -1; }
 
-/* Notebook workspace (spec §10.4): sources | conversation | notes.
-   Wide screens: three columns. Narrow: one column at a time, picked by the
-   tabs (notebook.js sets data-active-tab; without JS the columns stack). */
+/* Notebook workspace (spec §10.4), edge to edge.
+   Wide:   sources | bar + conversation | notes  (each column scrolls on its own)
+   Narrow: bar, tabs, then the panel picked by the tabs (notebook.js sets
+           data-active-tab). Without JS (no data-active-tab) the columns stack. */
 .l-notebook {
   display: grid;
+  gap: var(--space-4);
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--space-5);
+  grid-template-areas: "bar" "tabs" "sources" "chat" "notes";
   align-items: start;
 }
+.l-notebook > .c-notebook-bar { grid-area: bar; }
+.l-notebook > .c-tabs { grid-area: tabs; }
+.l-notebook > [data-col="sources"] { grid-area: sources; }
+.l-notebook > [data-col="chat"] { grid-area: chat; }
+.l-notebook > [data-col="notes"] { grid-area: notes; }
+.l-notebook__col { min-width: 0; }
+
 @media (max-width: 74.99rem) {
-  .l-notebook[data-active-tab] > .l-notebook__col { display: none; }
+  /* With tabs, all three columns share one area and only the active one shows. */
+  .l-notebook[data-active-tab] { grid-template-areas: "bar" "tabs" "panel"; }
+  .l-notebook[data-active-tab] > .l-notebook__col { grid-area: panel; display: none; }
   .l-notebook[data-active-tab="sources"] > [data-col="sources"],
   .l-notebook[data-active-tab="chat"] > [data-col="chat"],
   .l-notebook[data-active-tab="notes"] > [data-col="notes"] { display: block; }
 }
 @media (min-width: 75rem) {
   .l-notebook {
-    grid-template-columns: minmax(15rem, 19rem) minmax(0, 1fr) minmax(14rem, 17rem);
+    grid-template-columns: minmax(16rem, 18rem) minmax(0, 1fr) minmax(14rem, 16rem);
+    grid-template-areas:
+      "sources bar  notes"
+      "sources chat notes";
   }
 }
-.l-notebook__col { min-width: 0; }
+@media (min-width: 120rem) {
+  /* Very wide screens: the side panels breathe a little; the conversation keeps the rest. */
+  .l-notebook { grid-template-columns: minmax(18rem, 20rem) minmax(0, 1fr) minmax(16rem, 18rem); }
+}
+
+/* Workspace mode (the notebook page): the app is exactly one screen tall and each
+   column scrolls on its own, so the page never scrolls around the chat. Only when
+   there is room for it; on very short screens the page scrolls normally. */
+.l-workspace {
+  display: flex;
+  flex-direction: column;
+  padding-block: var(--space-3);
+}
+.l-app--workspace .c-panel { padding: var(--space-4); }
+@media (max-height: 50rem) {
+  .l-app--workspace .c-chat__hint { display: none; }
+}
+@media (min-height: 34rem) {
+  .l-app--workspace { height: 100vh; height: 100dvh; min-height: 0; }
+  .l-app--workspace .l-main { display: flex; flex-direction: column; min-height: 0; }
+  .l-app--workspace .l-workspace { flex: 1; min-height: 0; }
+  .l-app--workspace .l-notebook { flex: 1; min-height: 0; }
+  /* No JS (no tabs): the stacked columns scroll together inside the workspace. */
+  .l-app--workspace .l-notebook:not([data-active-tab]) { overflow-y: auto; }
+  .l-app--workspace .l-notebook[data-active-tab] { grid-template-rows: auto auto minmax(0, 1fr); }
+  .l-app--workspace .l-notebook[data-active-tab] > .l-notebook__col {
+    height: 100%;
+    min-height: 0;
+    flex-direction: column;
+  }
+  .l-app--workspace .l-notebook[data-active-tab] > .l-notebook__col > .c-panel {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  .l-app--workspace .l-notebook[data-active-tab] > .l-notebook__col > .c-chat { overflow: hidden; }
+}
+@media (max-width: 74.99rem) and (min-height: 34rem) {
+  .l-app--workspace .l-notebook[data-active-tab="sources"] > [data-col="sources"],
+  .l-app--workspace .l-notebook[data-active-tab="chat"] > [data-col="chat"],
+  .l-app--workspace .l-notebook[data-active-tab="notes"] > [data-col="notes"] { display: flex; }
+}
+@media (min-width: 75rem) and (min-height: 34rem) {
+  /* Wide: all three columns visible and full height; the bar sits above the conversation. */
+  .l-app--workspace .l-notebook[data-active-tab] { grid-template-rows: auto minmax(0, 1fr); }
+  .l-app--workspace .l-notebook > .l-notebook__col { display: flex; }
+}
 
 /* Centered content block (empty states, hero). */
 .o-center {
